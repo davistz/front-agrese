@@ -1,7 +1,14 @@
 .calendar {
-  margin-top: 0.5rem;
-  height: 82vh;
-  width: 137vh;
+  height: 88vh;
+  transition: width 0.3s ease;
+}
+
+.calendar-expanded {
+  width: calc(100vw - 580px); /* 100vw - sidebar(256px) - lateral panel(64px) */
+}
+
+.calendar-collapsed {
+  width: calc(100vw - 390px); /* 100vw - sidebar(64px) - lateral panel(80px) */
 }
 
 /*Calendario*/

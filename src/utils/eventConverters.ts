@@ -18,7 +18,6 @@ export const convertEventToReuniaoModal = (event: any): ReuniaoModalData => {
     status: event.status || "agendada",
     responsavelAta: event.responsavelAta || "",
     linkReuniao: event.linkReuniao || "",
-    anexos: event.anexos || [],
     notificacao: event.notificacao || 30,
   };
 };
@@ -38,7 +37,6 @@ export const convertReuniaoModalToEvent = (reuniao: ReuniaoModalData): any => {
     status: reuniao.status,
     responsavelAta: reuniao.responsavelAta,
     linkReuniao: reuniao.linkReuniao,
-    anexos: reuniao.anexos,
     notificacao: reuniao.notificacao,
   };
 };
@@ -59,7 +57,6 @@ export const convertEventToAtividadeModal = (
     prioridade: event.prioridade || "media",
     subtarefas: event.subtarefas || [],
     comentarios: event.comentarios || "",
-    anexos: event.anexos || [],
     dataConclusaoReal: event.dataConclusaoReal || null,
   };
 };
@@ -81,7 +78,6 @@ export const convertAtividadeModalToEvent = (
     prioridade: atividade.prioridade,
     subtarefas: atividade.subtarefas,
     comentarios: atividade.comentarios,
-    anexos: atividade.anexos,
     dataConclusaoReal: atividade.dataConclusaoReal,
   };
 };
@@ -101,7 +97,6 @@ export const convertEventToDocumentoModal = (
     dataCriacao: event.dataCriacao || new Date(),
     prazoAnalise: event.prazoAnalise || new Date(),
     dataEnvioRecebimento: event.dataEnvioRecebimento || null,
-    arquivo: event.arquivo || null,
     observacoes: event.observacoes || "",
   };
 };
@@ -124,7 +119,6 @@ export const convertDocumentoModalToEvent = (
     dataCriacao: documento.dataCriacao,
     prazoAnalise: documento.prazoAnalise,
     dataEnvioRecebimento: documento.dataEnvioRecebimento,
-    arquivo: documento.arquivo,
     observacoes: documento.observacoes,
   };
 };
@@ -148,7 +142,6 @@ export const convertEventToAtividadeExternaModal = (
     status: event.status || "planejada",
     motivoAtividade: event.motivoAtividade || "",
     meioTransporte: event.meioTransporte || "",
-    anexos: event.anexos || [],
   };
 };
 
@@ -170,6 +163,5 @@ export const convertAtividadeExternaModalToEvent = (
     status: atividade.status,
     motivoAtividade: atividade.motivoAtividade,
     meioTransporte: atividade.meioTransporte,
-    anexos: atividade.anexos,
   };
 };

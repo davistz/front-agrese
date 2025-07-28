@@ -28,7 +28,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
     status: initialData?.status || "agendada",
     responsavelAta: initialData?.responsavelAta || "",
     linkReuniao: initialData?.linkReuniao || "",
-    anexos: initialData?.anexos || [],
     notificacao: initialData?.notificacao || 30,
   });
 

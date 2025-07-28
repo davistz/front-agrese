@@ -28,7 +28,6 @@ export const AtividadeExternaModalInfo: React.FC<
     status: evento.status || "planejada",
     motivoAtividade: evento.motivoAtividade || "",
     meioTransporte: evento.meioTransporte || "",
-    anexos: evento.anexos || [],
   });
 
   const [novoMembro, setNovoMembro] = useState("");
@@ -327,57 +326,6 @@ export const AtividadeExternaModalInfo: React.FC<
                         </div>
                       )}
                     </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-900">
-                    Anexos
-                  </label>
-                  <div className="mt-1">
-                    {formData.anexos.length > 0 ? (
-                      <div className="mb-2 max-h-20 overflow-y-auto">
-                        {formData.anexos.map((arquivo, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center gap-2 p-2 bg-[#eaeaea] rounded-md mb-1"
-                          >
-                            <span className="text-sm">{arquivo.name}</span>
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  anexos: prev.anexos.filter(
-                                    (_, i) => i !== index
-                                  ),
-                                }))
-                              }
-                              className="text-red-500 text-sm hover:text-red-700"
-                            >
-                              Remover
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md mb-2">
-                        <span className="text-sm text-gray-500 italic">
-                          Nenhum arquivo foi anexado a esta atividade.
-                        </span>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      multiple
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          anexos: Array.from(e.target.files || []),
-                        }))
-                      }
-                      className="flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
-                    />
                   </div>
                 </div>
               </div>

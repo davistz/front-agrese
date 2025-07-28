@@ -28,7 +28,6 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
     dataCriacao: evento.dataCriacao || new Date(),
     prazoAnalise: evento.prazoAnalise || new Date(),
     dataEnvioRecebimento: evento.dataEnvioRecebimento || null,
-    arquivo: evento.arquivo || null,
     observacoes: evento.observacoes || "",
   });
 
@@ -244,49 +243,6 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
                     className="mt-1 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
                     rows={2}
                   />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-gray-900">
-                    Arquivo do Documento
-                  </label>
-                  <div className="mt-1">
-                    {formData.arquivo ? (
-                      <div className="flex items-center gap-2 p-2 bg-[#eaeaea] rounded-md mb-2">
-                        <HiDocumentText className="text-blue-600" />
-                        <span className="text-sm">{formData.arquivo.name}</span>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              arquivo: null,
-                            }))
-                          }
-                          className="text-red-500 text-sm hover:text-red-700"
-                        >
-                          Remover
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-md mb-2">
-                        <span className="text-[15px] text-gray-500 italic">
-                          Nenhum arquivo foi anexado a este documento.
-                        </span>
-                      </div>
-                    )}
-                    <input
-                      type="file"
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          arquivo: e.target.files?.[0] || null,
-                        }))
-                      }
-                      className="flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
-                      accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                    />
-                  </div>
                 </div>
 
                 <div>

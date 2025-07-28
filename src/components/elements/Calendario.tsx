@@ -37,7 +37,11 @@ const localizer = momentLocalizer(moment);
 
 moment.locale("pt-br");
 
-export const Calendario = () => {
+interface CalendarioProps {
+  sidebarOpen?: boolean;
+}
+
+export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   const [events, setEvents] = useState(eventosPadrao);
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -293,8 +297,8 @@ export const Calendario = () => {
   };
 
   return (
-    <div className="flex mt-27 gap-4">
-      <div className="w-64 ml-4">
+    <div className="flex gap-4 p-4">
+      <div className="w-64">
         <div className="">
           <CustomToolbar
             date={currentDate}
@@ -344,7 +348,9 @@ export const Calendario = () => {
           onEventResize={onEventResize}
           eventPropGetter={eventStyleProp}
           onSelectEvent={handleSelectEvent}
-          className="calendar"
+          className={`calendar ${
+            sidebarOpen ? "calendar-expanded" : "calendar-collapsed"
+          }`}
         />
       </div>
 

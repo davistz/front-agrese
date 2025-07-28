@@ -28,7 +28,6 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
     prioridade: evento.prioridade || "media",
     subtarefas: evento.subtarefas || [],
     comentarios: evento.comentarios || "",
-    anexos: evento.anexos || [],
     dataConclusaoReal: evento.dataConclusaoReal || null,
   });
 
@@ -237,26 +236,6 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
                       placeholder="Adicione comentários ou observações"
                       className="w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
                       rows={3}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-base font-medium text-gray-900">
-                    Anexos
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      id="anexos"
-                      type="file"
-                      multiple
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          anexos: Array.from(e.target.files || []),
-                        }))
-                      }
-                      className="flex h-10 w-full rounded-md border border-input bg-white px-3 py-2 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
                     />
                   </div>
                 </div>

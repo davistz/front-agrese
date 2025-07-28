@@ -29,7 +29,6 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
     status: evento.status || "agendada",
     responsavelAta: evento.responsavelAta || "",
     linkReuniao: evento.linkReuniao || "",
-    anexos: evento.anexos || [],
     notificacao: evento.notificacao || 30,
   });
 
