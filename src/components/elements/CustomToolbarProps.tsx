@@ -3,6 +3,7 @@ import { eventosPadrao } from "./eventosPadrao";
 import { useCallback, useMemo } from "react";
 import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from "react-icons/fa";
 import { BsCalendar3, BsCalendarWeek, BsCalendarDay } from "react-icons/bs";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface CustomToolbarProps {
   label: string;
@@ -27,6 +28,7 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
   eventos = eventosPadrao,
   onFiltroChange,
 }) => {
+  const { theme } = useTheme();
   const formatLabel = useCallback((date: Date) => {
     const meses = [
       "Janeiro",
@@ -79,7 +81,13 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       <div className="mb-1">
-        <h2 className="text-3xl font-bold text-black">{labelTraduzido}</h2>
+        <h2
+          className={`text-3xl font-bold ${
+            theme === "dark" ? "text-white" : "text-black"
+          }`}
+        >
+          {labelTraduzido}
+        </h2>
       </div>
 
       <div className="channel mb-3">
@@ -87,31 +95,55 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
           <button
             type="button"
             onClick={() => onNavigate("PREV")}
-            className="text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer"
+            className={`text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer ${
+              theme === "dark"
+                ? "text-gray-300 hover:text-white"
+                : "text-gray-700 hover:text-black"
+            }`}
           >
-            <FaArrowAltCircleLeft className="text-xs mt-[1px] text-[#808080]" />
+            <FaArrowAltCircleLeft
+              className={`text-xs mt-[1px] ${
+                theme === "dark" ? "text-gray-400" : "text-[#808080]"
+              }`}
+            />
             Anterior
           </button>
           <button
             type="button"
             onClick={() => onNavigate("TODAY")}
-            className="text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer"
+            className={`text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer ${
+              theme === "dark"
+                ? "text-gray-300 hover:text-white"
+                : "text-gray-700 hover:text-black"
+            }`}
           >
             Hoje
           </button>
           <button
             type="button"
             onClick={() => onNavigate("NEXT")}
-            className="text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer"
+            className={`text-[13px] flex items-center gap-1 hover:font-semibold cursor-pointer ${
+              theme === "dark"
+                ? "text-gray-300 hover:text-white"
+                : "text-gray-700 hover:text-black"
+            }`}
           >
             Próximo
-            <FaArrowAltCircleRight className="text-xs mt-[1px] text-[#808080]" />
+            <FaArrowAltCircleRight
+              className={`text-xs mt-[1px] ${
+                theme === "dark" ? "text-gray-400" : "text-[#808080]"
+              }`}
+            />
           </button>
         </div>
       </div>
 
       <div className="mb-1">
-        <div className="bg-gray-100 rounded-lg p-1 flex gap-1">
+        <div
+          className={`rounded-lg p-1 flex gap-1 ${
+            theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+          }`}
+        >
           {["month", "week", "day"].map((viewType) => (
             <button
               key={viewType}
@@ -119,7 +151,11 @@ export const CustomToolbar: React.FC<CustomToolbarProps> = ({
               onClick={() => onView(viewType as View)}
               className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 view === viewType
-                  ? "bg-white text-gray-900 shadow-sm"
+                  ? theme === "dark"
+                    ? "bg-gray-600 text-white shadow-sm"
+                    : "bg-white text-gray-900 shadow-sm"
+                  : theme === "dark"
+                  ? "text-gray-300 hover:text-white hover:bg-gray-600"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               }`}
             >

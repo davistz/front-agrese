@@ -3,6 +3,7 @@ import { DocumentoFormData } from "../../../types/interfaces";
 import { IoMdClose } from "react-icons/io";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useTheme } from "../../../contexts/ThemeContext";
 
 interface DocumentoFormProps {
   initialData?: Partial<DocumentoFormData>;
@@ -15,6 +16,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState<DocumentoFormData>({
     titulo: initialData?.titulo || "",
     setorResponsavel: initialData?.setorResponsavel || "",
@@ -26,22 +28,37 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
     dataCriacao: initialData?.dataCriacao || new Date(),
     prazoAnalise: initialData?.prazoAnalise || new Date(),
     dataEnvioRecebimento: initialData?.dataEnvioRecebimento || null,
-    arquivo: initialData?.arquivo || null,
     observacoes: initialData?.observacoes || "",
   });
 
   return (
     <div className="">
-      <section className="rounded-md p-2 bg-white w-[900px]">
+      <section
+        className={`rounded-md p-2 w-[900px] ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        }`}
+      >
         <div className="relative px-6 py-3">
-          <h2 className="text-xl font-bold leading-tight text-center">
+          <h2
+            className={`text-xl font-bold leading-tight text-center ${
+              theme === "dark" ? "text-white" : "text-gray-900"
+            }`}
+          >
             Novo Documento
           </h2>
           <IoMdClose
             onClick={onCancel}
-            className="absolute top-4 right-4 text-2xl cursor-pointer"
+            className={`absolute top-4 right-4 text-2xl cursor-pointer ${
+              theme === "dark"
+                ? "text-gray-400 hover:text-white"
+                : "text-gray-600 hover:text-gray-900"
+            }`}
           />
-          <p className="mt-1 text-sm text-gray-600 text-center mb-4">
+          <p
+            className={`mt-1 text-sm text-center mb-4 ${
+              theme === "dark" ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
             Preencha os detalhes do documento
           </p>
 
@@ -49,7 +66,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
             <div className="space-y-3">
               <div className="grid grid-cols-3 gap-x-4 gap-y-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Título do Documento
                   </label>
                   <input
@@ -61,12 +82,20 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     placeholder="Título do documento"
-                    className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Setor de Origem
                   </label>
                   <input
@@ -78,12 +107,20 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     placeholder="Setor de origem"
-                    className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Tipo de Documento
                   </label>
                   <select
@@ -94,7 +131,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                         tipoDocumento: e.target.value,
                       }))
                     }
-                    className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300 text-gray-900"
+                    }`}
                   >
                     <option value="">Selecione o tipo</option>
                     <option value="oficio">Ofício</option>
@@ -107,7 +148,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Responsável
                   </label>
                   <input
@@ -119,12 +164,20 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     placeholder="Nome do responsável"
-                    className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Status
                   </label>
                   <select
@@ -135,7 +188,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                         status: e.target.value as DocumentoFormData["status"],
                       }))
                     }
-                    className="mt-1 flex h-9 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white"
+                        : "bg-white border-gray-300 text-gray-900"
+                    }`}
                   >
                     <option value="pendente">Pendente</option>
                     <option value="em-analise">Em Análise</option>
@@ -146,7 +203,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Data de Envio/Recebimento
                   </label>
                   <DatePicker
@@ -158,14 +219,22 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     dateFormat="dd/MM/yyyy"
-                    className="mt-1 flex h-9 w-67 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-67 rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                     placeholderText="Data de envio/recebimento"
                     isClearable
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Prazo para Análise
                   </label>
                   <DatePicker
@@ -177,13 +246,21 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     dateFormat="dd/MM/yyyy"
-                    className="mt-1 flex h-9 w-67 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-67 rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                     placeholderText="Prazo para análise"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Data de Criação
                   </label>
                   <DatePicker
@@ -195,7 +272,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     dateFormat="dd/MM/yyyy"
-                    className="mt-1 flex h-9 w-67 rounded-md border border-gray-300 px-3 py-2 text-sm"
+                    className={`mt-1 flex h-9 w-67 rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                     placeholderText="Data de criação"
                   />
                 </div>
@@ -203,7 +284,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
 
               <div className="grid grid-cols-1 gap-3 mt-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Descrição
                   </label>
                   <textarea
@@ -215,13 +300,21 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     placeholder="Finalidade ou tipo do documento"
-                    className="mt-1 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                     rows={2}
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Arquivo do Documento
                   </label>
                   <input
@@ -232,13 +325,21 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                         arquivo: e.target.files?.[0] || null,
                       }))
                     }
-                    className="mt-1 flex h-9 w-full rounded-md border border-input bg-white px-3 py-1 text-sm text-gray-400 file:border-0 file:bg-transparent file:text-gray-600 file:text-sm file:font-medium"
+                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-1 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-gray-400 file:text-gray-300"
+                        : "bg-white border-gray-300 text-gray-400 file:text-gray-600"
+                    }`}
                     accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm font-medium text-gray-900">
+                  <label
+                    className={`text-sm font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Observações
                   </label>
                   <textarea
@@ -250,7 +351,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       }))
                     }
                     placeholder="Observações adicionais"
-                    className="mt-1 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                    className={`mt-1 w-full rounded-md border px-3 py-2 text-sm ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                    }`}
                     rows={2}
                   />
                 </div>
@@ -261,7 +366,11 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                   e.preventDefault();
                   onSubmit(formData);
                 }}
-                className="w-full bg-black h-[40px] flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white mt-2"
+                className={`w-full h-[40px] flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white mt-2 ${
+                  theme === "dark"
+                    ? "bg-gray-700 hover:bg-gray-600"
+                    : "bg-black hover:bg-gray-800"
+                }`}
                 type="button"
               >
                 Salvar Documento

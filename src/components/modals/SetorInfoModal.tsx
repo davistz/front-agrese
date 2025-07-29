@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { SectorModalData, UserRole } from "../../types/interfaces";
+import { useTheme } from "../../contexts/ThemeContext";
 import { IoMdClose } from "react-icons/io";
 import {
   FaEdit,
@@ -29,6 +30,7 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
   onEdit,
   onAddUser,
 }) => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<"info" | "users" | "subsectors">(
     "info"
   );
@@ -45,10 +47,22 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
 
   const getRoleBadge = (role: UserRole) => {
     const styles = {
-      ADMIN: "bg-red-100 text-red-800",
-      MANAGER: "bg-blue-100 text-blue-800",
-      COLLABORATOR: "bg-green-100 text-green-800",
-      IT_ADMIN: "bg-purple-100 text-purple-800",
+      ADMIN:
+        theme === "dark"
+          ? "bg-red-900 text-red-300"
+          : "bg-red-100 text-red-800",
+      MANAGER:
+        theme === "dark"
+          ? "bg-blue-900 text-blue-300"
+          : "bg-blue-100 text-blue-800",
+      COLLABORATOR:
+        theme === "dark"
+          ? "bg-green-900 text-green-300"
+          : "bg-green-100 text-green-800",
+      IT_ADMIN:
+        theme === "dark"
+          ? "bg-purple-900 text-purple-300"
+          : "bg-purple-100 text-purple-800",
     };
 
     const labels = {
@@ -71,7 +85,13 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
     return (
       <span
         className={`px-2 py-1 text-xs font-medium rounded-full ${
-          isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          isActive
+            ? theme === "dark"
+              ? "bg-green-900 text-green-300"
+              : "bg-green-100 text-green-800"
+            : theme === "dark"
+            ? "bg-red-900 text-red-300"
+            : "bg-red-100 text-red-800"
         }`}
       >
         {isActive ? "Ativo" : "Inativo"}
@@ -81,7 +101,15 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
 
   return (
     <div className="fixed inset-0 backdrop-blur-[2px] bg-black/10 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div
+        className={`rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        } ${
+          theme === "dark"
+            ? "scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500"
+            : "scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400"
+        }`}
+      >
         <div className="bg-gradient-to-r from-[#34448C] via-[#34448C] to-[#049454] p-6 rounded-t-2xl text-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -106,13 +134,19 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           </div>
         </div>
 
-        <div className="border-b border-gray-200">
+        <div
+          className={`border-b ${
+            theme === "dark" ? "border-gray-700" : "border-gray-200"
+          }`}
+        >
           <nav className="flex space-x-8 px-6">
             <button
               onClick={() => setActiveTab("info")}
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "info"
                   ? "border-blue-500 text-blue-600"
+                  : theme === "dark"
+                  ? "border-transparent text-gray-400 hover:text-gray-300"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -126,6 +160,8 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "users"
                   ? "border-blue-500 text-blue-600"
+                  : theme === "dark"
+                  ? "border-transparent text-gray-400 hover:text-gray-300"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -139,6 +175,8 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
               className={`py-4 px-1 border-b-2 font-medium text-sm ${
                 activeTab === "subsectors"
                   ? "border-blue-500 text-blue-600"
+                  : theme === "dark"
+                  ? "border-transparent text-gray-400 hover:text-gray-300"
                   : "border-transparent text-gray-500 hover:text-gray-700"
               }`}
             >
@@ -154,80 +192,202 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           {activeTab === "info" && (
             <div className="space-y-6">
               {setor.description && (
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2">
+                <div
+                  className={`rounded-xl p-4 ${
+                    theme === "dark" ? "bg-gray-700" : "bg-gray-50"
+                  }`}
+                >
+                  <h3
+                    className={`font-semibold mb-2 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     Descrição
                   </h3>
-                  <p className="text-gray-700">{setor.description}</p>
+                  <p
+                    className={`${
+                      theme === "dark" ? "text-gray-300" : "text-gray-700"
+                    }`}
+                  >
+                    {setor.description}
+                  </p>
                 </div>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4">
+                <div
+                  className={`rounded-xl p-4 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-br from-blue-900 to-blue-800"
+                      : "bg-gradient-to-br from-blue-50 to-blue-100"
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
                       <FaUsers className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-blue-600 font-semibold text-lg">
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-blue-300" : "text-blue-600"
+                        }`}
+                      >
                         {setor._count.users}
                       </p>
-                      <p className="text-blue-700 text-sm">Usuários</p>
+                      <p
+                        className={`text-sm ${
+                          theme === "dark" ? "text-blue-400" : "text-blue-700"
+                        }`}
+                      >
+                        Usuários
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4">
+                <div
+                  className={`rounded-xl p-4 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-br from-green-900 to-green-800"
+                      : "bg-gradient-to-br from-green-50 to-green-100"
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
                       <MdGroups2 className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-green-600 font-semibold text-lg">
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark" ? "text-green-300" : "text-green-600"
+                        }`}
+                      >
                         {setor._count.subSectors}
                       </p>
-                      <p className="text-green-700 text-sm">Subsetores</p>
+                      <p
+                        className={`text-sm ${
+                          theme === "dark" ? "text-green-400" : "text-green-700"
+                        }`}
+                      >
+                        Subsetores
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4">
+                <div
+                  className={`rounded-xl p-4 ${
+                    theme === "dark"
+                      ? "bg-gradient-to-br from-purple-900 to-purple-800"
+                      : "bg-gradient-to-br from-purple-50 to-purple-100"
+                  }`}
+                >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-purple-500 rounded-lg flex items-center justify-center">
                       <FaTasks className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="text-purple-600 font-semibold text-lg">
+                      <p
+                        className={`font-semibold text-lg ${
+                          theme === "dark"
+                            ? "text-purple-300"
+                            : "text-purple-600"
+                        }`}
+                      >
                         {setor._count.events}
                       </p>
-                      <p className="text-purple-700 text-sm">Eventos</p>
+                      <p
+                        className={`text-sm ${
+                          theme === "dark"
+                            ? "text-purple-400"
+                            : "text-purple-700"
+                        }`}
+                      >
+                        Eventos
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <h3 className="font-semibold text-gray-900 mb-4">Detalhes</h3>
+              <div
+                className={`border rounded-xl p-4 ${
+                  theme === "dark"
+                    ? "bg-gray-700 border-gray-600"
+                    : "bg-white border-gray-200"
+                }`}
+              >
+                <h3
+                  className={`font-semibold mb-4 ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  Detalhes
+                </h3>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <FaCalendarAlt className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-600">Criado em:</span>
-                    <span className="font-medium">
+                    <FaCalendarAlt
+                      className={`w-4 h-4 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={`${
+                        theme === "dark" ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
+                      Criado em:
+                    </span>
+                    <span
+                      className={`font-medium ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      }`}
+                    >
                       {formatDate(setor.createdAt)}
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <FaCalendarAlt className="w-4 h-4 text-gray-400" />
-                    <span className="text-gray-600">Atualizado em:</span>
-                    <span className="font-medium">
+                    <FaCalendarAlt
+                      className={`w-4 h-4 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
+                    <span
+                      className={`${
+                        theme === "dark" ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
+                      Atualizado em:
+                    </span>
+                    <span
+                      className={`font-medium ${
+                        theme === "dark" ? "text-white" : "text-gray-900"
+                      }`}
+                    >
                       {formatDate(setor.updatedAt)}
                     </span>
                   </div>
                   {setor.managerId && (
                     <div className="flex items-center gap-3">
-                      <FaBuilding className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-600">Setor pai:</span>
-                      <span className="font-medium">{setor.manager?.name}</span>
+                      <FaBuilding
+                        className={`w-4 h-4 ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-400"
+                        }`}
+                      />
+                      <span
+                        className={`${
+                          theme === "dark" ? "text-gray-300" : "text-gray-600"
+                        }`}
+                      >
+                        Setor pai:
+                      </span>
+                      <span
+                        className={`font-medium ${
+                          theme === "dark" ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {setor.manager?.name}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -238,7 +398,11 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           {activeTab === "users" && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3
+                  className={`text-lg font-semibold ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Usuários do setor
                 </h3>
                 <button
@@ -252,13 +416,29 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
 
               {setor.users.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <FaUsers className="w-8 h-8 text-gray-400" />
+                  <div
+                    className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    }`}
+                  >
+                    <FaUsers
+                      className={`w-8 h-8 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3
+                    className={`text-lg font-semibold mb-2 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     Nenhum usuário encontrado
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p
+                    className={`mb-4 ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     Adicione o primeiro usuário a este setor
                   </p>
                   <button
@@ -274,20 +454,48 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                   {setor.users.map((user) => (
                     <div
                       key={user.id}
-                      className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow"
+                      className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600"
+                          : "bg-white border-gray-200"
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full flex items-center justify-center">
-                            <span className="font-semibold text-blue-600">
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                              theme === "dark"
+                                ? "bg-gradient-to-br from-blue-900 to-purple-900"
+                                : "bg-gradient-to-br from-blue-100 to-purple-100"
+                            }`}
+                          >
+                            <span
+                              className={`font-semibold ${
+                                theme === "dark"
+                                  ? "text-blue-300"
+                                  : "text-blue-600"
+                              }`}
+                            >
                               {user.name.charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <div>
-                            <h4 className="font-semibold text-gray-900">
+                            <h4
+                              className={`font-semibold ${
+                                theme === "dark"
+                                  ? "text-white"
+                                  : "text-gray-900"
+                              }`}
+                            >
                               {user.name}
                             </h4>
-                            <p className="text-gray-600 text-sm">
+                            <p
+                              className={`text-sm ${
+                                theme === "dark"
+                                  ? "text-gray-300"
+                                  : "text-gray-600"
+                              }`}
+                            >
                               {user.email}
                             </p>
                             <div className="flex items-center gap-2 mt-1">
@@ -297,11 +505,35 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
-                            <FaEdit className="w-4 h-4 text-blue-600" />
+                          <button
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              theme === "dark"
+                                ? "bg-blue-900 hover:bg-blue-800"
+                                : "bg-blue-100 hover:bg-blue-200"
+                            }`}
+                          >
+                            <FaEdit
+                              className={`w-4 h-4 ${
+                                theme === "dark"
+                                  ? "text-blue-300"
+                                  : "text-blue-600"
+                              }`}
+                            />
                           </button>
-                          <button className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center hover:bg-red-200 transition-colors">
-                            <FaTrash className="w-4 h-4 text-red-600" />
+                          <button
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              theme === "dark"
+                                ? "bg-red-900 hover:bg-red-800"
+                                : "bg-red-100 hover:bg-red-200"
+                            }`}
+                          >
+                            <FaTrash
+                              className={`w-4 h-4 ${
+                                theme === "dark"
+                                  ? "text-red-300"
+                                  : "text-red-600"
+                              }`}
+                            />
                           </button>
                         </div>
                       </div>
@@ -315,20 +547,40 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           {activeTab === "subsectors" && (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3
+                  className={`text-lg font-semibold ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Subsetores
                 </h3>
               </div>
 
               {setor.subSectors.length === 0 ? (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                    <MdGroups2 className="w-8 h-8 text-gray-400" />
+                  <div
+                    className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                      theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+                    }`}
+                  >
+                    <MdGroups2
+                      className={`w-8 h-8 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  <h3
+                    className={`text-lg font-semibold mb-2 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     Nenhum subsetor encontrado
                   </h3>
-                  <p className="text-gray-600">
+                  <p
+                    className={`${
+                      theme === "dark" ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     Este setor não possui subsetores
                   </p>
                 </div>
@@ -337,30 +589,68 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                   {setor.subSectors.map((subsetor) => (
                     <div
                       key={subsetor.id}
-                      className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow"
+                      className={`border rounded-xl p-4 hover:shadow-md transition-shadow ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600"
+                          : "bg-white border-gray-200"
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-semibold text-gray-900">
+                          <h4
+                            className={`font-semibold ${
+                              theme === "dark" ? "text-white" : "text-gray-900"
+                            }`}
+                          >
                             {subsetor.name}
                           </h4>
                           {subsetor.description && (
-                            <p className="text-gray-600 text-sm mt-1">
+                            <p
+                              className={`text-sm mt-1 ${
+                                theme === "dark"
+                                  ? "text-gray-300"
+                                  : "text-gray-600"
+                              }`}
+                            >
                               {subsetor.description}
                             </p>
                           )}
                           <div className="flex items-center gap-4 mt-2">
                             <div className="flex items-center gap-1">
-                              <FaUsers className="w-3 h-3 text-gray-400" />
-                              <span className="text-sm text-gray-600">
+                              <FaUsers
+                                className={`w-3 h-3 ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-400"
+                                }`}
+                              />
+                              <span
+                                className={`text-sm ${
+                                  theme === "dark"
+                                    ? "text-gray-300"
+                                    : "text-gray-600"
+                                }`}
+                              >
                                 {subsetor._count.users} usuários
                               </span>
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center hover:bg-blue-200 transition-colors">
-                            <FaEdit className="w-4 h-4 text-blue-600" />
+                          <button
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              theme === "dark"
+                                ? "bg-blue-900 hover:bg-blue-800"
+                                : "bg-blue-100 hover:bg-blue-200"
+                            }`}
+                          >
+                            <FaEdit
+                              className={`w-4 h-4 ${
+                                theme === "dark"
+                                  ? "text-blue-300"
+                                  : "text-blue-600"
+                              }`}
+                            />
                           </button>
                         </div>
                       </div>
@@ -372,15 +662,29 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           )}
         </div>
 
-        <div className="border-t border-gray-200 p-6 bg-gray-50 rounded-b-2xl">
+        <div
+          className={`border-t p-6 rounded-b-2xl ${
+            theme === "dark"
+              ? "border-gray-600 bg-gray-700"
+              : "border-gray-200 bg-gray-50"
+          }`}
+        >
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-500">
+            <div
+              className={`text-sm ${
+                theme === "dark" ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
               ID: {setor.id} • Criado em {formatDate(setor.createdAt)}
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={onClose}
-                className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  theme === "dark"
+                    ? "text-gray-300 bg-gray-600 hover:bg-gray-500"
+                    : "text-gray-700 bg-gray-200 hover:bg-gray-300"
+                }`}
               >
                 Fechar
               </button>

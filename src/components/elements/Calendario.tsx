@@ -13,6 +13,7 @@ import { useCallback, useState } from "react";
 import { eventosPadrao } from "./eventosPadrao";
 import { EventModal } from "../modals/EventModal";
 import "moment/locale/pt-br";
+import { useTheme } from "../../contexts/ThemeContext";
 import { CustomToolbar } from "./CustomToolbarProps";
 import { FiltroAtividades } from "./FiltroAtividades";
 import { AddEventButton } from "./AddEventButton";
@@ -42,6 +43,7 @@ interface CalendarioProps {
 }
 
 export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
+  const { theme } = useTheme();
   const [events, setEvents] = useState(eventosPadrao);
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -297,7 +299,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   };
 
   return (
-    <div className="flex gap-4 p-4">
+    <div
+      className={`flex gap-4 p-4 ${
+        theme === "dark" ? "bg-gray-800" : "bg-white"
+      }`}
+    >
       <div className="w-64">
         <div className="">
           <CustomToolbar
@@ -317,7 +323,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
         <AddEventButton onAddEvent={handleAddEvent} />
 
-        <div className="bg-gray-700 shadow-lg rounded-lg h-fit">
+        <div
+          className={`shadow-lg rounded-lg h-fit ${
+            theme === "dark" ? "bg-gray-800" : "bg-gray-700"
+          }`}
+        >
           <FiltroAtividades
             atividades={events}
             onSelecionarAtividades={setEvents}
@@ -350,7 +360,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           onSelectEvent={handleSelectEvent}
           className={`calendar ${
             sidebarOpen ? "calendar-expanded" : "calendar-collapsed"
-          }`}
+          } ${theme === "dark" ? "calendar-dark" : "calendar-light"}`}
         />
       </div>
 

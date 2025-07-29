@@ -6,6 +6,7 @@ import React, {
   useState,
 } from "react";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export interface Atividade {
   id: number;
@@ -70,23 +71,30 @@ interface TabProps {
   onClick: () => void;
 }
 
-const Tab: React.FC<TabProps> = ({ label, isActive, onClick }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 text-sm font-medium ${
-      isActive
-        ? "border-b-2 border-blue-500 text-blue-400"
-        : "text-white hover:text-gray-300"
-    }`}
-  >
-    {label}
-  </button>
-);
+const Tab: React.FC<TabProps> = ({ label, isActive, onClick }) => {
+  const { theme } = useTheme();
+
+  return (
+    <button
+      onClick={onClick}
+      className={`px-4 py-2 text-sm font-medium ${
+        isActive
+          ? "border-b-2 border-blue-500 text-blue-400"
+          : theme === "dark"
+          ? "text-gray-300 hover:text-white"
+          : "text-white hover:text-gray-300"
+      }`}
+    >
+      {label}
+    </button>
+  );
+};
 
 export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   atividades,
   onSelecionarAtividades,
 }) => {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<"setor" | "categoria">("setor");
   const [setorSelecionado, setSetorSelecionado] = useState("");
   const [subsetoresSelecionados, setSubsetoresSelecionados] = useState<
@@ -192,28 +200,44 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-2 min-h-0 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+      <div
+        className={`flex-1 overflow-y-auto px-3 py-2 min-h-0 scrollbar-thin ${
+          theme === "dark"
+            ? "scrollbar-thumb-gray-600 scrollbar-track-gray-800"
+            : "scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+        }`}
+      >
         <div className="space-y-1">
           {activeTab === "setor" ? (
             <div className="space-y-1">
               {Object.entries(setoresHierarquia).map(([key, setor]) => (
                 <div
                   key={key}
-                  className="border-b border-gray-100/10 pb-1 last:border-b-0"
+                  className={`border-b pb-1 last:border-b-0 ${
+                    theme === "dark"
+                      ? "border-gray-100/10"
+                      : "border-gray-300/20"
+                  }`}
                 >
                   <button
                     onClick={(e) => handleSetorClick(key, e)}
                     className={`w-full text-left px-2 py-1.5 text-sm rounded-md transition-colors ${
                       setorSelecionado === key
-                        ? "bg-blue-900/50 text-white font-medium"
-                        : "text-white hover:bg-gray-700/50"
+                        ? theme === "dark"
+                          ? "bg-blue-900/50 text-white font-medium"
+                          : "bg-blue-100 text-blue-900 font-medium"
+                        : theme === "dark"
+                        ? "text-white hover:bg-gray-700/50"
+                        : "text-gray-300 hover:bg-gray-100/50"
                     }`}
                   >
                     <span className="flex items-center justify-between">
                       <span className="truncate">{setor.nome}</span>
                       <IoIosArrowDroprightCircle
-                        className={`text-[#d1d1d1] transition-transform duration-300 flex-shrink-0 ml-2 text-lg ${
+                        className={`transition-transform duration-300 flex-shrink-0 ml-2 text-lg ${
                           setorSelecionado === key ? "rotate-90" : ""
+                        } ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-600"
                         }`}
                       />
                     </span>
@@ -226,17 +250,31 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
                         : "max-h-0 opacity-0"
                     }`}
                   >
-                    <div className="ml-3 mt-1 space-y-0.5 max-h-52 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-700">
+                    <div
+                      className={`ml-3 mt-1 space-y-0.5 max-h-52 overflow-y-auto scrollbar-thin ${
+                        theme === "dark"
+                          ? "scrollbar-thumb-gray-600 scrollbar-track-gray-700"
+                          : "scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+                      }`}
+                    >
                       {setor.subsetores.map((subsetor) => (
                         <label
                           key={subsetor}
-                          className="flex items-center space-x-2 text-xs text-white hover:bg-gray-700/50 px-2 py-1 rounded cursor-pointer transition-colors"
+                          className={`flex items-center space-x-2 text-xs px-2 py-1 rounded cursor-pointer transition-colors ${
+                            theme === "dark"
+                              ? "text-white hover:bg-gray-700/50"
+                              : "text-gray-700 hover:bg-gray-100/50"
+                          }`}
                         >
                           <input
                             type="checkbox"
                             checked={subsetoresSelecionados.includes(subsetor)}
                             onChange={() => handleSubsetorToggle(subsetor)}
-                            className="rounded border-gray-300 text-blue-400 focus:ring-blue-500 focus:ring-offset-0 w-3 h-3 flex-shrink-0"
+                            className={`rounded border-gray-300 text-blue-400 focus:ring-blue-500 focus:ring-offset-0 w-3 h-3 flex-shrink-0 ${
+                              theme === "dark"
+                                ? "bg-gray-700 border-gray-600"
+                                : "bg-white"
+                            }`}
                           />
                           <span className="leading-none truncate">
                             {subsetor}
@@ -253,13 +291,21 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
               {categorias.map((categoria) => (
                 <label
                   key={categoria.id}
-                  className="flex items-center space-x-2 text-sm text-white hover:bg-gray-700/50 px-2 py-1.5 rounded cursor-pointer transition-colors"
+                  className={`flex items-center space-x-2 text-sm px-2 py-1.5 rounded cursor-pointer transition-colors ${
+                    theme === "dark"
+                      ? "text-white hover:bg-gray-700/50"
+                      : "text-gray-700 hover:bg-gray-100/50"
+                  }`}
                 >
                   <input
                     type="checkbox"
                     checked={categoriasSelecionadas.includes(categoria.id)}
                     onChange={() => handleCategoriaToggle(categoria.id)}
-                    className="rounded border-gray-300 text-blue-400 focus:ring-blue-500 focus:ring-offset-0 w-4 h-4 flex-shrink-0"
+                    className={`rounded border-gray-300 text-blue-400 focus:ring-blue-500 focus:ring-offset-0 w-4 h-4 flex-shrink-0 ${
+                      theme === "dark"
+                        ? "bg-gray-700 border-gray-600"
+                        : "bg-white"
+                    }`}
                   />
                   <span className="leading-none truncate">
                     {categoria.nome}

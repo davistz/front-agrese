@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ReuniaoFormData } from "../../../types/interfaces";
+import { useTheme } from "../../../contexts/ThemeContext";
 import { IoMdClose } from "react-icons/io";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -16,6 +17,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   onSubmit,
   onCancel,
 }) => {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState<ReuniaoFormData>({
     titulo: initialData?.titulo || "",
     setorResponsavel: initialData?.setorResponsavel || "",
@@ -45,15 +47,33 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
 
   return (
     <div className="">
-      <section className="rounded-md p-2 bg-white">
+      <section
+        className={`rounded-md p-2 ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        }`}
+      >
         <div className="flex items-center justify-center my-3">
           <div className="xl:mx-auto flex flex-col items-center p-4 xl:w-full xl:max-w-sm 2xl:max-w-md">
-            <h2 className="text-2xl font-bold leading-tight">Nova Reunião</h2>
+            <h2
+              className={`text-2xl font-bold leading-tight ${
+                theme === "dark" ? "text-white" : "text-gray-900"
+              }`}
+            >
+              Nova Reunião
+            </h2>
             <IoMdClose
               onClick={onCancel}
-              className="absolute top-4 right-4 text-2xl cursor-pointer"
+              className={`absolute top-4 right-4 text-2xl cursor-pointer ${
+                theme === "dark"
+                  ? "text-gray-400 hover:text-white"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
             />
-            <p className="mt-2 text-base text-gray-600">
+            <p
+              className={`mt-2 text-base ${
+                theme === "dark" ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               Preencha os detalhes da reunião
             </p>
 
@@ -61,7 +81,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
               <div className="space-y-3">
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Título da Reunião
                     </label>
                     <div className="mt-2">
@@ -75,13 +99,21 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                         }
                         placeholder="Título da Reunião"
                         type="text"
-                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1"
+                        className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white focus:ring-gray-400"
+                            : "bg-transparent border-gray-300 text-gray-900 focus:ring-gray-400"
+                        }`}
                       />
                     </div>
                   </div>
 
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Setor Responsável
                     </label>
                     <div className="mt-2">
@@ -95,7 +127,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                         }
                         placeholder="Setor Responsável"
                         type="text"
-                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1"
+                        className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white focus:ring-gray-400"
+                            : "bg-transparent border-gray-300 text-gray-900 focus:ring-gray-400"
+                        }`}
                       />
                     </div>
                   </div>
@@ -103,7 +139,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
 
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Local
                     </label>
                     <select
@@ -114,7 +154,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                           local: e.target.value as "presencial" | "virtual",
                         }))
                       }
-                      className="mt-2 flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                      className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-transparent border-gray-300 text-gray-900"
+                      }`}
                     >
                       <option value="presencial">Presencial</option>
                       <option value="virtual">Virtual</option>
@@ -122,7 +166,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                   </div>
 
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Status
                     </label>
                     <select
@@ -136,7 +184,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                             | "cancelada",
                         }))
                       }
-                      className="mt-2 flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                      className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-transparent border-gray-300 text-gray-900"
+                      }`}
                     >
                       <option value="agendada">Agendada</option>
                       <option value="realizada">Realizada</option>
@@ -147,7 +199,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
 
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Data/Hora Início
                     </label>
                     <DatePicker
@@ -162,12 +218,20 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       timeFormat="HH:mm"
                       timeIntervals={15}
                       dateFormat="dd/MM/yyyy HH:mm"
-                      className="mt-2 flex h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-transparent border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
 
                   <div className="flex-1">
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Data/Hora Término
                     </label>
                     <DatePicker
@@ -182,13 +246,21 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       timeFormat="HH:mm"
                       timeIntervals={15}
                       dateFormat="dd/MM/yyyy HH:mm"
-                      className="mt-2 flex h-10 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                      className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-transparent border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-base font-medium text-gray-900">
+                  <label
+                    className={`text-base font-medium ${
+                      theme === "dark" ? "text-gray-300" : "text-gray-900"
+                    }`}
+                  >
                     Participantes
                   </label>
                   <div className="mt-2 space-y-2">
@@ -197,24 +269,42 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                         value={novoParticipante}
                         onChange={(e) => setNovoParticipante(e.target.value)}
                         placeholder="Adicionar participante"
-                        className="flex-1 h-10 rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                        className={`flex-1 h-10 rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-transparent border-gray-300 text-gray-900"
+                        }`}
                       />
                       <button
                         type="button"
                         onClick={handleAddParticipante}
-                        className="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700"
+                        className={`px-4 py-2 rounded-md text-white ${
+                          theme === "dark"
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`}
                       >
                         Adicionar
                       </button>
                     </div>
-                    <div className="max-h-32 overflow-y-auto">
+                    <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                       {formData.participantes.map((participante, index) => (
                         <div
                           key={index}
-                          className="flex items-center justify-between p-2 bg-[#eaeaea] rounded-md mb-1"
+                          className={`flex items-center justify-between p-2 rounded-md mb-1 ${
+                            theme === "dark"
+                              ? "bg-gray-700 text-gray-200"
+                              : "bg-[#eaeaea] text-gray-900"
+                          }`}
                         >
                           <div className="flex items-center gap-2">
-                            <FaUserCircle />
+                            <FaUserCircle
+                              className={
+                                theme === "dark"
+                                  ? "text-gray-400"
+                                  : "text-gray-600"
+                              }
+                            />
                             <span className="text-[15px]">{participante}</span>
                           </div>
                           <button
@@ -239,7 +329,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
 
                 {formData.local === "virtual" && (
                   <div>
-                    <label className="text-base font-medium text-gray-900">
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
                       Link da Reunião
                     </label>
                     <input
@@ -252,7 +346,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       }
                       placeholder="Link da reunião virtual"
                       type="url"
-                      className="mt-2 flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm"
+                      className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-transparent border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
                 )}
@@ -262,7 +360,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                     e.preventDefault();
                     onSubmit(formData);
                   }}
-                  className="w-full bg-black h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white"
+                  className={`w-full h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${
+                    theme === "dark"
+                      ? "bg-gray-700 hover:bg-gray-600"
+                      : "bg-black hover:bg-gray-800"
+                  }`}
                   type="button"
                 >
                   Salvar Reunião

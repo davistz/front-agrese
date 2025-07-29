@@ -4,6 +4,7 @@ import { ReuniaoForm } from "./forms/ReuniaoForm";
 import { AtividadeForm } from "./forms/AtividadeForm";
 import { AtividadeExternaForm } from "./forms/AtividadeExterna";
 import { DocumentoForm } from "./forms/DocumentoForm";
+import { useTheme } from "../../contexts/ThemeContext";
 
 interface AddEventButtonProps {
   onAddEvent: (type: EventType) => void;
@@ -12,6 +13,7 @@ interface AddEventButtonProps {
 export const AddEventButton: React.FC<AddEventButtonProps> = ({
   onAddEvent,
 }) => {
+  const { theme } = useTheme();
   const [showTypeModal, setShowTypeModal] = useState(false);
   const [selectedType, setSelectedType] = useState<EventType | null>(null);
 
@@ -33,7 +35,11 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
     <>
       <button
         onClick={() => setShowTypeModal(true)}
-        className="w-full mb-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg flex items-center justify-center gap-2 transition-colors"
+        className={`w-full mb-2 px-4 py-2 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
+          theme === "dark"
+            ? "bg-blue-600 hover:bg-blue-700 text-white"
+            : "bg-blue-600 hover:bg-blue-700 text-white"
+        }`}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

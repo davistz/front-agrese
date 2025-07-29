@@ -1,4 +1,13 @@
 @import "tailwindcss";
+@plugin 'tailwind-scrollbar';
+
+:root {
+  color-scheme: light dark;
+}
+
+.dark {
+  color-scheme: dark;
+}
 
 .line-clamp-2 {
   display: -webkit-box;

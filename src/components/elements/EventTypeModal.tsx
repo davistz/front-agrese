@@ -1,5 +1,6 @@
 import React from "react";
 import { IoMdClose } from "react-icons/io";
+import { useTheme } from "../../contexts/ThemeContext";
 
 export type EventType =
   | "reuniao"
@@ -16,6 +17,7 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
   onSelectType,
   onClose,
 }) => {
+  const { theme } = useTheme();
   const eventTypes = [
     {
       type: "reuniao" as EventType,
@@ -52,12 +54,26 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
         className="fixed inset-0 bg-black opacity-60"
         onClick={onClose}
       ></div>
-      <div className="bg-white rounded-lg p-6 max-w-2xl w-full relative z-10">
+      <div
+        className={`rounded-lg p-6 max-w-2xl w-full relative z-10 ${
+          theme === "dark" ? "bg-gray-800" : "bg-white"
+        }`}
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Selecione o tipo de evento</h2>
+          <h2
+            className={`text-2xl font-bold ${
+              theme === "dark" ? "text-gray-100" : "text-gray-900"
+            }`}
+          >
+            Selecione o tipo de evento
+          </h2>
           <IoMdClose
             onClick={onClose}
-            className="text-2xl cursor-pointer hover:text-gray-600 transition-colors"
+            className={`text-2xl cursor-pointer transition-colors ${
+              theme === "dark"
+                ? "text-gray-300 hover:text-gray-100"
+                : "text-gray-600 hover:text-gray-800"
+            }`}
           />
         </div>
 
@@ -66,13 +82,29 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
             <button
               key={eventType.type}
               onClick={() => onSelectType(eventType.type)}
-              className="flex flex-col items-start p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+              className={`flex flex-col items-start p-4 border rounded-lg transition-colors ${
+                theme === "dark"
+                  ? "border-gray-600 hover:border-blue-400 hover:bg-gray-700 text-gray-200"
+                  : "border-gray-300 hover:border-blue-500 hover:bg-blue-50 text-gray-900"
+              }`}
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-2xl">{eventType.icon}</span>
-                <h3 className="text-lg font-semibold">{eventType.title}</h3>
+                <h3
+                  className={`text-lg font-semibold ${
+                    theme === "dark" ? "text-gray-100" : "text-gray-900"
+                  }`}
+                >
+                  {eventType.title}
+                </h3>
               </div>
-              <p className="text-sm text-gray-600">{eventType.description}</p>
+              <p
+                className={`text-sm ${
+                  theme === "dark" ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {eventType.description}
+              </p>
             </button>
           ))}
         </div>

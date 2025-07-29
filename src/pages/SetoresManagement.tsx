@@ -9,6 +9,7 @@ import {
   convertSubsetorToSector,
   convertSubsetorToSectorModal,
 } from "../types/interfaces";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   FaPlus,
   FaUsers,
@@ -34,6 +35,7 @@ import { SetorInfoModal } from "../components/modals/SetorInfoModal";
 import { Sidebar } from "../components/elements/Sidebar";
 
 export const SetoresManagement = () => {
+  const { theme } = useTheme();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [activeView, setActiveView] = useState<
@@ -538,7 +540,11 @@ export const SetoresManagement = () => {
   };
 
   return (
-    <div>
+    <div
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-gray-800" : "bg-gray-50"
+      }`}
+    >
       <style>{`
         @keyframes fade-in-up {
           from {
@@ -569,7 +575,11 @@ export const SetoresManagement = () => {
         >
           <div className="mx-auto p-6 pt-6">
             <div className="mb-12 text-center">
-              <h1 className="text-[40px] font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent mb-4">
+              <h1
+                className={`text-[40px] font-bold mb-4 ${
+                  theme === "dark" ? "text-white" : "text-gray-600"
+                }`}
+              >
                 Gestão de Setores
               </h1>
             </div>
@@ -600,7 +610,11 @@ export const SetoresManagement = () => {
                         style={{ animationDelay: `${index * 150}ms` }}
                       >
                         <div
-                          className="relative bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer group transform hover:scale-105"
+                          className={`relative rounded-3xl shadow-xl border overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer group transform hover:scale-105 ${
+                            theme === "dark"
+                              ? "bg-gray-800 border-gray-700"
+                              : "bg-white border-gray-100"
+                          }`}
                           onClick={() =>
                             navigate(`/setores/${setorKey.toLowerCase()}`)
                           }
@@ -628,36 +642,78 @@ export const SetoresManagement = () => {
                                 ></div>
                               </div>
 
-                              <h2 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-gray-700 transition-colors duration-300">
+                              <h2
+                                className={`text-2xl font-bold mb-4 transition-colors duration-300 ${
+                                  theme === "dark"
+                                    ? "text-white group-hover:text-gray-200"
+                                    : "text-gray-900 group-hover:text-gray-700"
+                                }`}
+                              >
                                 {setor.nome}
                               </h2>
 
                               <div className="space-y-3 mb-6 w-full">
-                                <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                <div
+                                  className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                    theme === "dark"
+                                      ? "bg-gray-700 group-hover:bg-gray-600"
+                                      : "bg-gray-50 group-hover:bg-gray-100"
+                                  }`}
+                                >
                                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                                     <FaBuilding className="w-4 h-4 text-blue-600" />
                                   </div>
-                                  <span className="text-sm font-medium text-gray-700">
+                                  <span
+                                    className={`text-sm font-medium ${
+                                      theme === "dark"
+                                        ? "text-gray-300"
+                                        : "text-gray-700"
+                                    }`}
+                                  >
                                     {subsetoresDoSetor.length} subsetor
                                     {subsetoresDoSetor.length !== 1 ? "es" : ""}
                                   </span>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                <div
+                                  className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                    theme === "dark"
+                                      ? "bg-gray-700 group-hover:bg-gray-600"
+                                      : "bg-gray-50 group-hover:bg-gray-100"
+                                  }`}
+                                >
                                   <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                                     <FaUsers className="w-4 h-4 text-green-600" />
                                   </div>
-                                  <span className="text-sm font-medium text-gray-700">
+                                  <span
+                                    className={`text-sm font-medium ${
+                                      theme === "dark"
+                                        ? "text-gray-300"
+                                        : "text-gray-700"
+                                    }`}
+                                  >
                                     {totalMembros} membro
                                     {totalMembros !== 1 ? "s" : ""}
                                   </span>
                                 </div>
 
-                                <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                <div
+                                  className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                    theme === "dark"
+                                      ? "bg-gray-700 group-hover:bg-gray-600"
+                                      : "bg-gray-50 group-hover:bg-gray-100"
+                                  }`}
+                                >
                                   <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                                     <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
                                   </div>
-                                  <span className="text-sm font-medium text-gray-700">
+                                  <span
+                                    className={`text-sm font-medium ${
+                                      theme === "dark"
+                                        ? "text-gray-300"
+                                        : "text-gray-700"
+                                    }`}
+                                  >
                                     {membrosAtivos} ativo
                                     {membrosAtivos !== 1 ? "s" : ""}
                                   </span>
@@ -665,8 +721,20 @@ export const SetoresManagement = () => {
                               </div>
 
                               <div className="w-full">
-                                <div className="bg-gray-100 hover:bg-gray-200 rounded-xl p-4 transition-all duration-300">
-                                  <div className="flex items-center justify-center gap-2 text-gray-700">
+                                <div
+                                  className={`rounded-xl p-4 transition-all duration-300 ${
+                                    theme === "dark"
+                                      ? "bg-gray-700 hover:bg-gray-600"
+                                      : "bg-gray-100 hover:bg-gray-200"
+                                  }`}
+                                >
+                                  <div
+                                    className={`flex items-center justify-center gap-2 ${
+                                      theme === "dark"
+                                        ? "text-gray-300"
+                                        : "text-gray-700"
+                                    }`}
+                                  >
                                     <FaEye className="w-4 h-4" />
                                     <span className="font-semibold">
                                       Gerenciar Setor
@@ -684,17 +752,49 @@ export const SetoresManagement = () => {
 
                   {Object.keys(setoresHierarquia).length === 0 && (
                     <div className="col-span-full">
-                      <div className="text-center py-20 bg-white rounded-3xl shadow-xl border border-gray-100">
+                      <div
+                        className={`text-center py-20 rounded-3xl shadow-xl border ${
+                          theme === "dark"
+                            ? "bg-gray-800 border-gray-700"
+                            : "bg-white border-gray-100"
+                        }`}
+                      >
                         <div className="relative mb-8">
-                          <div className="w-32 h-32 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center shadow-xl">
-                            <MdGroups2 className="w-16 h-16 text-gray-500" />
+                          <div
+                            className={`w-32 h-32 mx-auto rounded-3xl flex items-center justify-center shadow-xl ${
+                              theme === "dark"
+                                ? "bg-gradient-to-br from-gray-700 to-gray-800"
+                                : "bg-gradient-to-br from-gray-100 to-gray-200"
+                            }`}
+                          >
+                            <MdGroups2
+                              className={`w-16 h-16 ${
+                                theme === "dark"
+                                  ? "text-gray-400"
+                                  : "text-gray-500"
+                              }`}
+                            />
                           </div>
-                          <div className="absolute inset-0 w-32 h-32 mx-auto bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl opacity-20 blur-xl"></div>
+                          <div
+                            className={`absolute inset-0 w-32 h-32 mx-auto rounded-3xl opacity-20 blur-xl ${
+                              theme === "dark"
+                                ? "bg-gradient-to-br from-gray-700 to-gray-800"
+                                : "bg-gradient-to-br from-gray-100 to-gray-200"
+                            }`}
+                          ></div>
                         </div>
-                        <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                        <h3
+                          className={`text-3xl font-bold mb-4 ${
+                            theme === "dark" ? "text-white" : "text-gray-900"
+                          }`}
+                        >
                           Crie sua primeira estrutura
                         </h3>
-                        <p className="text-gray-600 mb-8 max-w-md mx-auto text-lg">
+                        <p
+                          className={`mb-8 max-w-md mx-auto text-lg ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-600"
+                          }`}
+                        >
                           Organize sua empresa criando setores e subsetores, e
                           adicione membros às equipes
                         </p>
@@ -713,15 +813,23 @@ export const SetoresManagement = () => {
                 <>
                   <button
                     onClick={prevSlide}
-                    className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300"
+                    className={`absolute left-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 backdrop-blur-sm rounded-full shadow-lg border flex items-center justify-center hover:scale-110 transition-all duration-300 ${
+                      theme === "dark"
+                        ? "bg-gray-800/90 border-gray-600 hover:bg-gray-800 text-gray-300"
+                        : "bg-white/90 border-gray-200 hover:bg-white text-gray-600"
+                    }`}
                   >
-                    <FaChevronLeft className="w-5 h-5 text-gray-600" />
+                    <FaChevronLeft className="w-5 h-5" />
                   </button>
                   <button
                     onClick={nextSlide}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-full shadow-lg border border-gray-200 flex items-center justify-center hover:bg-white hover:scale-110 transition-all duration-300"
+                    className={`absolute right-4 top-1/2 transform -translate-y-1/2 z-10 w-12 h-12 backdrop-blur-sm rounded-full shadow-lg border flex items-center justify-center hover:scale-110 transition-all duration-300 ${
+                      theme === "dark"
+                        ? "bg-gray-800/90 border-gray-600 hover:bg-gray-800 text-gray-300"
+                        : "bg-white/90 border-gray-200 hover:bg-white text-gray-600"
+                    }`}
                   >
-                    <FaChevronRight className="w-5 h-5 text-gray-600" />
+                    <FaChevronRight className="w-5 h-5" />
                   </button>
 
                   <div
@@ -763,7 +871,11 @@ export const SetoresManagement = () => {
                             style={{ animationDelay: `${index * 150}ms` }}
                           >
                             <div
-                              className="relative bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer group transform hover:scale-105"
+                              className={`relative rounded-3xl shadow-xl border overflow-hidden hover:shadow-2xl transition-all duration-500 cursor-pointer group transform hover:scale-105 ${
+                                theme === "dark"
+                                  ? "bg-gray-800 border-gray-700"
+                                  : "bg-white border-gray-100"
+                              }`}
                               onClick={() =>
                                 navigate(`/setores/${setorKey.toLowerCase()}`)
                               }
@@ -791,16 +903,34 @@ export const SetoresManagement = () => {
                                     ></div>
                                   </div>
 
-                                  <h2 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-gray-700 transition-colors duration-300">
+                                  <h2
+                                    className={`text-2xl font-bold mb-4 transition-colors duration-300 ${
+                                      theme === "dark"
+                                        ? "text-white group-hover:text-gray-200"
+                                        : "text-gray-900 group-hover:text-gray-700"
+                                    }`}
+                                  >
                                     {setor.nome}
                                   </h2>
 
                                   <div className="space-y-3 mb-6 w-full">
-                                    <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                    <div
+                                      className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                        theme === "dark"
+                                          ? "bg-gray-700 group-hover:bg-gray-600"
+                                          : "bg-gray-50 group-hover:bg-gray-100"
+                                      }`}
+                                    >
                                       <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                                         <FaBuilding className="w-4 h-4 text-blue-600" />
                                       </div>
-                                      <span className="text-sm font-medium text-gray-700">
+                                      <span
+                                        className={`text-sm font-medium ${
+                                          theme === "dark"
+                                            ? "text-gray-300"
+                                            : "text-gray-700"
+                                        }`}
+                                      >
                                         {subsetoresDoSetor.length} subsetor
                                         {subsetoresDoSetor.length !== 1
                                           ? "es"
@@ -808,21 +938,45 @@ export const SetoresManagement = () => {
                                       </span>
                                     </div>
 
-                                    <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                    <div
+                                      className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                        theme === "dark"
+                                          ? "bg-gray-700 group-hover:bg-gray-600"
+                                          : "bg-gray-50 group-hover:bg-gray-100"
+                                      }`}
+                                    >
                                       <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                                         <FaUsers className="w-4 h-4 text-green-600" />
                                       </div>
-                                      <span className="text-sm font-medium text-gray-700">
+                                      <span
+                                        className={`text-sm font-medium ${
+                                          theme === "dark"
+                                            ? "text-gray-300"
+                                            : "text-gray-700"
+                                        }`}
+                                      >
                                         {totalMembros} membro
                                         {totalMembros !== 1 ? "s" : ""}
                                       </span>
                                     </div>
 
-                                    <div className="flex items-center justify-center gap-3 bg-gray-50 rounded-xl p-3 group-hover:bg-gray-100 transition-colors duration-300">
+                                    <div
+                                      className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
+                                        theme === "dark"
+                                          ? "bg-gray-700 group-hover:bg-gray-600"
+                                          : "bg-gray-50 group-hover:bg-gray-100"
+                                      }`}
+                                    >
                                       <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center">
                                         <div className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></div>
                                       </div>
-                                      <span className="text-sm font-medium text-gray-700">
+                                      <span
+                                        className={`text-sm font-medium ${
+                                          theme === "dark"
+                                            ? "text-gray-300"
+                                            : "text-gray-700"
+                                        }`}
+                                      >
                                         {membrosAtivos} ativo
                                         {membrosAtivos !== 1 ? "s" : ""}
                                       </span>
@@ -830,8 +984,20 @@ export const SetoresManagement = () => {
                                   </div>
 
                                   <div className="w-full">
-                                    <div className="bg-gray-100 hover:bg-gray-200 rounded-xl p-4 transition-all duration-300">
-                                      <div className="flex items-center justify-center gap-2 text-gray-700">
+                                    <div
+                                      className={`rounded-xl p-4 transition-all duration-300 ${
+                                        theme === "dark"
+                                          ? "bg-gray-700 hover:bg-gray-600"
+                                          : "bg-gray-100 hover:bg-gray-200"
+                                      }`}
+                                    >
+                                      <div
+                                        className={`flex items-center justify-center gap-2 ${
+                                          theme === "dark"
+                                            ? "text-gray-300"
+                                            : "text-gray-700"
+                                        }`}
+                                      >
                                         <FaEye className="w-4 h-4" />
                                         <span className="font-semibold">
                                           Gerenciar Setor
@@ -850,7 +1016,11 @@ export const SetoresManagement = () => {
                   </div>
 
                   <div className="mt-8 space-y-4">
-                    <div className="w-full bg-gray-200 rounded-full h-2 mx-auto max-w-xs">
+                    <div
+                      className={`w-full rounded-full h-2 mx-auto max-w-xs ${
+                        theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    >
                       <div
                         className="bg-gradient-to-r from-gray-600 to-gray-700 h-2 rounded-full transition-all duration-500"
                         style={{
@@ -869,13 +1039,19 @@ export const SetoresManagement = () => {
                           className={`w-3 h-3 rounded-full transition-all duration-300 ${
                             currentSlide === index
                               ? "bg-gray-600 scale-125"
+                              : theme === "dark"
+                              ? "bg-gray-600 hover:bg-gray-500"
                               : "bg-gray-300 hover:bg-gray-400"
                           }`}
                         />
                       ))}
                     </div>
 
-                    <p className="text-center text-sm text-gray-500">
+                    <p
+                      className={`text-center text-sm ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
                       {currentSlide + 1} de {maxSlides + 1} • Use as setas do
                       teclado ou deslize para navegar
                     </p>

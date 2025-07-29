@@ -8,6 +8,7 @@ import {
   convertSubsetorToSector,
   convertSubsetorToSectorModal,
 } from "../types/interfaces";
+import { useTheme } from "../contexts/ThemeContext";
 import {
   FaPlus,
   FaEdit,
@@ -35,6 +36,7 @@ import { MembroForm } from "../components/elements/forms/MembroForm";
 import { SetorInfoModal } from "../components/modals/SetorInfoModal";
 
 export const SetorDetail = () => {
+  const { theme } = useTheme();
   const { setorKey } = useParams<{ setorKey: string }>();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
@@ -413,7 +415,11 @@ export const SetorDetail = () => {
 
   if (!setor) {
     return (
-      <div className="min-h-screen">
+      <div
+        className={`min-h-screen ${
+          theme === "dark" ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
         <div className="flex">
           <Sidebar
             isOpen={isOpen}
@@ -427,7 +433,11 @@ export const SetorDetail = () => {
             } p-6`}
           >
             <div className="text-center py-16">
-              <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              <h1
+                className={`text-2xl font-bold mb-4 ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
                 Setor não encontrado
               </h1>
               <button
@@ -458,7 +468,11 @@ export const SetorDetail = () => {
   );
 
   return (
-    <div className="min-h-screen">
+    <div
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-gray-900" : "bg-gray-50"
+      }`}
+    >
       <div className="flex">
         <Sidebar
           isOpen={isOpen}
@@ -476,9 +490,13 @@ export const SetorDetail = () => {
               <div className="flex items-center gap-4 mb-6">
                 <button
                   onClick={() => navigate("/setores")}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors"
+                  className={`flex items-center justify-center w-10 h-10 rounded-xl transition-colors ${
+                    theme === "dark"
+                      ? "bg-gray-800 hover:bg-gray-700 text-gray-300"
+                      : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+                  }`}
                 >
-                  <FaArrowLeft className="w-4 h-4 text-gray-600" />
+                  <FaArrowLeft className="w-4 h-4" />
                 </button>
                 <div
                   className={`w-12 h-12 bg-gradient-to-br ${colors} rounded-xl flex items-center justify-center shadow-lg`}
@@ -486,10 +504,18 @@ export const SetorDetail = () => {
                   <IconComponent className={`w-6 h-6 ${iconColor}`} />
                 </div>
                 <div>
-                  <h1 className="text-4xl font-bold text-gray-900">
+                  <h1
+                    className={`text-4xl font-bold ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     {setor.nome}
                   </h1>
-                  <p className="text-gray-600">
+                  <p
+                    className={`${
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     {subsetores.length} subsetor
                     {subsetores.length !== 1 ? "es" : ""} • {totalMembros}{" "}
                     membro{totalMembros !== 1 ? "s" : ""} • {membrosAtivos}{" "}
@@ -509,22 +535,54 @@ export const SetorDetail = () => {
               </button>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">
+            <div
+              className={`rounded-xl shadow-md border overflow-hidden ${
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-200"
+              }`}
+            >
+              <div
+                className={`p-6 border-b ${
+                  theme === "dark" ? "border-gray-700" : "border-gray-100"
+                }`}
+              >
+                <h2
+                  className={`text-xl font-semibold ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Subsetores de {setor.nome}
                 </h2>
               </div>
 
               {subsetores.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
-                    <MdGroups2 className="w-12 h-12 text-gray-400" />
+                  <div
+                    className={`w-24 h-24 mx-auto mb-6 rounded-3xl flex items-center justify-center ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-gray-700 to-gray-800"
+                        : "bg-gradient-to-br from-gray-100 to-gray-200"
+                    }`}
+                  >
+                    <MdGroups2
+                      className={`w-12 h-12 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                  <h3
+                    className={`text-2xl font-semibold mb-3 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     Nenhum subsetor encontrado
                   </h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  <p
+                    className={`mb-6 max-w-md mx-auto ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     Crie o primeiro subsetor para {setor.nome} e comece a
                     organizar sua equipe
                   </p>
@@ -537,7 +595,11 @@ export const SetorDetail = () => {
                   </button>
                 </div>
               ) : (
-                <ul className="divide-y divide-gray-100">
+                <ul
+                  className={`divide-y ${
+                    theme === "dark" ? "divide-gray-700" : "divide-gray-100"
+                  }`}
+                >
                   {subsetores.map((subsetor) => {
                     const {
                       icon: SubIcon,
@@ -548,7 +610,11 @@ export const SetorDetail = () => {
                     return (
                       <li
                         key={subsetor.id}
-                        className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group"
+                        className={`p-6 transition-colors cursor-pointer group ${
+                          theme === "dark"
+                            ? "hover:bg-gray-700"
+                            : "hover:bg-gray-50"
+                        }`}
                         onClick={() => {
                           setSelectedSubsetor(subsetor);
                           setShowSetorModal(true);
@@ -563,17 +629,35 @@ export const SetorDetail = () => {
                             </div>
 
                             <div className="flex-1">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                              <h3
+                                className={`text-lg font-semibold mb-1 ${
+                                  theme === "dark"
+                                    ? "text-white"
+                                    : "text-gray-900"
+                                }`}
+                              >
                                 {subsetor.nome}
                               </h3>
 
                               {subsetor.responsavel && (
-                                <p className="text-sm text-gray-500 mb-2">
+                                <p
+                                  className={`text-sm mb-2 ${
+                                    theme === "dark"
+                                      ? "text-gray-400"
+                                      : "text-gray-500"
+                                  }`}
+                                >
                                   Responsável: {subsetor.responsavel}
                                 </p>
                               )}
 
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <div
+                                className={`flex items-center gap-4 text-sm ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-600"
+                                }`}
+                              >
                                 {subsetor.localizacao && (
                                   <span className="flex items-center gap-1">
                                     <FaBuilding className="w-3 h-3" />
@@ -608,7 +692,13 @@ export const SetorDetail = () => {
                                   </div>
                                 ))}
                               {subsetor.membros.length > 3 && (
-                                <div className="w-8 h-8 rounded-full bg-gray-300 border-2 border-white flex items-center justify-center text-gray-600 text-xs font-medium shadow-sm">
+                                <div
+                                  className={`w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-medium shadow-sm ${
+                                    theme === "dark"
+                                      ? "bg-gray-600 text-gray-300"
+                                      : "bg-gray-300 text-gray-600"
+                                  }`}
+                                >
                                   +{subsetor.membros.length - 3}
                                 </div>
                               )}
@@ -621,7 +711,11 @@ export const SetorDetail = () => {
                                   setSelectedSubsetor(subsetor);
                                   setShowSetorModal(true);
                                 }}
-                                className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
+                                className={`p-2 text-blue-600 hover:text-blue-800 rounded-lg transition-colors ${
+                                  theme === "dark"
+                                    ? "hover:bg-blue-900/20"
+                                    : "hover:bg-blue-50"
+                                }`}
                                 title="Ver detalhes"
                               >
                                 <FaEye className="w-4 h-4" />
@@ -632,7 +726,11 @@ export const SetorDetail = () => {
                                   setEditingSubsetor(subsetor);
                                   setShowSetorForm(true);
                                 }}
-                                className="p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-lg transition-colors"
+                                className={`p-2 text-green-600 hover:text-green-800 rounded-lg transition-colors ${
+                                  theme === "dark"
+                                    ? "hover:bg-green-900/20"
+                                    : "hover:bg-green-50"
+                                }`}
                                 title="Editar"
                               >
                                 <FaEdit className="w-4 h-4" />
@@ -643,7 +741,11 @@ export const SetorDetail = () => {
                                   setSelectedSubsetorForMembro(subsetor.id);
                                   setShowMembroForm(true);
                                 }}
-                                className="p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-lg transition-colors"
+                                className={`p-2 text-purple-600 hover:text-purple-800 rounded-lg transition-colors ${
+                                  theme === "dark"
+                                    ? "hover:bg-purple-900/20"
+                                    : "hover:bg-purple-50"
+                                }`}
                                 title="Adicionar membro"
                               >
                                 <FaUserPlus className="w-4 h-4" />
@@ -656,18 +758,40 @@ export const SetorDetail = () => {
                   })}
 
                   <li
-                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group border-2 border-dashed border-gray-200 hover:border-blue-400"
+                    className={`p-6 transition-colors cursor-pointer group border-2 border-dashed hover:border-blue-400 ${
+                      theme === "dark"
+                        ? "hover:bg-gray-700 border-gray-600"
+                        : "hover:bg-gray-50 border-gray-200"
+                    }`}
                     onClick={() => setShowSetorForm(true)}
                   >
-                    <div className="flex items-center justify-center gap-4 text-gray-500 group-hover:text-blue-600">
-                      <div className="w-12 h-12 bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-blue-50 group-hover:to-purple-50 rounded-xl flex items-center justify-center transition-all duration-300">
-                        <FaPlus className="w-6 h-6 text-gray-400 group-hover:text-blue-600" />
+                    <div
+                      className={`flex items-center justify-center gap-4 group-hover:text-blue-600 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
+                      <div
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                          theme === "dark"
+                            ? "bg-gradient-to-br from-gray-700 to-gray-800 group-hover:from-blue-900/20 group-hover:to-purple-900/20"
+                            : "bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-blue-50 group-hover:to-purple-50"
+                        }`}
+                      >
+                        <FaPlus
+                          className={`w-6 h-6 group-hover:text-blue-600 ${
+                            theme === "dark" ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        />
                       </div>
                       <div className="text-center">
                         <h3 className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
                           Adicionar Novo Subsetor
                         </h3>
-                        <p className="text-sm text-gray-500">
+                        <p
+                          className={`text-sm ${
+                            theme === "dark" ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
                           Clique para criar um novo subsetor
                         </p>
                       </div>

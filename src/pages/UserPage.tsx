@@ -5,6 +5,7 @@ import {
   SectorData,
   UserFormData,
 } from "../types/interfaces";
+import { useTheme } from "../contexts/ThemeContext";
 import { Sidebar } from "../components/elements/Sidebar";
 import { UserForm } from "../components/elements/forms/UserForm";
 import {
@@ -29,6 +30,7 @@ import { MdAdminPanelSettings } from "react-icons/md";
 import { UserInfoModal } from "../components/modals/UserInfoModal";
 
 export const UserPage = () => {
+  const { theme } = useTheme();
   const [isOpen, setIsOpen] = useState(true);
   const [activeView, setActiveView] = useState<
     "calendario" | "setores" | "usuarios"
@@ -218,7 +220,7 @@ export const UserPage = () => {
         return {
           icon: MdAdminPanelSettings,
           color: "text-purple-600",
-          bg: "bg-purple-100",
+          bg: "bg-purple-300",
         };
       default:
         return { icon: FaUser, color: "text-gray-600", bg: "bg-gray-100" };
@@ -227,10 +229,22 @@ export const UserPage = () => {
 
   const getRoleBadge = (role: UserRole) => {
     const styles = {
-      ADMIN: "bg-red-100 text-red-800",
-      MANAGER: "bg-blue-100 text-blue-800",
-      COLLABORATOR: "bg-green-100 text-green-800",
-      IT_ADMIN: "bg-purple-100 text-purple-800",
+      ADMIN:
+        theme === "dark"
+          ? "bg-red-900 text-red-300"
+          : "bg-red-100 text-red-800",
+      MANAGER:
+        theme === "dark"
+          ? "bg-blue-900 text-blue-300"
+          : "bg-blue-100 text-blue-800",
+      COLLABORATOR:
+        theme === "dark"
+          ? "bg-green-900 text-green-300"
+          : "bg-green-100 text-green-800",
+      IT_ADMIN:
+        theme === "dark"
+          ? "bg-purple-900 text-purple-300"
+          : "bg-purple-100 text-purple-800",
     };
 
     const labels = {
@@ -253,7 +267,13 @@ export const UserPage = () => {
     return (
       <span
         className={`px-2 py-1 text-xs font-medium rounded-full ${
-          isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+          isActive
+            ? theme === "dark"
+              ? "bg-green-900 text-green-300"
+              : "bg-green-100 text-green-800"
+            : theme === "dark"
+            ? "bg-red-900 text-red-300"
+            : "bg-red-100 text-red-800"
         }`}
       >
         {isActive ? "Ativo" : "Inativo"}
@@ -356,7 +376,15 @@ export const UserPage = () => {
   const managerUsers = users.filter((u) => u.role === "MANAGER").length;
 
   return (
-    <div className="min-h-screen">
+    <div
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-gray-800" : "bg-gray-50"
+      } scrollbar scrollbar-track-transparent ${
+        theme === "dark"
+          ? "scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500"
+          : "scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400"
+      } scrollbar-thumb-rounded-full scrollbar-w-2`}
+    >
       <div className="flex">
         <Sidebar
           isOpen={isOpen}
@@ -371,83 +399,193 @@ export const UserPage = () => {
         >
           <div className="mx-auto p-6 pt-6">
             <div className="ml-2 mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+              <h1
+                className={`text-4xl font-bold ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                } mb-4`}
+              >
                 Gestão de Usuários
               </h1>
-              <p className="text-gray-600">
+              <p
+                className={`${
+                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
                 Gerencie usuários, permissões e acessos do sistema
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
+              <div
+                className={`${
+                  theme === "dark"
+                    ? "bg-gradient-to-br from-blue-900 to-blue-900"
+                    : "bg-gradient-to-br from-blue-50 to-blue-100"
+                } rounded-xl p-6`}
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                  <div
+                    className={`w-12 h-12 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-blue-600 to-blue-900"
+                        : "bg-gradient-to-br from-blue-400 to-blue-500"
+                    } bg-blue-500 rounded-lg flex items-center justify-center`}
+                  >
                     <FaUsers className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-blue-600 font-semibold text-2xl">
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-blue-300" : "text-blue-600"
+                      } font-semibold text-2xl`}
+                    >
                       {totalUsers}
                     </p>
-                    <p className="text-blue-700 text-sm">Total de Usuários</p>
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-blue-200" : "text-blue-700"
+                      } text-sm`}
+                    >
+                      Total de Usuários
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6">
+              <div
+                className={`${
+                  theme === "dark"
+                    ? "bg-gradient-to-br from-green-900 to-green-900"
+                    : "bg-gradient-to-br from-green-50 to-green-100"
+                } rounded-xl p-6`}
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                  <div
+                    className={`w-12 h-12 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-green-700 to-green-800"
+                        : "bg-gradient-to-br from-green-400 to-green-500"
+                    } rounded-lg flex items-center justify-center`}
+                  >
                     <FaToggleOn className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-green-600 font-semibold text-2xl">
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-green-300" : "text-green-600"
+                      } font-semibold text-2xl`}
+                    >
                       {activeUsers}
                     </p>
-                    <p className="text-green-700 text-sm">Usuários Ativos</p>
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-green-200" : "text-green-700"
+                      } text-sm`}
+                    >
+                      Usuários Ativos
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6">
+              <div
+                className={`${
+                  theme === "dark"
+                    ? "bg-gradient-to-br from-red-900 to-red-900"
+                    : "bg-gradient-to-br from-red-50 to-red-100"
+                } rounded-xl p-6`}
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center">
+                  <div
+                    className={`w-12 h-12 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-red-700 to-red-800"
+                        : "bg-gradient-to-br from-red-400 to-red-400"
+                    } rounded-lg flex items-center justify-center`}
+                  >
                     <FaUserShield className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-red-600 font-semibold text-2xl">
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-red-300" : "text-red-600"
+                      } font-semibold text-2xl`}
+                    >
                       {adminUsers}
                     </p>
-                    <p className="text-red-700 text-sm">Administradores</p>
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-red-200" : "text-red-700"
+                      } text-sm`}
+                    >
+                      Administradores
+                    </p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-6">
+              <div
+                className={`${
+                  theme === "dark"
+                    ? "bg-gradient-to-br from-purple-900 to-purple-900"
+                    : "bg-gradient-to-br from-purple-50 to-purple-100"
+                } rounded-xl p-6`}
+              >
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                  <div
+                    className={`w-12 h-12 ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-purple-700 to-purple-800"
+                        : "bg-gradient-to-br from-purple-400 to-purple-500"
+                    } rounded-lg flex items-center justify-center`}
+                  >
                     <FaUserTie className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-purple-600 font-semibold text-2xl">
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-purple-300" : "text-purple-600"
+                      } font-semibold text-2xl`}
+                    >
                       {managerUsers}
                     </p>
-                    <p className="text-purple-700 text-sm">Gerentes</p>
+                    <p
+                      className={`${
+                        theme === "dark" ? "text-purple-200" : "text-purple-700"
+                      } text-sm`}
+                    >
+                      Gerentes
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6">
+            <div
+              className={`${
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-200"
+              } rounded-xl shadow-md border p-6 mb-6`}
+            >
               <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
                 <div className="flex-1 w-full lg:w-auto">
                   <div className="relative">
-                    <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                    <FaSearch
+                      className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-400"
+                      }`}
+                    />
                     <input
                       type="text"
                       placeholder="Buscar por nome, email ou setor..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                          : "bg-white border-gray-300 text-gray-900"
+                      }`}
                     />
                   </div>
                 </div>
@@ -457,7 +595,11 @@ export const UserPage = () => {
                     onClick={() => setShowFilters(!showFilters)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors ${
                       showFilters
-                        ? "bg-blue-50 border-blue-300 text-blue-700"
+                        ? theme === "dark"
+                          ? "bg-blue-900 border-blue-700 text-blue-300"
+                          : "bg-blue-50 border-blue-300 text-blue-700"
+                        : theme === "dark"
+                        ? "bg-gray-700 border-gray-600 text-gray-300 hover:bg-gray-600"
                         : "bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
                     }`}
                   >
@@ -480,10 +622,18 @@ export const UserPage = () => {
               </div>
 
               {showFilters && (
-                <div className="mt-4 pt-4 border-t border-gray-200">
+                <div
+                  className={`mt-4 pt-4 border-t ${
+                    theme === "dark" ? "border-gray-700" : "border-gray-200"
+                  }`}
+                >
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        className={`block text-sm font-medium ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        } mb-2`}
+                      >
                         Tipo de Usuário
                       </label>
                       <select
@@ -491,7 +641,11 @@ export const UserPage = () => {
                         onChange={(e) =>
                           setFilterRole(e.target.value as UserRole | "ALL")
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
                       >
                         <option value="ALL">Todos os tipos</option>
                         <option value="ADMIN">Administradores</option>
@@ -502,7 +656,11 @@ export const UserPage = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        className={`block text-sm font-medium ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        } mb-2`}
+                      >
                         Setor
                       </label>
                       <select
@@ -514,7 +672,11 @@ export const UserPage = () => {
                               : Number(e.target.value)
                           )
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
                       >
                         <option value="ALL">Todos os setores</option>
                         {sectors.map((sector) => (
@@ -526,7 +688,11 @@ export const UserPage = () => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label
+                        className={`block text-sm font-medium ${
+                          theme === "dark" ? "text-gray-300" : "text-gray-700"
+                        } mb-2`}
+                      >
                         Status
                       </label>
                       <select
@@ -536,7 +702,11 @@ export const UserPage = () => {
                             e.target.value as "ACTIVE" | "INACTIVE" | "ALL"
                           )
                         }
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-white border-gray-300 text-gray-900"
+                        }`}
                       >
                         <option value="ALL">Todos os status</option>
                         <option value="ACTIVE">Ativos</option>
@@ -548,22 +718,54 @@ export const UserPage = () => {
               )}
             </div>
 
-            <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-              <div className="p-6 border-b border-gray-100">
-                <h2 className="text-xl font-semibold text-gray-900">
+            <div
+              className={`rounded-xl shadow-md border overflow-hidden ${
+                theme === "dark"
+                  ? "bg-gray-800 border-gray-700"
+                  : "bg-white border-gray-200"
+              }`}
+            >
+              <div
+                className={`p-6 border-b ${
+                  theme === "dark" ? "border-gray-700" : "border-gray-100"
+                }`}
+              >
+                <h2
+                  className={`text-xl font-semibold ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Usuários ({filteredUsers.length})
                 </h2>
               </div>
 
               {filteredUsers.length === 0 ? (
                 <div className="text-center py-16">
-                  <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center">
-                    <FaUsers className="w-12 h-12 text-gray-400" />
+                  <div
+                    className={`w-24 h-24 mx-auto mb-6 rounded-3xl flex items-center justify-center ${
+                      theme === "dark"
+                        ? "bg-gradient-to-br from-gray-700 to-gray-800"
+                        : "bg-gradient-to-br from-gray-100 to-gray-200"
+                    }`}
+                  >
+                    <FaUsers
+                      className={`w-12 h-12 ${
+                        theme === "dark" ? "text-gray-500" : "text-gray-400"
+                      }`}
+                    />
                   </div>
-                  <h3 className="text-2xl font-semibold text-gray-900 mb-3">
+                  <h3
+                    className={`text-2xl font-semibold mb-3 ${
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }`}
+                  >
                     Nenhum usuário encontrado
                   </h3>
-                  <p className="text-gray-600 mb-6 max-w-md mx-auto">
+                  <p
+                    className={`mb-6 max-w-md mx-auto ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
                     {searchTerm ||
                     filterRole !== "ALL" ||
                     filterSector !== "ALL" ||
@@ -585,7 +787,15 @@ export const UserPage = () => {
                     )}
                 </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div
+                  className={`max-h-[calc(100vh-400px)] overflow-y-auto divide-y ${
+                    theme === "dark" ? "divide-gray-700" : "divide-gray-100"
+                  } scrollbar scrollbar-track-transparent ${
+                    theme === "dark"
+                      ? "scrollbar-thumb-gray-600 hover:scrollbar-thumb-gray-500"
+                      : "scrollbar-thumb-gray-300 hover:scrollbar-thumb-gray-400"
+                  } scrollbar-thumb-rounded-full scrollbar-w-2`}
+                >
                   {filteredUsers.map((user) => {
                     const {
                       icon: RoleIcon,
@@ -596,7 +806,11 @@ export const UserPage = () => {
                     return (
                       <div
                         key={user.id}
-                        className="p-6 hover:bg-gray-50 transition-colors cursor-pointer group"
+                        className={`p-6 transition-colors cursor-pointer group ${
+                          theme === "dark"
+                            ? "hover:bg-gray-700"
+                            : "hover:bg-gray-50"
+                        }`}
                         onClick={() => {
                           setSelectedUser(user);
                           setShowUserModal(true);
@@ -612,14 +826,26 @@ export const UserPage = () => {
 
                             <div className="flex-1">
                               <div className="flex items-center gap-3 mb-2">
-                                <h3 className="text-lg font-semibold text-gray-900">
+                                <h3
+                                  className={`text-lg font-semibold ${
+                                    theme === "dark"
+                                      ? "text-white"
+                                      : "text-gray-900"
+                                  }`}
+                                >
                                   {user.name}
                                 </h3>
                                 {getRoleBadge(user.role)}
                                 {getStatusBadge(user.isActive)}
                               </div>
 
-                              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-gray-600">
+                              <div
+                                className={`flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm ${
+                                  theme === "dark"
+                                    ? "text-gray-400"
+                                    : "text-gray-600"
+                                }`}
+                              >
                                 <span className="flex items-center gap-1">
                                   <FaEnvelope className="w-3 h-3" />
                                   {user.email}

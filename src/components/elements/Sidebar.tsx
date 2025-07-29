@@ -1,7 +1,9 @@
 import { FaRegCalendarAlt, FaUserCircle, FaChevronLeft } from "react-icons/fa";
 import { MdGroups2 } from "react-icons/md";
 import { TbHierarchy3, TbLogout } from "react-icons/tb";
+import { HiSun, HiMoon } from "react-icons/hi";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTheme } from "../../contexts/ThemeContext";
 import { Logo1 } from "../../assets";
 
 interface SidebarProps {
@@ -19,6 +21,7 @@ export const Sidebar = ({
 }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
   const handleNavigation = (
     path: string,
@@ -43,11 +46,18 @@ export const Sidebar = ({
 
   return (
     <div
-      className={`fixed left-0 top-0 flex flex-col justify-between bg-gray-800 text-white h-screen z-40 ${
+      className={`fixed left-0 top-0 flex flex-col justify-between ${
+        theme === "dark" ? "bg-gray-900" : "bg-gray-800"
+      } text-white h-screen z-40 ${
         isOpen ? "w-64" : "w-16"
       } duration-300 shadow-lg`}
     >
-      <div className="p-4 border-b border-gray-700 relative">
+      {/* Header integrado com logo */}
+      <div
+        className={`p-4 border-b ${
+          theme === "dark" ? "border-gray-800" : "border-gray-700"
+        } relative`}
+      >
         <div className="flex items-center">
           <div
             className={`flex items-center ${
@@ -63,7 +73,11 @@ export const Sidebar = ({
 
         <button
           onClick={onToggle}
-          className="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-gray-700 hover:bg-gray-600 transition-all duration-300 border-2 border-gray-600 flex items-center justify-center shadow-lg z-50"
+          className={`absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full ${
+            theme === "dark"
+              ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
+              : "bg-gray-700 hover:bg-gray-600 border-gray-600"
+          } transition-all duration-300 border-2 flex items-center justify-center shadow-lg z-50`}
         >
           <FaChevronLeft
             className={`w-2 h-2 text-white transition-transform duration-300 ${
@@ -81,7 +95,11 @@ export const Sidebar = ({
                 onClick={() => handleNavigation("/dashboard", "calendario")}
                 className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                   isCalendarioActive
-                    ? "bg-blue-50 text-[#34448C]"
+                    ? theme === "dark"
+                      ? "bg-blue-900 text-blue-300"
+                      : "bg-blue-50 text-[#34448C]"
+                    : theme === "dark"
+                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                     : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
                 } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
               >
@@ -100,7 +118,11 @@ export const Sidebar = ({
                 onClick={() => handleNavigation("/setores", "setores")}
                 className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                   isSetoresActive
-                    ? "bg-blue-50 text-[#34448C]"
+                    ? theme === "dark"
+                      ? "bg-blue-900 text-blue-300"
+                      : "bg-blue-50 text-[#34448C]"
+                    : theme === "dark"
+                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                     : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
                 } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
               >
@@ -117,7 +139,11 @@ export const Sidebar = ({
                 onClick={() => handleNavigation("/usuarios", "usuarios")}
                 className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                   isUsuariosActive
-                    ? "bg-blue-50 text-[#34448C]"
+                    ? theme === "dark"
+                      ? "bg-blue-900 text-blue-300"
+                      : "bg-blue-50 text-[#34448C]"
+                    : theme === "dark"
+                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                     : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
                 } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
               >
@@ -132,10 +158,18 @@ export const Sidebar = ({
         </div>
       </div>
 
-      <div className="border-t border-gray-700">
+      <div
+        className={`border-t ${
+          theme === "dark" ? "border-gray-800" : "border-gray-700"
+        }`}
+      >
         <div className="p-4">
           {isOpen ? (
-            <div className="bg-gray-700 rounded-lg p-3 mb-3">
+            <div
+              className={`${
+                theme === "dark" ? "bg-gray-800" : "bg-gray-700"
+              } rounded-lg p-3 mb-3`}
+            >
               <div className="flex items-center gap-3">
                 <FaUserCircle className="w-10 h-10 text-blue-400 flex-shrink-0" />
                 <div className="flex flex-col min-w-0">
@@ -156,11 +190,36 @@ export const Sidebar = ({
         </div>
 
         <div className="px-2 pb-4 space-y-2">
+          <button
+            onClick={toggleTheme}
+            className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+              theme === "dark"
+                ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+            } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+          >
+            {theme === "dark" ? (
+              <HiSun className="w-5 h-5" />
+            ) : (
+              <HiMoon className="w-5 h-5" />
+            )}
+            {isOpen && (
+              <h1 className="font-bold text-[15px]">
+                {theme === "dark" ? "Modo Claro" : "Modo Escuro"}
+              </h1>
+            )}
+            <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+              {theme === "dark" ? "Modo Claro" : "Modo Escuro"}
+            </span>
+          </button>
+
           <a
             href="#"
-            className={`group relative flex items-center rounded-sm px-2 py-1.5 text-gray-400 hover:bg-gray-50 hover:text-gray-700 ${
-              isOpen ? "justify-start gap-4 pl-4" : "justify-center"
-            }`}
+            className={`group relative flex items-center rounded-sm px-2 py-1.5 ${
+              theme === "dark"
+                ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+            } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
           >
             <TbLogout className="w-5 h-5" />
             {isOpen && <h1 className="font-bold text-[15px]">Sair</h1>}
