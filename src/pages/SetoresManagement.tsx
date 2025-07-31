@@ -566,7 +566,15 @@ export const SetoresManagement = () => {
           isOpen={isOpen}
           activeView={activeView}
           onToggle={toggleSidebar}
-          onViewChange={setActiveView}
+          onViewChange={(view) => {
+            if (
+              view === "calendario" ||
+              view === "setores" ||
+              view === "usuarios"
+            ) {
+              setActiveView(view);
+            }
+          }}
         />
         <div
           className={`flex-1 mt-10 transition-all duration-300 ${

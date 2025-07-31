@@ -1,4 +1,9 @@
-import { FaRegCalendarAlt, FaUserCircle, FaChevronLeft } from "react-icons/fa";
+import {
+  FaRegCalendarAlt,
+  FaUserCircle,
+  FaChevronLeft,
+  FaBell,
+} from "react-icons/fa";
 import { MdGroups2 } from "react-icons/md";
 import { TbHierarchy3, TbLogout } from "react-icons/tb";
 import { HiSun, HiMoon } from "react-icons/hi";
@@ -8,9 +13,11 @@ import { Logo1 } from "../../assets";
 
 interface SidebarProps {
   isOpen: boolean;
-  activeView?: "calendario" | "setores" | "usuarios";
+  activeView?: "calendario" | "setores" | "usuarios" | "notificacoes";
   onToggle: () => void;
-  onViewChange?: (view: "calendario" | "setores" | "usuarios") => void;
+  onViewChange?: (
+    view: "calendario" | "setores" | "usuarios" | "notificacoes"
+  ) => void;
 }
 
 export const Sidebar = ({
@@ -25,7 +32,7 @@ export const Sidebar = ({
 
   const handleNavigation = (
     path: string,
-    view?: "calendario" | "setores" | "usuarios"
+    view?: "calendario" | "setores" | "usuarios" | "notificacoes"
   ) => {
     if (path !== location.pathname) {
       navigate(path);
@@ -43,6 +50,8 @@ export const Sidebar = ({
   const isSetoresActive = activeView === "setores" || isActiveRoute("/setores");
   const isUsuariosActive =
     activeView === "usuarios" || isActiveRoute("/usuarios");
+  const isNotificacoesActive =
+    activeView === "notificacoes" || isActiveRoute("/notificacoes");
 
   return (
     <div
@@ -52,7 +61,6 @@ export const Sidebar = ({
         isOpen ? "w-64" : "w-16"
       } duration-300 shadow-lg`}
     >
-      {/* Header integrado com logo */}
       <div
         className={`p-4 border-b ${
           theme === "dark" ? "border-gray-800" : "border-gray-700"
@@ -109,6 +117,36 @@ export const Sidebar = ({
                 )}
                 <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
                   Calendário
+                </span>
+              </button>
+            </li>
+
+            <li>
+              <button
+                onClick={() =>
+                  handleNavigation("/notificacoes", "notificacoes")
+                }
+                className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                  isNotificacoesActive
+                    ? theme === "dark"
+                      ? "bg-blue-900 text-blue-300"
+                      : "bg-blue-50 text-[#34448C]"
+                    : theme === "dark"
+                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+              >
+                <div className="relative">
+                  <FaBell className="w-6 h-6" />
+                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white text-[10px]">
+                    3
+                  </span>
+                </div>
+                {isOpen && (
+                  <h1 className="font-bold text-[15px]">Notificações</h1>
+                )}
+                <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                  Notificações
                 </span>
               </button>
             </li>
