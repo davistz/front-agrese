@@ -239,35 +239,46 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                     }`}
                   />
                 </div>
-                <div className="col-span-2">
+                <div className="col-span-2 flex">
                   {" "}
-                  <label
-                    className={`text-sm font-medium ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-900"
-                    }`}
-                  >
-                    Data/Hora de Saída e Retorno
-                  </label>
-                  <div className="grid grid-cols-2 gap-2 mt-1">
-                    <DatePicker
-                      selected={formData.dataHoraSaida}
-                      onChange={(date) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          dataHoraSaida: date || new Date(),
-                        }))
-                      }
-                      showTimeSelect
-                      timeFormat="HH:mm"
-                      timeIntervals={15}
-                      dateFormat="dd/MM/yyyy HH:mm"
-                      className={`flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
-                        theme === "dark"
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-transparent border-gray-300 text-gray-900"
+                  <div>
+                    <label
+                      className={`text-sm font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
                       }`}
-                      placeholderText="Data/Hora de Saída"
-                    />
+                    >
+                      Hora de Saída
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <DatePicker
+                        selected={formData.dataHoraSaida}
+                        onChange={(date) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            dataHoraSaida: date || new Date(),
+                          }))
+                        }
+                        showTimeSelect
+                        timeFormat="HH:mm"
+                        timeIntervals={15}
+                        dateFormat="dd/MM/yyyy HH:mm"
+                        className={`flex h-9 w-[270px] rounded-md border px-3 py-2 text-sm ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-transparent border-gray-300 text-gray-900"
+                        }`}
+                        placeholderText="Data/Hora de Saída"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label
+                      className={`text-sm font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
+                      Hora de Retorno
+                    </label>
                     <DatePicker
                       selected={formData.dataHoraRetorno}
                       onChange={(date) =>
@@ -280,7 +291,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                       timeFormat="HH:mm"
                       timeIntervals={15}
                       dateFormat="dd/MM/yyyy HH:mm"
-                      className={`flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                      className={`flex h-9 w-[270px] rounded-md border px-3 py-2 text-sm ${
                         theme === "dark"
                           ? "bg-gray-700 border-gray-600 text-white"
                           : "bg-transparent border-gray-300 text-gray-900"
@@ -389,27 +400,6 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                         </div>
                       ))}
                     </div>
-                  </div>
-                </div>
-                <div>
-                  <label
-                    className={`text-sm font-medium ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-900"
-                    }`}
-                  >
-                    Anexos
-                  </label>
-                  <div className="mt-1">
-                    <input
-                      id="anexos"
-                      type="file"
-                      multiple
-                      className={`flex h-9 w-full rounded-md border px-3 py-1 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium ${
-                        theme === "dark"
-                          ? "bg-gray-700 border-gray-600 text-gray-400 file:text-gray-300"
-                          : "bg-white border-input text-gray-400 file:text-gray-600"
-                      }`}
-                    />
                   </div>
                 </div>
               </div>

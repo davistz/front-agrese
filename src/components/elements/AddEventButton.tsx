@@ -7,7 +7,7 @@ import { DocumentoForm } from "./forms/DocumentoForm";
 import { useTheme } from "../../contexts/ThemeContext";
 
 interface AddEventButtonProps {
-  onAddEvent: (type: EventType) => void;
+  onAddEvent: (type: EventType, eventData: any) => void;
 }
 
 export const AddEventButton: React.FC<AddEventButtonProps> = ({
@@ -27,7 +27,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
   };
 
   const handleFormSubmit = (formData: any) => {
-    onAddEvent(selectedType!);
+    onAddEvent(selectedType!, formData);
     setSelectedType(null);
   };
 

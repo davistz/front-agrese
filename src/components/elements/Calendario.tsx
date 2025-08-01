@@ -205,19 +205,84 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   );
 
   const handleAddEvent = useCallback(
-    (type: EventType) => {
-      const novoEvento = {
-        id: events.length + 1,
-        title: "Novo Evento",
-        start: new Date(),
-        end: new Date(new Date().setHours(new Date().getHours() + 1)),
-        desc: "",
-        autor: "Usuário",
-        setor: "",
-        tipo: type,
-      };
+    (type: EventType, eventData: any) => {
+      let novoEvento;
+
+      switch (type) {
+        case "reuniao":
+          novoEvento = {
+            id: events.length + 1,
+            title: eventData.titulo || "Nova Reunião",
+            start: eventData.dataHoraInicio || new Date(),
+            end:
+              eventData.dataHoraTermino ||
+              new Date(new Date().setHours(new Date().getHours() + 1)),
+            desc: eventData.descricao || "",
+            autor: eventData.autor || "Usuário",
+            setor: eventData.setorResponsavel || "",
+            tipo: type,
+            ...eventData,
+          };
+          break;
+        case "atividade":
+          novoEvento = {
+            id: events.length + 1,
+            title: eventData.titulo || "Nova Atividade",
+            start: eventData.dataInicio || new Date(),
+            end:
+              eventData.dataFim ||
+              new Date(new Date().setHours(new Date().getHours() + 1)),
+            desc: eventData.descricao || "",
+            autor: eventData.autor || "Usuário",
+            setor: eventData.setorResponsavel || "",
+            tipo: type,
+            ...eventData,
+          };
+          break;
+        case "atividades-externas":
+          novoEvento = {
+            id: events.length + 1,
+            title: eventData.titulo || "Nova Atividade Externa",
+            start: eventData.dataHoraSaida || new Date(),
+            end:
+              eventData.dataHoraRetorno ||
+              new Date(new Date().setHours(new Date().getHours() + 1)),
+            desc: eventData.descricao || "",
+            autor: eventData.autor || "Usuário",
+            setor: eventData.setorResponsavel || "",
+            tipo: type,
+            ...eventData,
+          };
+          break;
+        case "documento":
+          novoEvento = {
+            id: events.length + 1,
+            title: eventData.titulo || "Novo Documento",
+            start: eventData.prazoAnalise || new Date(),
+            end:
+              eventData.prazoAnalise ||
+              new Date(new Date().setHours(new Date().getHours() + 1)),
+            desc: eventData.descricao || "",
+            autor: eventData.autor || "Usuário",
+            setor: eventData.setorResponsavel || "",
+            tipo: type,
+            ...eventData,
+          };
+          break;
+        default:
+          novoEvento = {
+            id: events.length + 1,
+            title: "Novo Evento",
+            start: new Date(),
+            end: new Date(new Date().setHours(new Date().getHours() + 1)),
+            desc: "",
+            autor: "Usuário",
+            setor: "",
+            tipo: type,
+          };
+      }
+
       setEvents([...events, novoEvento]);
-      setEventoSelecionado(novoEvento);
     },
     [events]
   );
