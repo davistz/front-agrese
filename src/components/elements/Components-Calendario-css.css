@@ -1,0 +1,289 @@
+.calendar {
+  height: 88vh;
+  transition: width 0.3s ease;
+}
+
+.calendar-expanded {
+  width: calc(100vw - 580px); /* 100vw - sidebar(256px) - lateral panel(64px) */
+}
+
+.calendar-collapsed {
+  width: calc(100vw - 390px); /* 100vw - sidebar(64px) - lateral panel(80px) */
+}
+
+/*Calendario Light Mode*/
+.calendar-light {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+/*Calendario Dark Mode*/
+.calendar-dark {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.calendar-dark .rbc-toolbar {
+  color: #ffffff;
+}
+
+.calendar-dark .rbc-toolbar button {
+  color: #e5e7eb;
+  border: 1px solid #4b5563;
+  background-color: #374151;
+}
+
+.calendar-dark .rbc-toolbar button:active,
+.calendar-dark .rbc-toolbar button.rbc-active {
+  background-color: #6b7280;
+  border-color: #9ca3af;
+}
+
+.calendar-dark .rbc-month-view {
+  border-color: #4b5563;
+}
+
+.calendar-dark .rbc-month-row + .rbc-month-row {
+  border-color: #4b5563;
+}
+
+.calendar-dark .rbc-day-bg + .rbc-day-bg {
+  border-color: #4b5563;
+}
+
+.calendar-dark .rbc-header {
+  color: #e5e7eb;
+  border-color: #4b5563;
+  background-color: #374151;
+}
+
+.calendar-dark .rbc-off-range-bg {
+  background-color: #1f2937;
+}
+
+.calendar-dark .rbc-today {
+  background-color: #243668;
+  color: #ffffff;
+}
+
+.calendar-dark .rbc-button-link {
+  color: #e5e7eb;
+}
+
+.calendar-dark .rbc-off-range .rbc-button-link {
+  color: #6b7280;
+}
+
+.calendar-dark .rbc-now .rbc-button-link {
+  background-color: #65758f;
+  color: #ffffff;
+}
+
+.calendar-dark .rbc-time-content,
+.calendar-dark .rbc-time-content > .rbc-day-slot,
+.calendar-dark .rbc-timeslot-group,
+.calendar-dark .rbc-time-slot {
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+.calendar-dark .rbc-agenda-content,
+.calendar-dark .rbc-agenda-view {
+  color: #e5e7eb;
+  background-color: #1f2937;
+}
+
+.calendar-dark .rbc-agenda-date-cell,
+.calendar-dark .rbc-agenda-time-cell {
+  background-color: #374151;
+  color: #e5e7eb;
+}
+
+.calendar-dark .rbc-show-more {
+  background-color: #4b5563 !important;
+  color: #e5e7eb !important;
+}
+
+/*Calendario*/
+/*Header e botoes*/
+.rbc-toolbar {
+  color: black;
+  font-size: 20px;
+}
+.rbc-btn-group > button {
+  border: 0;
+}
+.rbc-toolbar button {
+  color: rgb(60, 60, 60);
+  border: 1px solid #a0a0a0;
+}
+.rbc-toolbar button:active,
+.rbc-toolbar button.rbc-active {
+  background-color: #a3a3a386;
+  border-color: #bbb;
+}
+
+/*Corpo*/
+/*Linhas*/
+.rbc-month-view {
+  border-color: #afafaf;
+}
+.rbc-month-row + .rbc-month-row {
+  border-color: #cfcfcf;
+}
+.rbc-day-bg + .rbc-day-bg {
+  border-color: #afafaf;
+}
+.rbc-header {
+  color: #404040ee;
+  border-color: #afafaf;
+  text-transform: uppercase;
+}
+.rbc-header span {
+  font-size: 0.875rem;
+  font-weight: 600;
+  visibility: hidden;
+  position: relative;
+}
+.rbc-header span::after {
+  visibility: visible;
+  position: absolute;
+  left: 0;
+  content: attr(title);
+}
+
+/* Substituir os textos dos dias */
+.rbc-header:nth-child(1) span::after {
+  content: "DOM";
+}
+.rbc-header:nth-child(2) span::after {
+  content: "SEG";
+}
+.rbc-header:nth-child(3) span::after {
+  content: "TER";
+}
+.rbc-header:nth-child(4) span::after {
+  content: "QUA";
+}
+.rbc-header:nth-child(5) span::after {
+  content: "QUI";
+}
+.rbc-header:nth-child(6) span::after {
+  content: "SEX";
+}
+.rbc-header:nth-child(7) span::after {
+  content: "SÁB";
+}
+
+.rbc-header + .rbc-header {
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-color: #00000073;
+}
+.rbc-off-range-bg {
+  background-color: #f4f4f4;
+}
+.rbc-today {
+  background-color: #d0e9fe97;
+  color: black;
+}
+.rbc-button-link {
+  margin: 5px;
+  font-size: 15px;
+  color: #000000e5;
+}
+.rbc-off-range .rbc-button-link {
+  color: #00000037;
+}
+.rbc-now .rbc-button-link {
+  background-color: #555151;
+  color: #ffffff;
+  border-radius: 2px;
+  padding-left: 2px;
+  padding-right: 2px;
+  font-size: 14px;
+}
+.rbc-time-content,
+.rbc-time-content > .rbc-day-slot,
+.rbc-timeslot-group,
+.rbc-time-slot {
+  color: rgb(107, 107, 107);
+  border-color: #b0b0b036;
+}
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid #c8c8c80a;
+}
+
+/*Agenda*/
+.rbc-agenda-content,
+.rbc-agenda-view {
+  color: #aaa;
+}
+.rbc-agenda-date-cell,
+.rbc-agenda-time-cell {
+  background-color: #c2c2c2;
+  color: black;
+}
+.rbc-agenda-event-cell {
+  border-radius: 20px;
+  font-weight: bold;
+  color: #e0e0e0;
+}
+
+/* Customização da altura dos eventos */
+.rbc-event {
+  height: 18px !important;
+  min-height: 18px !important;
+  line-height: 18px !important;
+  padding: 0 4px !important;
+  font-weight: 200 !important;
+  font-size: 11px !important;
+  margin-bottom: 1px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* Customização específica para eventos no mês */
+.rbc-month-view .rbc-event {
+  height: 20px !important;
+  min-height: 16px !important;
+  line-height: 16px !important;
+  font-size: 12.5px !important;
+  padding: 0 4px !important;
+}
+
+/* Customização para o container dos eventos */
+.rbc-row-content {
+  height: auto !important;
+  overflow: hidden !important;
+}
+
+/* Customização para o "show more" */
+.rbc-show-more {
+  width: 75px !important;
+  font-size: 10px !important;
+  height: 16px !important;
+  line-height: 16px !important;
+  border-radius: 6px;
+  background-color: #666 !important;
+  color: white !important;
+  text-align: center !important;
+  margin-top: 1px !important;
+}
+
+/* Eventos na visualização de semana e dia */
+.rbc-time-view .rbc-event {
+  height: auto !important;
+  min-height: 30px !important;
+  font-size: 15px !important;
+  padding: 2px 4px !important;
+}
+
+/* Melhorar a legibilidade do texto dos eventos */
+.rbc-event-content {
+  font-weight: 500 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
