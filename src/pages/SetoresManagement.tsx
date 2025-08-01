@@ -10,6 +10,8 @@ import {
   convertSubsetorToSectorModal,
 } from "../types/interfaces";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { usePermissions } from "../hooks/usePermissions";
 import {
   FaPlus,
   FaUsers,
@@ -36,6 +38,8 @@ import { Sidebar } from "../components/elements/Sidebar";
 
 export const SetoresManagement = () => {
   const { theme } = useTheme();
+  const { user, canAccessSector } = useAuth();
+  const { canCreateSector, canEditSector, canDeleteSector } = usePermissions();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(true);
   const [activeView, setActiveView] = useState<
@@ -67,6 +71,33 @@ export const SetoresManagement = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
+  // Função para filtrar setores baseado no usuário logado
+  const getFilteredSetores = () => {
+    if (!user) return {};
+
+    // ADMIN e IT_ADMIN podem ver todos os setores
+    if (user.role === "ADMIN" || user.role === "IT_ADMIN") {
+      return setoresHierarquia;
+    }
+
+    // MANAGER pode ver apenas seu próprio setor
+    if (user.role === "MANAGER") {
+      const sectorMapping: { [key: number]: string } = {
+        1: "Presidente",
+        2: "DAF",
+        3: "DiretorTecnico",
+      };
+
+      const userSectorKey = sectorMapping[user.sectorId];
+      if (userSectorKey && setoresHierarquia[userSectorKey]) {
+        return { [userSectorKey]: setoresHierarquia[userSectorKey] };
+      }
+    }
+
+    // COLLABORATOR não deveria acessar esta página, mas caso acesse, retorna vazio
+    return {};
+  };
+
   const setoresHierarquia: { [key: string]: SetorHierarquia } = {
     Presidente: {
       nome: "Presidência",
@@ -96,7 +127,9 @@ export const SetoresManagement = () => {
     },
   };
 
-  const setoresArray = Object.entries(setoresHierarquia);
+  // Usar setores filtrados ao invés de todos os setores
+  const filteredSetores = getFilteredSetores();
+  const setoresArray = Object.entries(filteredSetores);
   const totalSetores = setoresArray.length;
 
   const getItemsPerSlide = () => {
@@ -495,6 +528,7 @@ export const SetoresManagement = () => {
       setSubsetores(updatedSubsetores);
       setShowMembroForm(false);
       setSelectedSubsetorForMembro(null);
+      setSelectedSubsetor(null); // Limpar aqui também
     }
   };
 
@@ -536,6 +570,37 @@ export const SetoresManagement = () => {
       setSubsetores(updatedSubsetores);
       setShowSetorForm(false);
       setEditingSubsetor(null);
+    }
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    // Encontrar o usuário no subsetor atual
+    if (selectedSubsetor) {
+      const updatedSubsetores = subsetores.map((subsetor) => {
+        if (subsetor.id === selectedSubsetor.id) {
+          const filteredMembros = subsetor.membros.filter(
+            (user) => user.id.toString() !== userId
+          );
+          return {
+            ...subsetor,
+            membros: filteredMembros,
+            totalMembros: filteredMembros.length,
+            membrosAtivos: filteredMembros.filter(
+              (user) => user.status === "ativo"
+            ).length,
+          };
+        }
+        return subsetor;
+      });
+
+      setSubsetores(updatedSubsetores);
+
+      const updatedSubsetor = updatedSubsetores.find(
+        (s) => s.id === selectedSubsetor.id
+      );
+      if (updatedSubsetor) {
+        setSelectedSubsetor(updatedSubsetor);
+      }
     }
   };
 
@@ -1092,6 +1157,7 @@ export const SetoresManagement = () => {
               onCancel={() => {
                 setShowMembroForm(false);
                 setSelectedSubsetorForMembro(null);
+                setSelectedSubsetor(null); // Limpar aqui
               }}
             />
           )}
@@ -1109,12 +1175,7 @@ export const SetoresManagement = () => {
                 setShowSetorModal(false);
                 setSelectedSubsetor(null);
               }}
-              onAddUser={() => {
-                setSelectedSubsetorForMembro(selectedSubsetor.id);
-                setShowMembroForm(true);
-                setShowSetorModal(false);
-                setSelectedSubsetor(null);
-              }}
+              onDeleteUser={handleDeleteUser}
             />
           )}
         </div>

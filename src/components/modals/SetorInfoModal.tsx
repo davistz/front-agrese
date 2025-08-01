@@ -21,19 +21,35 @@ export interface SetorInfoModalProps {
   setor: SectorModalData;
   onClose: () => void;
   onEdit: () => void;
-  onAddUser: () => void;
+  onDeleteUser: (userId: string) => void;
 }
 
 export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
   setor,
   onClose,
   onEdit,
-  onAddUser,
+  onDeleteUser,
 }) => {
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState<"info" | "users" | "subsectors">(
     "info"
   );
+  const [userToDelete, setUserToDelete] = useState<number | null>(null);
+
+  const handleDeleteUser = (userId: number) => {
+    setUserToDelete(userId);
+  };
+
+  const confirmDeleteUser = () => {
+    if (userToDelete) {
+      onDeleteUser(userToDelete.toString());
+      setUserToDelete(null);
+    }
+  };
+
+  const cancelDeleteUser = () => {
+    setUserToDelete(null);
+  };
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("pt-BR", {
@@ -405,13 +421,6 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                 >
                   Usuários do setor
                 </h3>
-                <button
-                  onClick={onAddUser}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#34448C] via-[#34448C] to-[#049454] text-white px-4 py-2 rounded-lg hover:from-[#34448C] hover:to-[#049454] transition-all transform hover:scale-105"
-                >
-                  <FaUserPlus className="w-4 h-4" />
-                  Adicionar Usuário
-                </button>
               </div>
 
               {setor.users.length === 0 ? (
@@ -435,19 +444,12 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                     Nenhum usuário encontrado
                   </h3>
                   <p
-                    className={`mb-4 ${
+                    className={`${
                       theme === "dark" ? "text-gray-300" : "text-gray-600"
                     }`}
                   >
-                    Adicione o primeiro usuário a este setor
+                    Este setor não possui usuários cadastrados
                   </p>
-                  <button
-                    onClick={onAddUser}
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
-                  >
-                    <FaUserPlus className="w-4 h-4" />
-                    Adicionar Usuário
-                  </button>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-4">
@@ -506,21 +508,7 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                              theme === "dark"
-                                ? "bg-blue-900 hover:bg-blue-800"
-                                : "bg-blue-100 hover:bg-blue-200"
-                            }`}
-                          >
-                            <FaEdit
-                              className={`w-4 h-4 ${
-                                theme === "dark"
-                                  ? "text-blue-300"
-                                  : "text-blue-600"
-                              }`}
-                            />
-                          </button>
-                          <button
+                            onClick={() => handleDeleteUser(user.id)}
                             className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
                               theme === "dark"
                                 ? "bg-red-900 hover:bg-red-800"
@@ -699,6 +687,63 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
           </div>
         </div>
       </div>
+
+      {userToDelete && (
+        <div className="fixed inset-0 backdrop-blur-[2px] bg-black/20 flex items-center justify-center z-60">
+          <div
+            className={`rounded-2xl shadow-2xl w-full max-w-md p-6 ${
+              theme === "dark" ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <div className="text-center">
+              <div
+                className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+                  theme === "dark" ? "bg-red-900" : "bg-red-100"
+                }`}
+              >
+                <FaTrash
+                  className={`w-8 h-8 ${
+                    theme === "dark" ? "text-red-300" : "text-red-600"
+                  }`}
+                />
+              </div>
+              <h3
+                className={`text-xl font-semibold mb-2 ${
+                  theme === "dark" ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Excluir usuário
+              </h3>
+              <p
+                className={`mb-6 ${
+                  theme === "dark" ? "text-gray-300" : "text-gray-600"
+                }`}
+              >
+                Tem certeza de que deseja excluir este usuário? Esta ação não
+                pode ser desfeita.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <button
+                  onClick={cancelDeleteUser}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    theme === "dark"
+                      ? "text-gray-300 bg-gray-600 hover:bg-gray-500"
+                      : "text-gray-700 bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={confirmDeleteUser}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

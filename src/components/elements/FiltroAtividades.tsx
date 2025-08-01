@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
+import { usePermissions } from "../../hooks/usePermissions";
 
 export interface Atividade {
   id: number;
@@ -95,7 +96,10 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   onSelecionarAtividades,
 }) => {
   const { theme } = useTheme();
-  const [activeTab, setActiveTab] = useState<"setor" | "categoria">("setor");
+  const { canFilterBySector } = usePermissions();
+  const [activeTab, setActiveTab] = useState<"setor" | "categoria">(
+    canFilterBySector() ? "setor" : "categoria"
+  );
   const [setorSelecionado, setSetorSelecionado] = useState("");
   const [subsetoresSelecionados, setSubsetoresSelecionados] = useState<
     string[]
@@ -175,9 +179,9 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     setSetorSelecionado("");
     setSubsetoresSelecionados([]);
     setCategoriasSelecionadas([]);
-    setActiveTab("setor");
+    setActiveTab(canFilterBySector() ? "setor" : "categoria");
     onSelecionarAtividades(atividades);
-  }, [atividades, onSelecionarAtividades]);
+  }, [atividades, onSelecionarAtividades, canFilterBySector]);
 
   return (
     <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full max-w-xs flex flex-col max-h-[calc(100vh-100px)]">
@@ -187,11 +191,13 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
 
       <div className="px-3 pt-2 flex-shrink-0">
         <div className="flex">
-          <Tab
-            label="Por Setor"
-            isActive={activeTab === "setor"}
-            onClick={() => setActiveTab("setor")}
-          />
+          {canFilterBySector() && (
+            <Tab
+              label="Por Setor"
+              isActive={activeTab === "setor"}
+              onClick={() => setActiveTab("setor")}
+            />
+          )}
           <Tab
             label="Por Categoria"
             isActive={activeTab === "categoria"}
@@ -208,7 +214,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
         }`}
       >
         <div className="space-y-1">
-          {activeTab === "setor" ? (
+          {activeTab === "setor" && canFilterBySector() ? (
             <div className="space-y-1">
               {Object.entries(setoresHierarquia).map(([key, setor]) => (
                 <div
@@ -294,7 +300,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
                   className={`flex items-center space-x-2 text-sm px-2 py-1.5 rounded cursor-pointer transition-colors ${
                     theme === "dark"
                       ? "text-white hover:bg-gray-700/50"
-                      : "text-gray-700 hover:bg-gray-100/50"
+                      : "text-gray-400 hover:bg-gray-100/50"
                   }`}
                 >
                   <input

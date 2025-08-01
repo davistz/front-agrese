@@ -8,7 +8,11 @@ import { MdGroups2 } from "react-icons/md";
 import { TbHierarchy3, TbLogout } from "react-icons/tb";
 import { HiSun, HiMoon } from "react-icons/hi";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
+import { usePermissions } from "../../hooks/usePermissions";
+import { useNotifications } from "../../hooks/useNotifications";
 import { Logo1 } from "../../assets";
 
 interface SidebarProps {
@@ -29,6 +33,28 @@ export const Sidebar = ({
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout } = useAuth();
+  const {
+    canViewAllSectors,
+    canViewAllUsers,
+    canViewCalendar,
+    canViewNotifications,
+  } = usePermissions();
+  const { notificacoesNaoLidas, contadorAtualizado } = useNotifications();
+
+  const [contadorKey, setContadorKey] = useState(0);
+
+  useEffect(() => {
+    setContadorKey((prev) => prev + 1);
+  }, [notificacoesNaoLidas, contadorAtualizado]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setContadorKey((prev) => prev + 1);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleNavigation = (
     path: string,
@@ -38,6 +64,12 @@ export const Sidebar = ({
       navigate(path);
     } else if (onViewChange && view) {
       onViewChange(view);
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Tem certeza que deseja sair?")) {
+      logout();
     }
   };
 
@@ -98,100 +130,107 @@ export const Sidebar = ({
       <div className="flex-1">
         <div className="px-2">
           <ul className="space-y-3 pt-4">
-            <li>
-              <button
-                onClick={() => handleNavigation("/dashboard", "calendario")}
-                className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
-                  isCalendarioActive
-                    ? theme === "dark"
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-blue-50 text-[#34448C]"
-                    : theme === "dark"
-                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
-                } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
-              >
-                <FaRegCalendarAlt className="w-6 h-6" />
-                {isOpen && (
-                  <h1 className="font-bold text-[15px]">Calendário</h1>
-                )}
-                <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
-                  Calendário
-                </span>
-              </button>
-            </li>
-
-            <li>
-              <button
-                onClick={() =>
-                  handleNavigation("/notificacoes", "notificacoes")
-                }
-                className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
-                  isNotificacoesActive
-                    ? theme === "dark"
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-blue-50 text-[#34448C]"
-                    : theme === "dark"
-                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
-                } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
-              >
-                <div className="relative">
-                  <FaBell className="w-6 h-6" />
-                  <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-xs flex items-center justify-center text-white text-[10px]">
-                    3
+            {canViewCalendar() && (
+              <li>
+                <button
+                  onClick={() => handleNavigation("/dashboard", "calendario")}
+                  className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                    isCalendarioActive
+                      ? theme === "dark"
+                        ? "bg-blue-900 text-blue-300"
+                        : "bg-blue-50 text-[#34448C]"
+                      : theme === "dark"
+                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                  } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+                >
+                  <FaRegCalendarAlt className="w-6 h-6" />
+                  {isOpen && (
+                    <h1 className="font-bold text-[15px]">Calendário</h1>
+                  )}
+                  <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                    Calendário
                   </span>
-                </div>
-                {isOpen && (
-                  <h1 className="font-bold text-[15px]">Notificações</h1>
-                )}
-                <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
-                  Notificações
-                </span>
-              </button>
-            </li>
+                </button>
+              </li>
+            )}
 
-            <li>
-              <button
-                onClick={() => handleNavigation("/setores", "setores")}
-                className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
-                  isSetoresActive
-                    ? theme === "dark"
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-blue-50 text-[#34448C]"
-                    : theme === "dark"
-                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
-                } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
-              >
-                <TbHierarchy3 className="group-hover:scale-[1.05] w-6 h-6" />
-                {isOpen && <h1 className="font-bold text-[15px]">Setores</h1>}
-                <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
-                  Setores
-                </span>
-              </button>
-            </li>
+            {canViewNotifications() && (
+              <li>
+                <button
+                  onClick={() =>
+                    handleNavigation("/notificacoes", "notificacoes")
+                  }
+                  className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                    isNotificacoesActive
+                      ? theme === "dark"
+                        ? "bg-blue-900 text-blue-300"
+                        : "bg-blue-50 text-[#34448C]"
+                      : theme === "dark"
+                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                  } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+                >
+                  <div className="relative">
+                    <FaBell className="w-6 h-6" />
+                  </div>
+                  {isOpen && (
+                    <h1 className="font-bold text-[15px]">Notificações</h1>
+                  )}
+                  <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                    Notificações
+                  </span>
+                </button>
+              </li>
+            )}
 
-            <li>
-              <button
-                onClick={() => handleNavigation("/usuarios", "usuarios")}
-                className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
-                  isUsuariosActive
-                    ? theme === "dark"
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-blue-50 text-[#34448C]"
-                    : theme === "dark"
-                    ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                    : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
-                } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
-              >
-                <MdGroups2 className="w-6 h-6 group-hover:scale-[1.03] duration-300" />
-                {isOpen && <h1 className="font-bold text-[15px]">Usuários</h1>}
-                <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
-                  Usuários
-                </span>
-              </button>
-            </li>
+            {canViewAllSectors() && (
+              <li>
+                <button
+                  onClick={() => handleNavigation("/setores", "setores")}
+                  className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                    isSetoresActive
+                      ? theme === "dark"
+                        ? "bg-blue-900 text-blue-300"
+                        : "bg-blue-50 text-[#34448C]"
+                      : theme === "dark"
+                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                  } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+                >
+                  <TbHierarchy3 className="group-hover:scale-[1.05] w-6 h-6" />
+                  {isOpen && <h1 className="font-bold text-[15px]">Setores</h1>}
+                  <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                    Setores
+                  </span>
+                </button>
+              </li>
+            )}
+
+            {canViewAllUsers() && (
+              <li>
+                <button
+                  onClick={() => handleNavigation("/usuarios", "usuarios")}
+                  className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                    isUsuariosActive
+                      ? theme === "dark"
+                        ? "bg-blue-900 text-blue-300"
+                        : "bg-blue-50 text-[#34448C]"
+                      : theme === "dark"
+                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                  } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+                >
+                  <MdGroups2 className="w-6 h-6 group-hover:scale-[1.03] duration-300" />
+                  {isOpen && (
+                    <h1 className="font-bold text-[15px]">Usuários</h1>
+                  )}
+                  <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                    Usuários
+                  </span>
+                </button>
+              </li>
+            )}
           </ul>
         </div>
       </div>
@@ -212,10 +251,10 @@ export const Sidebar = ({
                 <FaUserCircle className="w-10 h-10 text-blue-400 flex-shrink-0" />
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-semibold text-white truncate">
-                    Davi Souza
+                    {user?.name || "Usuário"}
                   </span>
                   <span className="text-xs text-red-400 truncate">
-                    Diretor Geral
+                    {user?.sectorName || "Setor"}
                   </span>
                 </div>
               </div>
@@ -251,9 +290,9 @@ export const Sidebar = ({
             </span>
           </button>
 
-          <a
-            href="#"
-            className={`group relative flex items-center rounded-sm px-2 py-1.5 ${
+          <button
+            onClick={handleLogout}
+            className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full ${
               theme === "dark"
                 ? "text-gray-300 hover:bg-gray-800 hover:text-white"
                 : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
@@ -264,7 +303,7 @@ export const Sidebar = ({
             <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
               Sair
             </span>
-          </a>
+          </button>
         </div>
       </div>
     </div>

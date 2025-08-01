@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useTheme } from "../contexts/ThemeContext";
+import { useNotifications } from "../hooks/useNotifications";
 import { Sidebar } from "../components/elements/Sidebar";
 import { NotificacaoInfoModal } from "../components/modals/NotificacaoInfoModal";
 import {
@@ -12,84 +13,39 @@ import {
   FaClipboard,
   FaUsers,
   FaCog,
+  FaPlus,
+  FaEdit,
 } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { FaCircleCheck } from "react-icons/fa6";
 
-interface Notificacao {
-  id: string;
-  titulo: string;
-  descricao: string;
-  tipo: "info" | "warning" | "success" | "error";
-  lida: boolean;
-  dataHora: Date;
-  origem?: string;
-}
+import type { NotificacaoSetor } from "../hooks/useNotifications";
 
 export const NotificacoesPage: React.FC = () => {
   const { theme } = useTheme();
+  const {
+    notificacoes,
+    notificacoesNaoLidas,
+    setNotificacoes,
+    marcarComoLida,
+    marcarTodasComoLidas,
+    excluirNotificacao,
+  } = useNotifications();
+
   const [isOpen, setIsOpen] = useState(true);
   const [filtroAtivo, setFiltroAtivo] = useState<
     "todas" | "nao-lidas" | "lidas"
   >("todas");
   const [modalAberto, setModalAberto] = useState(false);
   const [notificacaoSelecionada, setNotificacaoSelecionada] =
-    useState<Notificacao | null>(null);
+    useState<NotificacaoSetor | null>(null);
   const [confirmacaoExclusao, setConfirmacaoExclusao] = useState(false);
   const [notificacaoParaExcluir, setNotificacaoParaExcluir] =
-    useState<Notificacao | null>(null);
-  const [notificacoes, setNotificacoes] = useState<Notificacao[]>([
-    {
-      id: "1",
-      titulo: "Nova reunião agendada",
-      descricao:
-        "Reunião de planejamento estratégico agendada para amanhã às 14:00",
-      tipo: "info",
-      lida: false,
-      dataHora: new Date(2025, 6, 29, 9, 30),
-      origem: "Calendário",
-    },
-    {
-      id: "2",
-      titulo: "Documento aprovado",
-      descricao: "O documento 'Relatório Mensal' foi aprovado pelo diretor",
-      tipo: "success",
-      lida: false,
-      dataHora: new Date(2025, 6, 29, 8, 15),
-      origem: "Documentos",
-    },
-    {
-      id: "3",
-      titulo: "Prazo próximo do vencimento",
-      descricao: "A atividade 'Análise de dados' vence em 2 dias",
-      tipo: "warning",
-      lida: false,
-      dataHora: new Date(2025, 6, 28, 16, 45),
-      origem: "Atividades",
-    },
-    {
-      id: "4",
-      titulo: "Usuário adicionado ao setor",
-      descricao: "João Silva foi adicionado ao setor de TI",
-      tipo: "info",
-      lida: true,
-      dataHora: new Date(2025, 6, 28, 14, 20),
-      origem: "Setores",
-    },
-    {
-      id: "5",
-      titulo: "Erro no sistema",
-      descricao: "Falha ao sincronizar dados. Contate o administrador",
-      tipo: "error",
-      lida: true,
-      dataHora: new Date(2025, 6, 27, 11, 10),
-      origem: "Sistema",
-    },
-  ]);
+    useState<NotificacaoSetor | null>(null);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  const abrirModal = (notificacao: Notificacao) => {
+  const abrirModal = (notificacao: NotificacaoSetor) => {
     setNotificacaoSelecionada(notificacao);
     setModalAberto(true);
   };
@@ -99,22 +55,18 @@ export const NotificacoesPage: React.FC = () => {
     setNotificacaoSelecionada(null);
   };
 
-  const marcarComoLida = (notificacao: Notificacao) => {
-    setNotificacoes((prev) =>
-      prev.map((n) => (n.id === notificacao.id ? { ...n, lida: !n.lida } : n))
-    );
+  const handleMarcarComoLida = (notificacao: NotificacaoSetor) => {
+    marcarComoLida(notificacao.id);
   };
 
-  const excluirNotificacao = (notificacao: Notificacao) => {
+  const handleExcluirNotificacao = (notificacao: NotificacaoSetor) => {
     setNotificacaoParaExcluir(notificacao);
     setConfirmacaoExclusao(true);
   };
 
   const confirmarExclusao = () => {
     if (notificacaoParaExcluir) {
-      setNotificacoes((prev) =>
-        prev.filter((n) => n.id !== notificacaoParaExcluir.id)
-      );
+      excluirNotificacao(notificacaoParaExcluir.id);
     }
     setConfirmacaoExclusao(false);
     setNotificacaoParaExcluir(null);
@@ -125,55 +77,36 @@ export const NotificacoesPage: React.FC = () => {
     setNotificacaoParaExcluir(null);
   };
 
-  const marcarTodasComoLidas = () => {
-    setNotificacoes((prev) => prev.map((n) => ({ ...n, lida: true })));
-  };
-
   const limparNotificacoesLidas = () => {
-    setNotificacoes((prev) => prev.filter((n) => !n.lida));
+    const notificacoesLidas = notificacoes.filter((n) => n.lida);
+    notificacoesLidas.forEach((n) => excluirNotificacao(n.id));
   };
 
-  const getIconeNotificacao = (tipo: string) => {
+  const getIconeNotificacao = (tipo: NotificacaoSetor["tipo"]) => {
     switch (tipo) {
-      case "info":
-        return <FaBell className="w-5 h-5 text-blue-500" />;
-      case "success":
-        return <FaCheck className="w-5 h-5 text-green-500" />;
-      case "warning":
-        return <IoMdTime className="w-5 h-5 text-yellow-500" />;
-      case "error":
+      case "evento_criado":
+        return <FaPlus className="w-5 h-5 text-green-500" />;
+      case "evento_editado":
+        return <FaEdit className="w-5 h-5 text-blue-500" />;
+      case "evento_excluido":
         return <FaTrash className="w-5 h-5 text-red-500" />;
       default:
         return <FaBell className="w-5 h-5 text-gray-500" />;
     }
   };
 
-  const getIconeOrigem = (origem: string) => {
-    switch (origem.toLowerCase()) {
-      case "calendário":
-        return <FaCalendar className="w-3 h-3 text-blue-500" />;
-      case "documentos":
-        return <FaFileAlt className="w-3 h-3 text-blue-500" />;
-      case "atividades":
-        return <FaClipboard className="w-3 h-3 text-blue-500" />;
-      case "setores":
-        return <FaUsers className="w-3 h-3 text-blue-500" />;
-      case "sistema":
-        return <FaCog className="w-3 h-3 text-blue-500" />;
-      default:
-        return <FaClipboard className="w-2 h-2 text-blue-500" />;
-    }
+  const getIconeOrigem = () => {
+    return <FaCalendar className="w-3 h-3 text-blue-500" />;
   };
 
-  const getCorNotificacao = (tipo: string, lida: boolean) => {
+  const getCorNotificacao = (tipo: NotificacaoSetor["tipo"], lida: boolean) => {
     const baseColors = {
-      info: "border-l-blue-500",
-      success: "border-l-green-500",
-      warning: "border-l-yellow-500",
-      error: "border-l-red-500",
+      evento_criado: "border-l-green-500",
+      evento_editado: "border-l-blue-500",
+      evento_excluido: "border-l-red-500",
     };
 
-    return `${baseColors[tipo as keyof typeof baseColors]} ${
+    return `${baseColors[tipo]} ${
       !lida ? "ring-2 ring-blue-200 dark:ring-blue-800" : ""
     }`;
   };
@@ -202,8 +135,6 @@ export const NotificacoesPage: React.FC = () => {
     }
   };
 
-  const naoLidas = notificacoes.filter((n) => !n.lida).length;
-
   const notificacoesFiltradas = () => {
     switch (filtroAtivo) {
       case "nao-lidas":
@@ -223,8 +154,8 @@ export const NotificacoesPage: React.FC = () => {
       case "lidas":
         return `${filtradas.length} notificações lidas`;
       default:
-        return naoLidas > 0
-          ? `${filtradas.length} notificações total (${naoLidas} não lidas)`
+        return notificacoesNaoLidas > 0
+          ? `${filtradas.length} notificações total (${notificacoesNaoLidas} não lidas)`
           : `${filtradas.length} notificações total`;
     }
   };
@@ -279,7 +210,7 @@ export const NotificacoesPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {naoLidas > 0 && (
+                    {notificacoesNaoLidas > 0 && (
                       <div
                         className={`px-4 text-[13px] py-2 rounded-full ${
                           theme === "dark"
@@ -288,7 +219,8 @@ export const NotificacoesPage: React.FC = () => {
                         }`}
                       >
                         <span className="text-white font-semibold">
-                          {naoLidas} não {naoLidas === 1 ? "lida" : "lidas"}
+                          {notificacoesNaoLidas} não{" "}
+                          {notificacoesNaoLidas === 1 ? "lida" : "lidas"}
                         </span>
                       </div>
                     )}
@@ -370,11 +302,12 @@ export const NotificacoesPage: React.FC = () => {
                           : "bg-red-500 text-white"
                       }`}
                     >
-                      {naoLidas}
+                      {notificacoesNaoLidas}
                     </span>
-                    {naoLidas > 0 && filtroAtivo !== "nao-lidas" && (
-                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
-                    )}
+                    {notificacoesNaoLidas > 0 &&
+                      filtroAtivo !== "nao-lidas" && (
+                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></span>
+                      )}
                   </button>
 
                   <button
@@ -424,12 +357,10 @@ export const NotificacoesPage: React.FC = () => {
                   <div className="flex items-start gap-4">
                     <div
                       className={`flex-shrink-0 p-3 rounded-xl ${
-                        notificacao.tipo === "info"
-                          ? "bg-blue-500/20 text-blue-400"
-                          : notificacao.tipo === "success"
+                        notificacao.tipo === "evento_criado"
                           ? "bg-green-500/20 text-green-400"
-                          : notificacao.tipo === "warning"
-                          ? "bg-yellow-500/20 text-yellow-400"
+                          : notificacao.tipo === "evento_editado"
+                          ? "bg-blue-500/20 text-blue-400"
                           : "bg-red-500/20 text-red-400"
                       }`}
                     >
@@ -468,20 +399,28 @@ export const NotificacoesPage: React.FC = () => {
                               🕐 {formatarDataHora(notificacao.dataHora)}
                             </span>
 
-                            {notificacao.origem && (
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full font-medium ${
-                                  theme === "dark"
-                                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
-                                    : "bg-blue-100 text-blue-700 border border-blue-200"
-                                }`}
-                              >
-                                <h1 className="inline-flex items-center gap-1">
-                                  {getIconeOrigem(notificacao.origem)}
-                                  {notificacao.origem}
-                                </h1>
-                              </span>
-                            )}
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full font-medium ${
+                                theme === "dark"
+                                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                                  : "bg-blue-100 text-blue-700 border border-blue-200"
+                              }`}
+                            >
+                              <h1 className="inline-flex items-center gap-1">
+                                {getIconeOrigem()}
+                                {notificacao.setorNome}
+                              </h1>
+                            </span>
+
+                            <span
+                              className={`text-xs px-2 py-1 rounded-full font-medium ${
+                                theme === "dark"
+                                  ? "bg-gray-600/50 text-gray-300"
+                                  : "bg-gray-200 text-gray-600"
+                              }`}
+                            >
+                              por {notificacao.autorNome}
+                            </span>
                           </div>
                         </div>
 
@@ -492,7 +431,7 @@ export const NotificacoesPage: React.FC = () => {
 
                           <div className="flex items-center gap-2">
                             <button
-                              onClick={() => marcarComoLida(notificacao)}
+                              onClick={() => handleMarcarComoLida(notificacao)}
                               className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
                                 notificacao.lida
                                   ? theme === "dark"
@@ -524,7 +463,9 @@ export const NotificacoesPage: React.FC = () => {
                             </button>
 
                             <button
-                              onClick={() => excluirNotificacao(notificacao)}
+                              onClick={() =>
+                                handleExcluirNotificacao(notificacao)
+                              }
                               className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
                                 theme === "dark"
                                   ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
@@ -619,8 +560,8 @@ export const NotificacoesPage: React.FC = () => {
         isOpen={modalAberto}
         notificacao={notificacaoSelecionada}
         onClose={fecharModal}
-        onMarcarComoLida={marcarComoLida}
-        onExcluir={excluirNotificacao}
+        onMarcarComoLida={handleMarcarComoLida}
+        onExcluir={handleExcluirNotificacao}
       />
 
       {confirmacaoExclusao && notificacaoParaExcluir && (

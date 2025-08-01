@@ -6,6 +6,8 @@ import {
   UserFormData,
 } from "../types/interfaces";
 import { useTheme } from "../contexts/ThemeContext";
+import { useAuth } from "../contexts/AuthContext";
+import { usePermissions } from "../hooks/usePermissions";
 import { Sidebar } from "../components/elements/Sidebar";
 import { UserForm } from "../components/elements/forms/UserForm";
 import {
@@ -31,6 +33,8 @@ import { UserInfoModal } from "../components/modals/UserInfoModal";
 
 export const UserPage = () => {
   const { theme } = useTheme();
+  const { user, canAccessSector } = useAuth();
+  const { canCreateUser, canEditUser, canDeleteUser } = usePermissions();
   const [isOpen, setIsOpen] = useState(true);
   const [activeView, setActiveView] = useState<
     "calendario" | "setores" | "usuarios"
@@ -80,8 +84,8 @@ export const UserPage = () => {
         sectorId: 2,
         sector: {
           id: 2,
-          name: "T.I",
-          description: "Tecnologia da Informação",
+          name: "DAF - Diretoria Administrativa Financeira",
+          description: "Diretoria Administrativa e Financeira",
           users: [],
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -99,114 +103,106 @@ export const UserPage = () => {
         sectorId: 2,
         sector: {
           id: 2,
-          name: "T.I",
-          description: "Tecnologia da Informação",
+          name: "DAF - Diretoria Administrativa Financeira",
+          description: "Diretoria Administrativa e Financeira",
           users: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         isActive: true,
-        lastLogin: new Date("2024-01-14T17:20:00"),
-        createdAt: new Date("2023-04-15T10:30:00"),
-        updatedAt: new Date("2024-01-14T17:20:00"),
+        lastLogin: new Date("2024-01-14T11:20:00"),
+        createdAt: new Date("2023-03-01T10:00:00"),
+        updatedAt: new Date("2024-01-14T11:20:00"),
       },
       {
         id: 4,
-        email: "maria.silva@empresa.com",
-        name: "Maria Silva",
-        role: "MANAGER",
+        email: "pedro.santos@empresa.com",
+        name: "Pedro Santos",
+        role: "COLLABORATOR",
         sectorId: 3,
         sector: {
           id: 3,
-          name: "Recursos Humanos",
-          description: "Gestão de pessoas",
+          name: "Diretoria Técnica",
+          description: "Área técnica e operacional",
           users: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         isActive: true,
         lastLogin: new Date("2024-01-13T14:15:00"),
-        createdAt: new Date("2023-01-15T11:00:00"),
+        createdAt: new Date("2023-04-01T11:00:00"),
         updatedAt: new Date("2024-01-13T14:15:00"),
       },
       {
         id: 5,
-        email: "pedro.santos@empresa.com",
-        name: "Pedro Santos",
+        email: "maria.souza@empresa.com",
+        name: "Maria Souza",
         role: "IT_ADMIN",
-        sectorId: 2,
+        sectorId: 5,
         sector: {
-          id: 2,
-          name: "T.I",
-          description: "Tecnologia da Informação",
+          id: 5,
+          name: "Tecnologia da Informação",
+          description: "Suporte técnico e infraestrutura",
           users: [],
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         isActive: false,
-        lastLogin: new Date("2023-12-20T09:30:00"),
-        createdAt: new Date("2023-03-10T08:15:00"),
-        updatedAt: new Date("2023-12-21T10:00:00"),
-      },
-      {
-        id: 6,
-        email: "patricia.rocha@empresa.com",
-        name: "Patricia Rocha",
-        role: "COLLABORATOR",
-        sectorId: 4,
-        sector: {
-          id: 4,
-          name: "Setor Contábil",
-          description: "Controle financeiro",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T11:00:00"),
-        createdAt: new Date("2023-01-20T09:45:00"),
-        updatedAt: new Date("2024-01-12T11:00:00"),
+        lastLogin: new Date("2024-01-10T09:30:00"),
+        createdAt: new Date("2023-05-01T12:00:00"),
+        updatedAt: new Date("2024-01-10T09:30:00"),
       },
     ];
 
+    // Filtrar usuários baseado no role do usuário logado
+    let filteredUsers = mockUsers;
+
+    if (user?.role === "MANAGER") {
+      // MANAGER só pode ver usuários do próprio setor
+      filteredUsers = mockUsers.filter((u) => u.sectorId === user.sectorId);
+    }
+    // ADMIN e IT_ADMIN podem ver todos (não precisa filtrar)
+
+    setUsers(filteredUsers);
+
+    // Mock sectors data
     const mockSectors: SectorData[] = [
       {
         id: 1,
         name: "Presidência",
-        description: "Setor principal",
+        description: "Setor principal da empresa",
         users: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: 2,
-        name: "T.I",
-        description: "Tecnologia da Informação",
+        name: "DAF - Diretoria Administrativa Financeira",
+        description: "Diretoria Administrativa e Financeira",
         users: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: 3,
-        name: "Recursos Humanos",
-        description: "Gestão de pessoas",
+        name: "Diretoria Técnica",
+        description: "Área técnica e operacional",
         users: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        id: 4,
-        name: "Setor Contábil",
-        description: "Controle financeiro",
+        id: 5,
+        name: "Tecnologia da Informação",
+        description: "Suporte técnico e infraestrutura",
         users: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
     ];
 
-    setUsers(mockUsers);
     setSectors(mockSectors);
-  }, []);
+  }, [user]); // Dependência do user para refiltrar quando mudar
 
   const getRoleIcon = (role: UserRole) => {
     switch (role) {

@@ -413,6 +413,38 @@ export const SetorDetail = () => {
     }
   };
 
+  const handleDeleteUser = (userId: string) => {
+    // Encontrar o usuário no subsetor atual
+    if (selectedSubsetor) {
+      const updatedSubsetores = subsetores.map((subsetor) => {
+        if (subsetor.id === selectedSubsetor.id) {
+          const filteredMembros = subsetor.membros.filter(
+            (user) => user.id.toString() !== userId
+          );
+          return {
+            ...subsetor,
+            membros: filteredMembros,
+            totalMembros: filteredMembros.length,
+            membrosAtivos: filteredMembros.filter(
+              (user) => user.status === "ativo"
+            ).length,
+          };
+        }
+        return subsetor;
+      });
+
+      setSubsetores(updatedSubsetores);
+
+      // Atualizar o selectedSubsetor também
+      const updatedSubsetor = updatedSubsetores.find(
+        (s) => s.id === selectedSubsetor.id
+      );
+      if (updatedSubsetor) {
+        setSelectedSubsetor(updatedSubsetor);
+      }
+    }
+  };
+
   if (!setor) {
     return (
       <div
@@ -857,12 +889,7 @@ export const SetorDetail = () => {
                 setShowSetorModal(false);
                 setSelectedSubsetor(null);
               }}
-              onAddUser={() => {
-                setSelectedSubsetorForMembro(selectedSubsetor.id);
-                setShowMembroForm(true);
-                setShowSetorModal(false);
-                setSelectedSubsetorForMembro(null);
-              }}
+              onDeleteUser={handleDeleteUser}
             />
           )}
         </div>

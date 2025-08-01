@@ -1,24 +1,36 @@
 import React from "react";
 import { useTheme } from "../../contexts/ThemeContext";
-import { FaBell, FaCheck, FaTrash, FaTimes } from "react-icons/fa";
+import {
+  FaBell,
+  FaCheck,
+  FaTrash,
+  FaTimes,
+  FaPlus,
+  FaEdit,
+} from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 
-interface Notificacao {
+interface NotificacaoSetor {
   id: string;
   titulo: string;
   descricao: string;
-  tipo: "info" | "warning" | "success" | "error";
+  tipo: "evento_criado" | "evento_editado" | "evento_excluido";
   lida: boolean;
   dataHora: Date;
-  origem?: string;
+  setorId: number;
+  setorNome: string;
+  autorId: number;
+  autorNome: string;
+  eventoId?: string;
+  eventoTitulo?: string;
 }
 
 interface NotificacaoInfoModalProps {
   isOpen: boolean;
-  notificacao: Notificacao | null;
+  notificacao: NotificacaoSetor | null;
   onClose: () => void;
-  onMarcarComoLida?: (notificacao: Notificacao) => void;
-  onExcluir?: (notificacao: Notificacao) => void;
+  onMarcarComoLida?: (notificacao: NotificacaoSetor) => void;
+  onExcluir?: (notificacao: NotificacaoSetor) => void;
 }
 
 export const NotificacaoInfoModal: React.FC<NotificacaoInfoModalProps> = ({
@@ -32,18 +44,29 @@ export const NotificacaoInfoModal: React.FC<NotificacaoInfoModalProps> = ({
 
   if (!isOpen || !notificacao) return null;
 
-  const getIconeNotificacao = (tipo: string) => {
+  const getIconeNotificacao = (tipo: NotificacaoSetor["tipo"]) => {
     switch (tipo) {
-      case "info":
-        return <FaBell className="w-5 h-5 text-blue-500" />;
-      case "success":
-        return <FaCheck className="w-5 h-5 text-green-500" />;
-      case "warning":
-        return <IoMdTime className="w-5 h-5 text-yellow-500" />;
-      case "error":
+      case "evento_criado":
+        return <FaPlus className="w-5 h-5 text-green-500" />;
+      case "evento_editado":
+        return <FaEdit className="w-5 h-5 text-blue-500" />;
+      case "evento_excluido":
         return <FaTrash className="w-5 h-5 text-red-500" />;
       default:
         return <FaBell className="w-5 h-5 text-gray-500" />;
+    }
+  };
+
+  const getTipoLabel = (tipo: NotificacaoSetor["tipo"]) => {
+    switch (tipo) {
+      case "evento_criado":
+        return "Evento Criado";
+      case "evento_editado":
+        return "Evento Editado";
+      case "evento_excluido":
+        return "Evento Excluído";
+      default:
+        return "Notificação";
     }
   };
 
@@ -142,17 +165,24 @@ export const NotificacaoInfoModal: React.FC<NotificacaoInfoModalProps> = ({
               >
                 {notificacao.lida ? "Lida" : "Não lida"}
               </span>
-              {notificacao.origem && (
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    theme === "dark"
-                      ? "bg-gray-700 text-gray-300"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {notificacao.origem}
-                </span>
-              )}
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  theme === "dark"
+                    ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                    : "bg-blue-100 text-blue-700 border border-blue-200"
+                }`}
+              >
+                Setor: {notificacao.setorNome}
+              </span>
+              <span
+                className={`px-3 py-1 rounded-full text-sm ${
+                  theme === "dark"
+                    ? "bg-gray-600/50 text-gray-300"
+                    : "bg-gray-200 text-gray-600"
+                }`}
+              >
+                por {notificacao.autorNome}
+              </span>
             </div>
           </div>
 
@@ -204,10 +234,7 @@ export const NotificacaoInfoModal: React.FC<NotificacaoInfoModalProps> = ({
                   theme === "dark" ? "text-gray-400" : "text-gray-600"
                 }`}
               >
-                {notificacao.tipo === "info" && "Informação"}
-                {notificacao.tipo === "success" && "Sucesso"}
-                {notificacao.tipo === "warning" && "Aviso"}
-                {notificacao.tipo === "error" && "Erro"}
+                {getTipoLabel(notificacao.tipo)}
               </p>
             </div>
             <div>
