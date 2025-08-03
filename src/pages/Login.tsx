@@ -110,32 +110,6 @@ export const Login = () => {
               Criar Conta
             </button>
           </p>
-
-          <div className="mt-6 p-4 bg-gray-800 rounded-lg text-xs text-gray-300">
-            <h3 className="font-semibold mb-2 text-white">
-              Usuários de Teste:
-            </h3>
-            <div className="space-y-1">
-              <div>
-                <strong>Admin:</strong> admin@agrese.com
-              </div>
-              <div>
-                <strong>Gerente DAF:</strong> daf@agrese.com
-              </div>
-              <div>
-                <strong>Diretor Técnico:</strong> diretor.tecnico@agrese.com
-              </div>
-              <div>
-                <strong>Colaborador:</strong> colaborador@agrese.com
-              </div>
-              <div>
-                <strong>TI:</strong> ti@agrese.com
-              </div>
-            </div>
-            <div className="mt-2">
-              <strong>Senha para todos:</strong> 123456
-            </div>
-          </div>
         </form>
       </div>
     </div>

@@ -177,7 +177,7 @@ export const NotificacoesPage: React.FC = () => {
           className={`min-h-screen overflow-y-auto ${
             theme === "dark"
               ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-              : "bg-gradient-to-br from-blue-50 via-white to-indigo-50"
+              : "bg-gradient-to-br from-blue-50 via-blue-25 to-blue-100"
           }`}
         >
           <div className="max-w-6xl mx-auto px-6 py-8">
@@ -185,8 +185,8 @@ export const NotificacoesPage: React.FC = () => {
               <div
                 className={`relative overflow-hidden rounded-2xl p-8 ${
                   theme === "dark"
-                    ? "bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-800/30"
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 text-white"
+                    ? "bg-gradient-to-r from-[#004A7A]/50 to-[#0092DA]/50 border border-[#0092DA]/30"
+                    : "bg-gradient-to-r from-[#0092DA] to-[#006BA6] text-white"
                 } shadow-xl`}
               >
                 <div className="absolute inset-0 bg-black/10"></div>
@@ -195,7 +195,7 @@ export const NotificacoesPage: React.FC = () => {
                     <div className="flex items-center gap-4">
                       <div
                         className={`p-3 rounded-xl ${
-                          theme === "dark" ? "bg-blue-500/20" : "bg-white/20"
+                          theme === "dark" ? "bg-[#0092DA]/20" : "bg-white/20"
                         }`}
                       >
                         <FaBell className="w-8 h-8 text-white" />
@@ -257,8 +257,8 @@ export const NotificacoesPage: React.FC = () => {
                     className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-300 flex items-center gap-2 ${
                       filtroAtivo === "todas"
                         ? theme === "dark"
-                          ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25 scale-105"
-                          : "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25 scale-105"
+                          ? "bg-gradient-to-r from-[#0092DA] to-[#006BA6] text-white shadow-lg shadow-[#0092DA]/25 scale-105"
+                          : "bg-gradient-to-r from-[#0092DA] to-[#006BA6] text-white shadow-lg shadow-[#0092DA]/25 scale-105"
                         : theme === "dark"
                         ? "text-gray-300 hover:text-white hover:bg-gray-700/50 hover:scale-105"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100/50 hover:scale-105"
@@ -350,7 +350,7 @@ export const NotificacoesPage: React.FC = () => {
                       : "bg-white/80 border border-gray-200/50 backdrop-blur-sm hover:bg-white/90"
                   } ${
                     !notificacao.lida
-                      ? "ring-2 ring-blue-400/30 shadow-lg shadow-blue-500/10"
+                      ? "ring-2 ring-[#0092DA]/30 shadow-lg shadow-[#0092DA]/10"
                       : ""
                   }`}
                 >
@@ -373,7 +373,7 @@ export const NotificacoesPage: React.FC = () => {
                           <h3
                             className={`font-bold text-base leading-tight mb-2 ${
                               theme === "dark" ? "text-white" : "text-gray-900"
-                            } ${!notificacao.lida ? "text-blue-400" : ""}`}
+                            } ${!notificacao.lida ? "text-[#0092DA]" : ""}`}
                           >
                             {notificacao.titulo}
                           </h3>
@@ -402,7 +402,7 @@ export const NotificacoesPage: React.FC = () => {
                             <span
                               className={`text-xs px-3 py-1 rounded-full font-medium ${
                                 theme === "dark"
-                                  ? "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                                  ? "bg-[#0092DA]/20 text-blue-300 border border-[#0092DA]/30"
                                   : "bg-blue-100 text-blue-700 border border-blue-200"
                               }`}
                             >
@@ -426,7 +426,7 @@ export const NotificacoesPage: React.FC = () => {
 
                         <div className="flex items-center gap-3">
                           {!notificacao.lida && (
-                            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                            <div className="w-3 h-3 bg-gradient-to-r from-[#0092DA] to-[#006BA6] rounded-full animate-pulse"></div>
                           )}
 
                           <div className="flex items-center gap-2">
@@ -454,7 +454,7 @@ export const NotificacoesPage: React.FC = () => {
                               onClick={() => abrirModal(notificacao)}
                               className={`p-2 rounded-lg transition-all duration-200 hover:scale-110 ${
                                 theme === "dark"
-                                  ? "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30"
+                                  ? "bg-[#0092DA]/20 text-blue-400 hover:bg-[#0092DA]/30"
                                   : "bg-blue-100 text-blue-600 hover:bg-blue-200"
                               }`}
                               title="Ver detalhes"
@@ -498,7 +498,7 @@ export const NotificacoesPage: React.FC = () => {
                       ? "bg-orange-500/20"
                       : filtroAtivo === "lidas"
                       ? "bg-green-500/20"
-                      : "bg-blue-500/20"
+                      : "bg-[#0092DA]/20"
                   }`}
                 >
                   <FaBell
@@ -508,8 +508,8 @@ export const NotificacoesPage: React.FC = () => {
                         : filtroAtivo === "lidas"
                         ? "text-green-400"
                         : theme === "dark"
-                        ? "text-blue-400"
-                        : "text-blue-500"
+                        ? "text-[#0092DA]"
+                        : "text-[#0092DA]"
                     }`}
                   />
                 </div>
@@ -543,8 +543,8 @@ export const NotificacoesPage: React.FC = () => {
                     onClick={() => setFiltroAtivo("todas")}
                     className={`mt-6 px-4 py-2 text-sm rounded-xl font-medium transition-all duration-200 hover:scale-105 ${
                       theme === "dark"
-                        ? "bg-blue-600 hover:bg-blue-700 text-white"
-                        : "bg-blue-500 hover:bg-blue-600 text-white"
+                        ? "bg-[#0092DA] hover:bg-[#006BA6] text-white"
+                        : "bg-[#0092DA] hover:bg-[#006BA6] text-white"
                     } shadow-lg`}
                   >
                     📋 Ver todas as notificações
