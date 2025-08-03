@@ -87,16 +87,16 @@ export const Sidebar = ({
 
   return (
     <div
-      className={`fixed left-0 top-0 flex flex-col justify-between ${
-        theme === "dark" ? "bg-gray-900" : "bg-gray-800"
-      } text-white h-screen z-40 ${
+      className={`fixed left-0 top-0 flex flex-col justify-between text-white h-screen z-40 ${
         isOpen ? "w-64" : "w-16"
-      } duration-300 shadow-lg`}
+      } duration-300 shadow-lg ${
+        theme === "dark" ? "bg-[#006BA6]" : "bg-[#0092DA]"
+      }`}
     >
       <div
-        className={`p-4 border-b ${
-          theme === "dark" ? "border-gray-800" : "border-gray-700"
-        } relative`}
+        className={`p-4 border-b relative ${
+          theme === "dark" ? "border-[#005A8A]" : "border-[#007BB8]"
+        }`}
       >
         <div className="flex items-center">
           <div
@@ -113,11 +113,11 @@ export const Sidebar = ({
 
         <button
           onClick={onToggle}
-          className={`absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full ${
+          className={`absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full transition-all duration-300 border-2 flex items-center justify-center shadow-lg z-50 ${
             theme === "dark"
-              ? "bg-gray-800 hover:bg-gray-700 border-gray-700"
-              : "bg-gray-700 hover:bg-gray-600 border-gray-600"
-          } transition-all duration-300 border-2 flex items-center justify-center shadow-lg z-50`}
+              ? "bg-[#005A8A] hover:bg-[#004A7A] border-[#004A7A]"
+              : "bg-[#007BB8] hover:bg-[#006AA0] border-[#006AA0]"
+          }`}
         >
           <FaChevronLeft
             className={`w-2 h-2 text-white transition-transform duration-300 ${
@@ -137,11 +137,11 @@ export const Sidebar = ({
                   className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                     isCalendarioActive
                       ? theme === "dark"
-                        ? "bg-blue-900 text-blue-300"
-                        : "bg-blue-50 text-[#34448C]"
+                        ? "bg-[#005A8A] text-white"
+                        : "bg-white text-[#0092DA]"
                       : theme === "dark"
-                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                      ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                      : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
                   } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
                 >
                   <FaRegCalendarAlt className="w-6 h-6" />
@@ -164,11 +164,11 @@ export const Sidebar = ({
                   className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                     isNotificacoesActive
                       ? theme === "dark"
-                        ? "bg-blue-900 text-blue-300"
-                        : "bg-blue-50 text-[#34448C]"
+                        ? "bg-[#005A8A] text-white"
+                        : "bg-white text-[#0092DA]"
                       : theme === "dark"
-                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                      ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                      : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
                   } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
                 >
                   <div className="relative">
@@ -191,11 +191,11 @@ export const Sidebar = ({
                   className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                     isSetoresActive
                       ? theme === "dark"
-                        ? "bg-blue-900 text-blue-300"
-                        : "bg-blue-50 text-[#34448C]"
+                        ? "bg-[#005A8A] text-white"
+                        : "bg-white text-[#0092DA]"
                       : theme === "dark"
-                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                      ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                      : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
                   } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
                 >
                   <TbHierarchy3 className="group-hover:scale-[1.05] w-6 h-6" />
@@ -214,11 +214,11 @@ export const Sidebar = ({
                   className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
                     isUsuariosActive
                       ? theme === "dark"
-                        ? "bg-blue-900 text-blue-300"
-                        : "bg-blue-50 text-[#34448C]"
+                        ? "bg-[#005A8A] text-white"
+                        : "bg-white text-[#0092DA]"
                       : theme === "dark"
-                      ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                      : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                      ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                      : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
                   } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
                 >
                   <MdGroups2 className="w-6 h-6 group-hover:scale-[1.03] duration-300" />
@@ -237,23 +237,23 @@ export const Sidebar = ({
 
       <div
         className={`border-t ${
-          theme === "dark" ? "border-gray-800" : "border-gray-700"
+          theme === "dark" ? "border-[#005A8A]" : "border-[#007BB8]"
         }`}
       >
         <div className="p-4">
           {isOpen ? (
             <div
-              className={`${
-                theme === "dark" ? "bg-gray-800" : "bg-gray-700"
-              } rounded-lg p-3 mb-3`}
+              className={`rounded-lg p-3 mb-3 ${
+                theme === "dark" ? "bg-[#005A8A]" : "bg-[#007BB8]"
+              }`}
             >
               <div className="flex items-center gap-3">
-                <FaUserCircle className="w-10 h-10 text-blue-400 flex-shrink-0" />
+                <FaUserCircle className="w-10 h-10 text-[#00B4E6] flex-shrink-0" />
                 <div className="flex flex-col min-w-0">
                   <span className="text-sm font-semibold text-white truncate">
                     {user?.name || "Usuário"}
                   </span>
-                  <span className="text-xs text-red-400 truncate">
+                  <span className="text-xs text-[#00B4E6] truncate">
                     {user?.sectorName || "Setor"}
                   </span>
                 </div>
@@ -261,7 +261,7 @@ export const Sidebar = ({
             </div>
           ) : (
             <div className="flex justify-center mb-3">
-              <FaUserCircle className="w-8 h-8 text-blue-400" />
+              <FaUserCircle className="w-8 h-8 text-[#00B4E6]" />
             </div>
           )}
         </div>
@@ -271,8 +271,8 @@ export const Sidebar = ({
             onClick={toggleTheme}
             className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
               theme === "dark"
-                ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
             } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
           >
             {theme === "dark" ? (
@@ -294,8 +294,8 @@ export const Sidebar = ({
             onClick={handleLogout}
             className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full ${
               theme === "dark"
-                ? "text-gray-300 hover:bg-gray-800 hover:text-white"
-                : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
+                ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
             } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
           >
             <TbLogout className="w-5 h-5" />

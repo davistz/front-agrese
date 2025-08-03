@@ -37,8 +37,8 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
         onClick={() => setShowTypeModal(true)}
         className={`w-full mb-2 px-4 py-2 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
           theme === "dark"
-            ? "bg-blue-600 hover:bg-blue-700 text-white"
-            : "bg-blue-600 hover:bg-blue-700 text-white"
+            ? "bg-[#006BA6] hover:bg-[#005A8A] text-white"
+            : "bg-[#0092DA] hover:bg-[#007BB8] text-white"
         }`}
       >
         <svg

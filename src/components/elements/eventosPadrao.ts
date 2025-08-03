@@ -17,8 +17,8 @@ export const eventosPadrao = [
   {
     id: 2,
     title: "Reunião",
-    start: new Date(year, month, day, 14, 0),
-    end: new Date(year, month, day, 16, 0),
+    start: new Date(year, month, day + 1, 14, 0),
+    end: new Date(year, month, day + 1, 16, 0),
     desc: "Segundo evento",
     setor: "DAF",
     autor: "João Melo",
@@ -27,8 +27,8 @@ export const eventosPadrao = [
   {
     id: 3,
     title: "Documento",
-    start: new Date(year, month, day, 14, 0),
-    end: new Date(year, month, day, 16, 0),
+    start: new Date(year, month, day + 2, 14, 0),
+    end: new Date(year, month, day + 2, 16, 0),
     desc: "Terceiro evento",
     setor: "Presidente",
     autor: "João Melo",
@@ -37,8 +37,8 @@ export const eventosPadrao = [
   {
     id: 4,
     title: "Atividade Externa",
-    start: new Date(year, month, day, 14, 0),
-    end: new Date(year, month, day, 16, 0),
+    start: new Date(year, month, day + 3, 14, 0),
+    end: new Date(year, month, day + 3, 16, 0),
     desc: "Quarto evento",
     setor: "DAF",
     autor: "João Melo",

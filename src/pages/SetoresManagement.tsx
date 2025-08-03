@@ -71,16 +71,13 @@ export const SetoresManagement = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  // Função para filtrar setores baseado no usuário logado
   const getFilteredSetores = () => {
     if (!user) return {};
 
-    // ADMIN e IT_ADMIN podem ver todos os setores
     if (user.role === "ADMIN" || user.role === "IT_ADMIN") {
       return setoresHierarquia;
     }
 
-    // MANAGER pode ver apenas seu próprio setor
     if (user.role === "MANAGER") {
       const sectorMapping: { [key: number]: string } = {
         1: "Presidente",
@@ -94,7 +91,6 @@ export const SetoresManagement = () => {
       }
     }
 
-    // COLLABORATOR não deveria acessar esta página, mas caso acesse, retorna vazio
     return {};
   };
 
@@ -102,32 +98,36 @@ export const SetoresManagement = () => {
     Presidente: {
       nome: "Presidência",
       subsetores: [
-        "Gabinete",
         "Procuradoria",
         "Conselho Superior",
-        "ASCOM",
+        "Gabinete",
         "Ouvidoria",
+        "ASCOM",
       ],
-    },
-    DiretorTecnico: {
-      nome: "Diretor Técnico",
-      subsetores: ["Câmera de Saneamento", "Energia", "Lotérica", "Gás"],
     },
     DAF: {
       nome: "DAF",
       subsetores: [
-        "T.I",
-        "Controle Interno",
-        "Setor Contábil",
-        "Setor de Compras",
-        "Licitação",
+        "Contabilidade",
         "Recursos Humanos",
+        "Compras",
+        "Licitação",
+        "T.I",
         "Almoxarifado",
+      ],
+    },
+    DiretorTecnico: {
+      nome: "Diretoria Técnica",
+      subsetores: [
+        "CT Loterias",
+        "CT Gás",
+        "CT Energia",
+        "CT Tarifária",
+        "CT Saneamento",
       ],
     },
   };
 
-  // Usar setores filtrados ao invés de todos os setores
   const filteredSetores = getFilteredSetores();
   const setoresArray = Object.entries(filteredSetores);
   const totalSetores = setoresArray.length;
@@ -247,7 +247,7 @@ export const SetoresManagement = () => {
         iconColor: "text-blue-600",
       };
     }
-    if (nome.includes("contábil") || nome.includes("contabilidade")) {
+    if (nome.includes("contabilidade") || nome.includes("contábil")) {
       return {
         icon: FaDollarSign,
         colors: "from-yellow-100 to-yellow-200",
@@ -292,7 +292,8 @@ export const SetoresManagement = () => {
     if (
       nome.includes("saneamento") ||
       nome.includes("energia") ||
-      nome.includes("gás")
+      nome.includes("gás") ||
+      nome.includes("tarifária")
     ) {
       return {
         icon: FaCogs,
@@ -300,11 +301,18 @@ export const SetoresManagement = () => {
         iconColor: "text-green-600",
       };
     }
-    if (nome.includes("lotérica")) {
+    if (nome.includes("loterias") || nome.includes("ct loterias")) {
       return {
         icon: FaDollarSign,
         colors: "from-emerald-100 to-emerald-200",
         iconColor: "text-emerald-600",
+      };
+    }
+    if (nome.includes("conselho superior")) {
+      return {
+        icon: FaCrown,
+        colors: "from-violet-100 to-violet-200",
+        iconColor: "text-violet-600",
       };
     }
 
@@ -319,23 +327,23 @@ export const SetoresManagement = () => {
     {
       id: 1,
       name: "Presidência",
-      description: "Órgão máximo da organização",
+      description: "Órgão máximo da AGRESE",
       users: [],
       createdAt: new Date("2023-01-01"),
       updatedAt: new Date("2023-01-01"),
     },
     {
       id: 2,
-      name: "Diretor Técnico",
-      description: "Responsável pelos aspectos técnicos",
+      name: "DAF",
+      description: "Diretoria Administrativa e Financeira",
       users: [],
       createdAt: new Date("2023-01-01"),
       updatedAt: new Date("2023-01-01"),
     },
     {
       id: 3,
-      name: "DAF",
-      description: "Diretoria Administrativa e Financeira",
+      name: "Diretoria Técnica",
+      description: "Responsável pelas Câmaras Técnicas",
       users: [],
       createdAt: new Date("2023-01-01"),
       updatedAt: new Date("2023-01-01"),
@@ -345,32 +353,182 @@ export const SetoresManagement = () => {
   useEffect(() => {
     const mockSubsetores: SubsetorData[] = [
       {
-        id: "ti-daf",
-        nome: "T.I",
-        setorPai: "DAF",
-        responsavel: "Carlos Oliveira",
-        emailSetor: "ti@empresa.com",
-        telefoneSetor: "(11) 1234-5679",
-        localizacao: "Andar 3 - Sala 301",
-        observacoes: "Centro de inovação tecnológica",
-        dataCriacao: new Date("2023-02-01"),
+        id: "procuradoria-pres",
+        nome: "Procuradoria",
+        setorPai: "Presidente",
+        responsavel: "Danielle Fantim",
+        emailSetor: "procuradoria@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8800",
+        localizacao: "Presidência - Procuradoria",
+        observacoes: "Procuradoria Jurídica da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
         membros: [
           {
             id: 1,
-            nome: "Carlos Oliveira",
-            email: "carlos.oliveira@empresa.com",
-            cargo: "Coordenador de TI",
-            telefone: "(11) 9999-3333",
-            dataIngresso: new Date("2023-02-01"),
+            nome: "Danielle Fantim",
+            email: "danielle.fantim@agrese.se.gov.br",
+            cargo: "Procuradora Chefe",
+            telefone: "(79) 99999-0001",
+            dataIngresso: new Date("2023-01-01"),
             status: "ativo",
           },
           {
             id: 2,
-            nome: "Ana Costa",
-            email: "ana.costa@empresa.com",
-            cargo: "Desenvolvedora",
-            telefone: "(11) 9999-4444",
-            dataIngresso: new Date("2023-04-15"),
+            nome: "Bruna Mariana",
+            email: "bruna.mariana@agrese.se.gov.br",
+            cargo: "Procuradora",
+            telefone: "(79) 99999-0002",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+          {
+            id: 3,
+            nome: "Luanna Ramos",
+            email: "luanna.ramos@agrese.se.gov.br",
+            cargo: "Procuradora",
+            telefone: "(79) 99999-0003",
+            dataIngresso: new Date("2023-03-01"),
+            status: "ativo",
+          },
+          {
+            id: 4,
+            nome: "James Charles",
+            email: "james.charles@agrese.se.gov.br",
+            cargo: "Procurador",
+            telefone: "(79) 99999-0004",
+            dataIngresso: new Date("2023-04-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 4,
+        membrosAtivos: 4,
+      },
+      {
+        id: "gabinete-pres",
+        nome: "Gabinete",
+        setorPai: "Presidente",
+        responsavel: "Aline Souza",
+        emailSetor: "gabinete@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8801",
+        localizacao: "Presidência - Gabinete",
+        observacoes: "Chefia de Gabinete",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 5,
+            nome: "Aline Souza",
+            email: "aline.souza@agrese.se.gov.br",
+            cargo: "Chefe de Gabinete",
+            telefone: "(79) 99999-0005",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 6,
+            nome: "Isabela Grossi",
+            email: "isabela.grossi@agrese.se.gov.br",
+            cargo: "Assessora de Gabinete",
+            telefone: "(79) 99999-0006",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 2,
+        membrosAtivos: 2,
+      },
+      {
+        id: "ouvidoria-pres",
+        nome: "Ouvidoria",
+        setorPai: "Presidente",
+        responsavel: "Juliana Costa",
+        emailSetor: "ouvidoria@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8802",
+        localizacao: "Presidência - Ouvidoria",
+        observacoes: "Ouvidoria Geral da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 7,
+            nome: "Juliana Costa",
+            email: "juliana.costa@agrese.se.gov.br",
+            cargo: "Ouvidora",
+            telefone: "(79) 99999-0007",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 8,
+            nome: "Amanda Guimarães Santana",
+            email: "amandaguimaraes.santana@agrese.se.gov.br",
+            cargo: "Atendente Call Center",
+            telefone: "(79) 99999-0008",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+          {
+            id: 9,
+            nome: "Evelyn Bispo",
+            email: "evelyn.bispo@agrese.se.gov.br",
+            cargo: "Atendente Call Center",
+            telefone: "(79) 99999-0009",
+            dataIngresso: new Date("2023-03-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 3,
+        membrosAtivos: 3,
+      },
+      {
+        id: "ascom-pres",
+        nome: "ASCOM",
+        setorPai: "Presidente",
+        responsavel: "Ingrid Ferreira",
+        emailSetor: "ascom@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8803",
+        localizacao: "Presidência - ASCOM",
+        observacoes: "Assessoria de Comunicação",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 10,
+            nome: "Ingrid Ferreira",
+            email: "ingrid.ferreira@agrese.se.gov.br",
+            cargo: "Assessora de Comunicação",
+            telefone: "(79) 99999-0010",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 1,
+        membrosAtivos: 1,
+      },
+      {
+        id: "ti-daf",
+        nome: "T.I",
+        setorPai: "DAF",
+        responsavel: "Pablo Cortes",
+        emailSetor: "ti@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8810",
+        localizacao: "DAF - Tecnologia da Informação",
+        observacoes: "Coordenação de TI da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 11,
+            nome: "Pablo Cortes",
+            email: "pablo.cortes@agrese.se.gov.br",
+            cargo: "Coordenador de T.I",
+            telefone: "(79) 99999-0011",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 12,
+            nome: "Marcelino Souza",
+            email: "marcelino.souza@agrese.se.gov.br",
+            cargo: "Técnico em T.I",
+            telefone: "(79) 99999-0012",
+            dataIngresso: new Date("2023-02-01"),
             status: "ativo",
           },
         ],
@@ -381,20 +539,20 @@ export const SetoresManagement = () => {
         id: "rh-daf",
         nome: "Recursos Humanos",
         setorPai: "DAF",
-        responsavel: "Maria Silva",
-        emailSetor: "rh@empresa.com",
-        telefoneSetor: "(11) 1234-5678",
-        localizacao: "Andar 2 - Sala 201",
-        observacoes: "Gestão de pessoas e desenvolvimento",
-        dataCriacao: new Date("2023-01-15"),
+        responsavel: "Lady Diana",
+        emailSetor: "rh@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8811",
+        localizacao: "DAF - Recursos Humanos",
+        observacoes: "Gestão de Pessoas da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
         membros: [
           {
-            id: 3,
-            nome: "Maria Silva",
-            email: "maria.silva@empresa.com",
-            cargo: "Gerente de RH",
-            telefone: "(11) 9999-1111",
-            dataIngresso: new Date("2023-01-15"),
+            id: 13,
+            nome: "Lady Diana",
+            email: "lady.diana@agrese.se.gov.br",
+            cargo: "Gestora de RH",
+            telefone: "(79) 99999-0013",
+            dataIngresso: new Date("2023-01-01"),
             status: "ativo",
           },
         ],
@@ -402,69 +560,304 @@ export const SetoresManagement = () => {
         membrosAtivos: 1,
       },
       {
-        id: "contabil-daf",
-        nome: "Setor Contábil",
+        id: "contabilidade-daf",
+        nome: "Contabilidade",
         setorPai: "DAF",
-        responsavel: "Patricia Rocha",
-        emailSetor: "contabil@empresa.com",
-        telefoneSetor: "(11) 1234-5681",
-        localizacao: "Andar 2 - Sala 205",
-        observacoes: "Controle financeiro e contábil",
-        dataCriacao: new Date("2023-01-20"),
+        responsavel: "Maria Lúcia dos Santos",
+        emailSetor: "contabilidade@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8812",
+        localizacao: "DAF - Contabilidade",
+        observacoes: "Setor Contábil da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
         membros: [
           {
-            id: 4,
-            nome: "Patricia Rocha",
-            email: "patricia.rocha@empresa.com",
-            cargo: "Contador",
-            telefone: "(11) 9999-9999",
-            dataIngresso: new Date("2023-01-20"),
+            id: 14,
+            nome: "Maria Lúcia dos Santos",
+            email: "marialucia.dossantos@agrese.se.gov.br",
+            cargo: "Contadora",
+            telefone: "(79) 99999-0014",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 15,
+            nome: "André Santos Oliveira",
+            email: "andre.santosoliveira@agrese.se.gov.br",
+            cargo: "Auxiliar Contábil",
+            telefone: "(79) 99999-0015",
+            dataIngresso: new Date("2023-02-01"),
             status: "ativo",
           },
         ],
-        totalMembros: 1,
-        membrosAtivos: 1,
+        totalMembros: 2,
+        membrosAtivos: 2,
       },
       {
-        id: "saneamento-dt",
-        nome: "Câmera de Saneamento",
-        setorPai: "DiretorTecnico",
-        responsavel: "Roberto Santos",
-        emailSetor: "saneamento@empresa.com",
-        localizacao: "Sede Técnica",
-        observacoes: "Gestão de saneamento básico",
-        dataCriacao: new Date("2023-03-01"),
+        id: "compras-daf",
+        nome: "Compras",
+        setorPai: "DAF",
+        responsavel: "Marcelo Ribeiro",
+        emailSetor: "compras@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8813",
+        localizacao: "DAF - Compras",
+        observacoes: "Setor de Compras da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
         membros: [
           {
-            id: 5,
-            nome: "Roberto Santos",
-            email: "roberto.santos@empresa.com",
-            cargo: "Coordenador de Saneamento",
-            telefone: "(11) 9999-1010",
+            id: 16,
+            nome: "Marcelo Ribeiro",
+            email: "marcelo.ribeiro@agrese.se.gov.br",
+            cargo: "Responsável por Compras",
+            telefone: "(79) 99999-0016",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 17,
+            nome: "Aderaldo Barroso",
+            email: "aderaldo.barroso@agrese.se.gov.br",
+            cargo: "Auxiliar de Compras",
+            telefone: "(79) 99999-0017",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 2,
+        membrosAtivos: 2,
+      },
+      {
+        id: "licitacao-daf",
+        nome: "Licitação",
+        setorPai: "DAF",
+        responsavel: "Ayanne Iris Santana",
+        emailSetor: "licitacao@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8814",
+        localizacao: "DAF - Licitação",
+        observacoes: "Setor de Licitações da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 18,
+            nome: "Ayanne Iris Santana",
+            email: "ayanneiris.santana@agrese.se.gov.br",
+            cargo: "Responsável por Licitação",
+            telefone: "(79) 99999-0018",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 19,
+            nome: "Muriel Augusta",
+            email: "muriel.augusta@agrese.se.gov.br",
+            cargo: "Auxiliar de Licitação",
+            telefone: "(79) 99999-0019",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 2,
+        membrosAtivos: 2,
+      },
+      {
+        id: "almoxarifado-daf",
+        nome: "Almoxarifado",
+        setorPai: "DAF",
+        responsavel: "Júlio César Melo",
+        emailSetor: "almoxarifado@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8815",
+        localizacao: "DAF - Almoxarifado",
+        observacoes: "Controle de Estoque da AGRESE",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 20,
+            nome: "Júlio César Melo",
+            email: "juliocesar.melo@agrese.se.gov.br",
+            cargo: "Responsável pelo Almoxarifado",
+            telefone: "(79) 99999-0020",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 21,
+            nome: "Márcio Silveira",
+            email: "marcio.silveira@agrese.se.gov.br",
+            cargo: "Auxiliar de Almoxarifado",
+            telefone: "(79) 99999-0021",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+          {
+            id: 22,
+            nome: "Flávia Danielle",
+            email: "flavia.danielle@agrese.se.gov.br",
+            cargo: "Auxiliar de Almoxarifado",
+            telefone: "(79) 99999-0022",
             dataIngresso: new Date("2023-03-01"),
             status: "ativo",
           },
         ],
+        totalMembros: 3,
+        membrosAtivos: 3,
+      },
+      {
+        id: "ctgas-dt",
+        nome: "CT Gás",
+        setorPai: "DiretorTecnico",
+        responsavel: "Douglas Santos",
+        emailSetor: "ctgas@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8820",
+        localizacao: "Diretoria Técnica - CT Gás",
+        observacoes: "Câmara Técnica de Gás",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 23,
+            nome: "Douglas Santos",
+            email: "douglas.santos@agrese.se.gov.br",
+            cargo: "Diretor CT Gás",
+            telefone: "(79) 99999-0023",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 24,
+            nome: "Fernanda Figueiredo",
+            email: "fernanda.figueiredo@agrese.se.gov.br",
+            cargo: "Técnica CT Gás",
+            telefone: "(79) 99999-0024",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 2,
+        membrosAtivos: 2,
+      },
+      {
+        id: "ctsaneamento-dt",
+        nome: "CT Saneamento",
+        setorPai: "DiretorTecnico",
+        responsavel: "José Wellington Leite",
+        emailSetor: "ctsaneamento@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8821",
+        localizacao: "Diretoria Técnica - CT Saneamento",
+        observacoes: "Câmara Técnica de Saneamento",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 25,
+            nome: "José Wellington Leite",
+            email: "josewellington.leite@agrese.se.gov.br",
+            cargo: "Diretor CT Saneamento",
+            telefone: "(79) 99999-0025",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 26,
+            nome: "Carla Pinheiro",
+            email: "carla.pinheiro@agrese.se.gov.br",
+            cargo: "Técnica CT Saneamento",
+            telefone: "(79) 99999-0026",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+          {
+            id: 27,
+            nome: "Eryson Vieira",
+            email: "eryson.viera@agrese.se.gov.br",
+            cargo: "Técnico CT Saneamento",
+            telefone: "(79) 99999-0027",
+            dataIngresso: new Date("2023-03-01"),
+            status: "ativo",
+          },
+          {
+            id: 28,
+            nome: "Matheus Silva",
+            email: "matheus.silva@agrese.se.gov.br",
+            cargo: "Técnico CT Saneamento",
+            telefone: "(79) 99999-0028",
+            dataIngresso: new Date("2023-04-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 4,
+        membrosAtivos: 4,
+      },
+      {
+        id: "ctenergia-dt",
+        nome: "CT Energia",
+        setorPai: "DiretorTecnico",
+        responsavel: "Tércio Brito",
+        emailSetor: "ctenergia@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8822",
+        localizacao: "Diretoria Técnica - CT Energia",
+        observacoes: "Câmara Técnica de Energia",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 29,
+            nome: "Tércio Brito",
+            email: "tercio.brito@agrese.se.gov.br",
+            cargo: "Técnico CT Energia",
+            telefone: "(79) 99999-0029",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+          {
+            id: 30,
+            nome: "Elisson Santos",
+            email: "elisson.santos@agrese.se.gov.br",
+            cargo: "Técnico CT Energia",
+            telefone: "(79) 99999-0030",
+            dataIngresso: new Date("2023-02-01"),
+            status: "ativo",
+          },
+        ],
+        totalMembros: 2,
+        membrosAtivos: 2,
+      },
+      {
+        id: "ctloterias-dt",
+        nome: "CT Loterias",
+        setorPai: "DiretorTecnico",
+        responsavel: "Kelly Menendez",
+        emailSetor: "ctloterias@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8823",
+        localizacao: "Diretoria Técnica - CT Loterias",
+        observacoes: "Câmara Técnica de Loterias",
+        dataCriacao: new Date("2023-01-01"),
+        membros: [
+          {
+            id: 31,
+            nome: "Kelly Menendez",
+            email: "kelly.menendez@agrese.se.gov.br",
+            cargo: "Técnica CT Loterias",
+            telefone: "(79) 99999-0031",
+            dataIngresso: new Date("2023-01-01"),
+            status: "ativo",
+          },
+        ],
         totalMembros: 1,
         membrosAtivos: 1,
       },
       {
-        id: "gabinete-pres",
-        nome: "Gabinete",
-        setorPai: "Presidente",
-        responsavel: "Lucas Fernandes",
-        emailSetor: "gabinete@empresa.com",
-        telefoneSetor: "(11) 1234-5680",
-        localizacao: "Andar Executivo",
-        observacoes: "Apoio à presidência",
+        id: "cttarifaria-dt",
+        nome: "CT Tarifária",
+        setorPai: "DiretorTecnico",
+        responsavel: "Francisco Pedro Filho",
+        emailSetor: "cttarifaria@agrese.se.gov.br",
+        telefoneSetor: "(79) 3198-8824",
+        localizacao: "Diretoria Técnica - CT Tarifária",
+        observacoes: "Câmara Técnica Tarifária",
         dataCriacao: new Date("2023-01-01"),
         membros: [
           {
-            id: 6,
-            nome: "Lucas Fernandes",
-            email: "lucas.fernandes@empresa.com",
-            cargo: "Chefe de Gabinete",
-            telefone: "(11) 9999-6666",
+            id: 32,
+            nome: "Francisco Pedro Filho",
+            email: "franciscopedro.filho@agrese.se.gov.br",
+            cargo: "Diretor CT Tarifária",
+            telefone: "(79) 99999-0032",
             dataIngresso: new Date("2023-01-01"),
             status: "ativo",
           },
@@ -528,7 +921,7 @@ export const SetoresManagement = () => {
       setSubsetores(updatedSubsetores);
       setShowMembroForm(false);
       setSelectedSubsetorForMembro(null);
-      setSelectedSubsetor(null); // Limpar aqui também
+      setSelectedSubsetor(null);
     }
   };
 
@@ -574,7 +967,6 @@ export const SetoresManagement = () => {
   };
 
   const handleDeleteUser = (userId: string) => {
-    // Encontrar o usuário no subsetor atual
     if (selectedSubsetor) {
       const updatedSubsetores = subsetores.map((subsetor) => {
         if (subsetor.id === selectedSubsetor.id) {
@@ -1157,7 +1549,7 @@ export const SetoresManagement = () => {
               onCancel={() => {
                 setShowMembroForm(false);
                 setSelectedSubsetorForMembro(null);
-                setSelectedSubsetor(null); // Limpar aqui
+                setSelectedSubsetor(null);
               }}
             />
           )}
