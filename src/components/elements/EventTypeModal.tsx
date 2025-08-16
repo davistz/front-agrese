@@ -1,9 +1,11 @@
 import React from "react";
 import { IoMdClose } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
+import { usePermissions } from "../../hooks/usePermissions";
 
 export type EventType =
   | "reuniao"
+  | "reuniao-direx"
   | "atividade"
   | "atividades-externas"
   | "documento";
@@ -18,6 +20,8 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
   onClose,
 }) => {
   const { theme } = useTheme();
+  const { canCreateDirexMeeting } = usePermissions();
+
   const eventTypes = [
     {
       type: "reuniao" as EventType,
@@ -25,12 +29,22 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       icon: "🤝",
       description:
         "Reuniões internas ou intersetoriais, com participantes definidos.",
+      available: true,
+    },
+    {
+      type: "reuniao-direx" as EventType,
+      title: "Reunião Direx",
+      icon: "👥",
+      description:
+        "Reuniões da Diretoria Executiva com agenda especial e participantes da alta gestão.",
+      available: canCreateDirexMeeting(),
     },
     {
       type: "atividade" as EventType,
       title: "Atividade",
       icon: "📝",
       description: "Tarefas internas atribuídas a um ou mais usuários.",
+      available: true,
     },
     {
       type: "atividades-externas" as EventType,
@@ -38,6 +52,7 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       icon: "🌐",
       description:
         "Compromissos fora da sede, como visitas técnicas, eventos, inspeções.",
+      available: true,
     },
     {
       type: "documento" as EventType,
@@ -45,8 +60,9 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       icon: "📂",
       description:
         "Envios, recebimentos, revisões ou prazos relacionados a documentos oficiais.",
+      available: true,
     },
-  ];
+  ].filter((eventType) => eventType.available);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">

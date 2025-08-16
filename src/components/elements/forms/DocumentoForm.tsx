@@ -361,20 +361,29 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 </div>
               </div>
 
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  onSubmit(formData);
-                }}
-                className={`w-full h-[40px] flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white mt-2 ${
-                  theme === "dark"
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-black hover:bg-gray-800"
-                }`}
-                type="button"
-              >
-                Salvar Documento
-              </button>
+              <div className="flex gap-4 pt-4">
+                <button
+                  type="button"
+                  onClick={onCancel}
+                  className={`flex-1 h-12 rounded-lg font-medium transition-all duration-200 ${
+                    theme === "dark"
+                      ? "bg-gray-600 hover:bg-gray-700 text-white"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-900"
+                  }`}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    onSubmit(formData);
+                  }}
+                  className="flex-1 h-12 rounded-lg font-medium text-white transition-all duration-200 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+                >
+                  Salvar Documento
+                </button>
+              </div>
             </div>
           </form>
         </div>

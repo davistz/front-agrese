@@ -27,6 +27,7 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
     dataHoraInicio: evento.dataHoraInicio || new Date(),
     dataHoraTermino: evento.dataHoraTermino || new Date(),
     local: evento.local || "presencial",
+    sala: evento.sala || "",
     participantes: evento.participantes || [],
     status: evento.status || "agendada",
     responsavelAta: evento.responsavelAta || "",
@@ -190,7 +191,76 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                       <option value="virtual">Virtual</option>
                     </select>
                   </div>
+                </div>
 
+                {formData.local === "presencial" && (
+                  <div>
+                    <label
+                      className={`text-base font-medium ${
+                        theme === "dark" ? "text-gray-300" : "text-gray-900"
+                      }`}
+                    >
+                      Sala de Reunião
+                    </label>
+                    <div className="mt-2">
+                      <select
+                        value={formData.sala || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            sala: e.target.value,
+                          }))
+                        }
+                        className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
+                          theme === "dark"
+                            ? "bg-gray-700 border-gray-600 text-white"
+                            : "bg-transparent border-gray-300 text-gray-900"
+                        }`}
+                      >
+                        <option value="">Selecione uma sala</option>
+                        <option value="auditorio">🎭 Auditório</option>
+                        <option value="sala-reuniao">🏢 Sala de Reunião</option>
+                        <option value="sala-multiuso">🎯 Sala Multiuso</option>
+                      </select>
+                    </div>
+                    {formData.sala && (
+                      <div
+                        className={`mt-2 p-3 rounded-lg ${
+                          theme === "dark" ? "bg-gray-700" : "bg-blue-50"
+                        }`}
+                      >
+                        <p
+                          className={`text-sm ${
+                            theme === "dark" ? "text-gray-300" : "text-blue-800"
+                          }`}
+                        >
+                          📍 Local selecionado:{" "}
+                          {formData.sala === "auditorio"
+                            ? "Auditório"
+                            : formData.sala === "sala-reuniao"
+                            ? "Sala de Reunião"
+                            : formData.sala === "sala-multiuso"
+                            ? "Sala Multiuso"
+                            : ""}
+                        </p>
+                        <p
+                          className={`text-xs mt-1 ${
+                            theme === "dark" ? "text-gray-400" : "text-blue-600"
+                          }`}
+                        >
+                          {formData.sala === "auditorio" &&
+                            "Capacidade: até 100 pessoas | Equipamentos: projetor, som, microfone"}
+                          {formData.sala === "sala-reuniao" &&
+                            "Capacidade: até 20 pessoas | Equipamentos: TV, quadro branco"}
+                          {formData.sala === "sala-multiuso" &&
+                            "Capacidade: até 50 pessoas | Equipamentos: flexível conforme necessidade"}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex gap-4">
                   <div className="flex-1">
                     <label
                       className={`text-base font-medium ${

@@ -1,5 +1,5 @@
 .calendar {
-  height: 88vh;
+  height: 83vh;
   transition: width 0.3s ease;
 }
 
@@ -247,7 +247,7 @@
 
 /* Customização específica para eventos no mês */
 .rbc-month-view .rbc-event {
-  height: 20px !important;
+  height: 16px !important;
   min-height: 16px !important;
   line-height: 16px !important;
   font-size: 12.5px !important;

@@ -18,6 +18,9 @@ export interface Atividade {
   autor: string;
   setor: string;
   tipo: string;
+  status?: string;
+  prioridade?: string;
+  [key: string]: any;
 }
 
 interface FiltroAtividadesProps {

@@ -104,6 +104,7 @@ export interface ReuniaoFormData {
   dataHoraInicio: Date;
   dataHoraTermino: Date;
   local: "presencial" | "virtual";
+  sala?: string;
   participantes: string[];
   status: "agendada" | "realizada" | "cancelada";
   responsavelAta: string;
@@ -263,6 +264,7 @@ export interface ReuniaoModalData {
   dataHoraInicio: Date;
   dataHoraTermino: Date;
   local: "presencial" | "virtual";
+  sala?: string;
   participantes: string[];
   status: "agendada" | "realizada" | "cancelada";
   responsavelAta: string;

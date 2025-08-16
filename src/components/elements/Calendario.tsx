@@ -10,10 +10,10 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "./Components-Calendario-css.css";
 import { useCallback, useState } from "react";
-import { eventosPadrao } from "./eventosPadrao";
 import { EventModal } from "../modals/EventModal";
 import "moment/locale/pt-br";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useEvents } from "../../contexts/EventsContext";
 import { CustomToolbar } from "./CustomToolbarProps";
 import { FiltroAtividades } from "./FiltroAtividades";
 import { AddEventButton } from "./AddEventButton";
@@ -44,7 +44,12 @@ interface CalendarioProps {
 
 export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   const { theme } = useTheme();
-  const [events, setEvents] = useState(eventosPadrao);
+  const {
+    filteredEvents: events,
+    setFilteredEvents: setEvents,
+    addEvent,
+    updateEvent,
+  } = useEvents();
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -123,7 +128,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     December: "Dezembro",
   };
 
-  type Evento = (typeof eventosPadrao)[number];
+  type Evento = any;
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
     null
   );
@@ -139,7 +144,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const onEventDrop = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event) => {
+    const updatedEvents = events.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -155,7 +160,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const onEventResize = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event) => {
+    const updatedEvents = events.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -174,6 +179,9 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     switch (event.tipo) {
       case "reuniao":
         backgroundColor = "#d0923a";
+        break;
+      case "reuniao-direx":
+        backgroundColor = "#8B0000";
         break;
       case "atividade":
         backgroundColor = "#3ca13c";
@@ -206,85 +214,9 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const handleAddEvent = useCallback(
     (type: EventType, eventData: any) => {
-      let novoEvento;
-
-      switch (type) {
-        case "reuniao":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Reunião",
-            start: eventData.dataHoraInicio || new Date(),
-            end:
-              eventData.dataHoraTermino ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "atividade":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Atividade",
-            start: eventData.dataInicio || new Date(),
-            end:
-              eventData.dataFim ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "atividades-externas":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Atividade Externa",
-            start: eventData.dataHoraSaida || new Date(),
-            end:
-              eventData.dataHoraRetorno ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "documento":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Novo Documento",
-            start: eventData.prazoAnalise || new Date(),
-            end:
-              eventData.prazoAnalise ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        default:
-          novoEvento = {
-            id: events.length + 1,
-            title: "Novo Evento",
-            start: new Date(),
-            end: new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: "",
-            autor: "Usuário",
-            setor: "",
-            tipo: type,
-          };
-      }
-
-      setEvents([...events, novoEvento]);
+      addEvent(type, eventData);
     },
-    [events]
+    [addEvent]
   );
 
   const renderEventModal = () => {
@@ -292,16 +224,14 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
     switch (eventoSelecionado.tipo) {
       case "reuniao":
+      case "reuniao-direx":
         return (
           <ReuniaoModalInfo
             evento={convertEventToReuniaoModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertReuniaoModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
           />
@@ -314,10 +244,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertAtividadeModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
           />
@@ -331,10 +258,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             onSave={(updatedEvent) => {
               const convertedEvent =
                 convertAtividadeExternaModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
           />
@@ -347,10 +271,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertDocumentoModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
           />
