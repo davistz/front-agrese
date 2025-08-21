@@ -6,6 +6,7 @@ import { SetoresManagement } from "./SetoresManagement";
 import { SetorDetail } from "./SetorDetails";
 import { UserPage } from "./UserPage";
 import { NotificacoesPage } from "./NotificacoesPage";
+import { RelatoriosPage } from "./RelatoriosPage";
 import { PermissionsTest } from "./PermissionsTest";
 import { ProtectedRoute } from "../components/ProtectedRoute";
 import { useAuth } from "../contexts/AuthContext";
@@ -90,6 +91,15 @@ export const MainPage = () => {
             requiredPermissions={["view_all_users", "view_own_sector_users"]}
           >
             <UserPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/relatorios"
+        element={
+          <ProtectedRoute>
+            <RelatoriosPage />
           </ProtectedRoute>
         }
       />

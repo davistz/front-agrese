@@ -36,6 +36,15 @@ export const usePermissions = () => {
     return true;
   };
 
+  const canViewReports = () => {
+    if (!user) return false;
+
+    if (user.role === "ADMIN" || user.role === "IT_ADMIN") return true;
+
+    if (user.role === "COLLABORATOR") return false;
+    return true;
+  };
+
   const canFilterBySector = () => {
     if (user?.role === "COLLABORATOR") return false;
     return true;
@@ -212,6 +221,7 @@ export const usePermissions = () => {
 
     canViewCalendar,
     canViewNotifications,
+    canViewReports,
     canFilterBySector,
 
     canCreateEvent,

@@ -3,6 +3,7 @@ import {
   FaUserCircle,
   FaChevronLeft,
   FaBell,
+  FaChartLine,
 } from "react-icons/fa";
 import { MdGroups2 } from "react-icons/md";
 import { TbHierarchy3, TbLogout } from "react-icons/tb";
@@ -17,10 +18,15 @@ import { Logo1 } from "../../assets";
 
 interface SidebarProps {
   isOpen: boolean;
-  activeView?: "calendario" | "setores" | "usuarios" | "notificacoes";
+  activeView?:
+    | "calendario"
+    | "setores"
+    | "usuarios"
+    | "notificacoes"
+    | "relatorios";
   onToggle: () => void;
   onViewChange?: (
-    view: "calendario" | "setores" | "usuarios" | "notificacoes"
+    view: "calendario" | "setores" | "usuarios" | "notificacoes" | "relatorios"
   ) => void;
 }
 
@@ -39,6 +45,7 @@ export const Sidebar = ({
     canViewAllUsers,
     canViewCalendar,
     canViewNotifications,
+    canViewReports,
   } = usePermissions();
   const { notificacoesNaoLidas, contadorAtualizado } = useNotifications();
 
@@ -58,7 +65,7 @@ export const Sidebar = ({
 
   const handleNavigation = (
     path: string,
-    view?: "calendario" | "setores" | "usuarios" | "notificacoes"
+    view?: "calendario" | "setores" | "usuarios" | "notificacoes" | "relatorios"
   ) => {
     if (path !== location.pathname) {
       navigate(path);
@@ -84,6 +91,8 @@ export const Sidebar = ({
     activeView === "usuarios" || isActiveRoute("/usuarios");
   const isNotificacoesActive =
     activeView === "notificacoes" || isActiveRoute("/notificacoes");
+  const isRelatoriosActive =
+    activeView === "relatorios" || isActiveRoute("/relatorios");
 
   return (
     <div
@@ -227,6 +236,31 @@ export const Sidebar = ({
                   )}
                   <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
                     Usuários
+                  </span>
+                </button>
+              </li>
+            )}
+
+            {canViewReports() && (
+              <li>
+                <button
+                  onClick={() => handleNavigation("/relatorios", "relatorios")}
+                  className={`group relative flex items-center rounded-sm px-2 py-1.5 w-full text-left ${
+                    isRelatoriosActive
+                      ? theme === "dark"
+                        ? "bg-[#005A8A] text-white"
+                        : "bg-white text-[#0092DA]"
+                      : theme === "dark"
+                      ? "text-gray-200 hover:bg-[#005A8A]/50 hover:text-white"
+                      : "text-gray-200 hover:bg-[#007BB8]/50 hover:text-white"
+                  } ${isOpen ? "justify-start gap-4 pl-4" : "justify-center"}`}
+                >
+                  <FaChartLine className="w-6 h-6 group-hover:scale-[1.03] duration-300" />
+                  {isOpen && (
+                    <h1 className="font-bold text-[15px]">Relatórios</h1>
+                  )}
+                  <span className="invisible absolute start-full top-1/2 ms-4 -translate-y-1/2 rounded-sm bg-gray-900 px-2 py-1.5 text-xs font-medium text-white group-hover:visible z-50">
+                    Relatórios
                   </span>
                 </button>
               </li>

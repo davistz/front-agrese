@@ -514,3 +514,183 @@ export interface SubsetorData {
   totalMembros: number;
   membrosAtivos: number;
 }
+
+export interface RelatorioAtividade {
+  id: number;
+  titulo: string;
+  tipo: EventType;
+  status: EventStatus;
+  prioridade: Priority;
+  dataInicio: Date;
+  dataFim?: Date;
+  dataConclusao?: Date;
+  responsavel: string;
+  setor: string;
+}
+
+export interface RelatorioSetor {
+  id: string;
+  nome: string;
+  responsavel?: string;
+  totalAtividades: number;
+  atividadesConcluidas: number;
+  atividadesPendentes: number;
+  atividadesEmAndamento: number;
+  atividadesAtrasadas: number;
+  atividades: RelatorioAtividade[];
+  membrosAtivos: number;
+  percentualConclusao: number;
+}
+
+export interface RelatorioMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  setores: RelatorioSetor[];
+  totalGeralAtividades: number;
+  totalAtividadesConcluidas: number;
+  percentualGeralConclusao: number;
+}
+
+export interface RelatorioAnual {
+  ano: number;
+  dataGeracao: Date;
+  setores: RelatorioSetor[];
+  relatoriosMensais: RelatorioMensal[];
+  totalGeralAtividades: number;
+  totalAtividadesConcluidas: number;
+  percentualGeralConclusao: number;
+  evolucaoMensal: Array<{
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+  }>;
+}
+
+export interface FiltrosRelatorio {
+  ano: number;
+  mes?: number;
+  setorId?: string;
+  usuarioId?: string;
+  tipoAtividade?: EventType;
+  status?: EventStatus;
+  tipoRelatorio?: "geral" | "setor" | "individual";
+}
+
+export interface RelatorioPessoa {
+  id: string;
+  nome: string;
+  email: string;
+  cargo: string;
+  setor: string;
+  totalAtividades: number;
+  atividadesConcluidas: number;
+  atividadesPendentes: number;
+  atividadesEmAndamento: number;
+  atividadesAtrasadas: number;
+  percentualConclusao: number;
+  atividades: RelatorioAtividade[];
+  horasTrabalhadas?: number;
+  avaliacaoDesempenho?: "excelente" | "bom" | "regular" | "precisa_melhorar";
+}
+
+export interface RelatorioIndividualMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  pessoa: RelatorioPessoa;
+  comparativoSetor: {
+    mediaSetorAtividades: number;
+    mediaSetorConclusao: number;
+    posicaoRanking: number;
+    totalPessoasSetor: number;
+  };
+  evolucaoSemanal: Array<{
+    semana: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+  }>;
+}
+
+export interface RelatorioIndividualAnual {
+  ano: number;
+  dataGeracao: Date;
+  pessoa: RelatorioPessoa;
+  evolucaoMensal: Array<{
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+    horasTrabalhadas?: number;
+  }>;
+  comparativoAnual: {
+    mediaSetorAtividades: number;
+    mediaSetorConclusao: number;
+    posicaoRankingAnual: number;
+    melhorMes: number;
+    piorMes: number;
+  };
+  metas: {
+    metaAtividadesMensais: number;
+    metaConclusaoPercentual: number;
+    metaAlcancada: boolean;
+  };
+}
+
+export interface RelatorioSetorDetalhado {
+  id: string;
+  nome: string;
+  responsavel?: string;
+  descricao?: string;
+  totalAtividades: number;
+  atividadesConcluidas: number;
+  atividadesPendentes: number;
+  atividadesEmAndamento: number;
+  atividadesAtrasadas: number;
+  percentualConclusao: number;
+  membros: RelatorioPessoa[];
+  distribuicaoTipoAtividade: Array<{
+    tipo: EventType;
+    quantidade: number;
+    percentual: number;
+  }>;
+  distribuicaoPrioridade: Array<{
+    prioridade: Priority;
+    quantidade: number;
+    percentual: number;
+  }>;
+}
+
+export interface RelatorioSetorMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  setor: RelatorioSetorDetalhado;
+  comparativoGeral: {
+    posicaoRanking: number;
+    totalSetores: number;
+    mediaGeralConclusao: number;
+  };
+}
+
+export interface RelatorioSetorAnual {
+  ano: number;
+  dataGeracao: Date;
+  setor: RelatorioSetorDetalhado;
+  evolucaoMensal: Array<{
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+    totalMembrosAtivos: number;
+  }>;
+  rankingMembros: RelatorioPessoa[];
+  metasSetor: {
+    metaAtividadesMensais: number;
+    metaConclusaoPercentual: number;
+    metaAlcancada: boolean;
+    mesesComMetaAlcancada: number;
+  };
+}
