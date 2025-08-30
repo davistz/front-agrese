@@ -99,13 +99,22 @@ export const UserInfoModal = ({
     }).format(date);
   };
 
-  const formatDateOnly = (date: Date) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(date);
-  };
+  const formatDateOnly = (dateString: string | Date) => {
+  if (!dateString)
+    return ''
+  const date = new Date(dateString)
+
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo',
+  })
+}
 
   const { icon: RoleIcon, color, bg } = getRoleIcon(user.role);
 
