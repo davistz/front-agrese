@@ -1,14 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AtividadeExternaFormData } from "../../../types/interfaces";
 import { IoMdClose } from "react-icons/io";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { MdGroups } from "react-icons/md";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { sectorServices } from "../../../services/sectorsServices";
 
 interface AtividadeExternaFormProps {
   initialData?: Partial<AtividadeExternaFormData>;
-  onSubmit: (data: AtividadeExternaFormData) => void;
+  onSubmit: (data: any) => void;
   onCancel: () => void;
 }
 
@@ -26,14 +27,28 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
     dataHoraSaida: initialData?.dataHoraSaida || new Date(),
     dataHoraRetorno: initialData?.dataHoraRetorno || new Date(),
     destino: initialData?.destino || "",
-    responsavel: initialData?.responsavel || "",
     equipeEnvolvida: initialData?.equipeEnvolvida || [],
     status: initialData?.status || "planejada",
-    motivoAtividade: initialData?.motivoAtividade || "",
     meioTransporte: initialData?.meioTransporte || "",
   });
 
   const [novoMembro, setNovoMembro] = useState("");
+  const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const data = await sectorServices.getSectors();
+        if (Array.isArray(data)) {
+          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar setores:", error);
+        setSetores([]);
+      }
+    };
+    fetchSectors();
+  }, []);
 
   const handleAddMembro = () => {
     if (novoMembro.trim()) {
@@ -83,6 +98,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
             <div className="space-y-3">
               {" "}
               <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+                
                 {" "}
                 <div>
                   <label
@@ -120,22 +136,26 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                     Setor Responsável
                   </label>
                   <div className="mt-2">
-                    <input
+                    <select
                       value={formData.setorResponsavel}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           setorResponsavel: e.target.value,
-                        }))
-                      }
-                      placeholder="Setor Responsável"
-                      type="text"
+                        }));
+                      }}
                       className={`flex h-10 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-offset-1 ${
                         theme === "dark"
                           ? "bg-gray-700 border-gray-600 text-white focus:ring-gray-400"
                           : "bg-transparent border-gray-300 text-gray-900 focus:ring-gray-400"
                       }`}
-                    />
+                      required
+                    >
+                      <option value="" disabled hidden>Selecione um setor</option>
+                      {setores.map((setor) => (
+                        <option key={setor.id} value={setor.id}>{setor.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div>
@@ -191,30 +211,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                     <option value="cancelada">Cancelada</option>
                   </select>
                 </div>
-                <div>
-                  <label
-                    className={`text-base font-medium ${
-                      theme === "dark" ? "text-gray-300" : "text-gray-900"
-                    }`}
-                  >
-                    Responsável
-                  </label>
-                  <input
-                    value={formData.responsavel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        responsavel: e.target.value,
-                      }))
-                    }
-                    placeholder="Nome do responsável"
-                    className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 ${
-                      theme === "dark"
-                        ? "bg-gray-700 border-gray-600 text-white"
-                        : "bg-transparent border-gray-300 text-gray-900"
-                    }`}
-                  />
-                </div>
+                
                 <div>
                   <label
                     className={`text-base font-medium ${
@@ -304,24 +301,26 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
               <div className="grid grid-cols-1 gap-3 mt-3">
                 {" "}
                 <div>
+                  {/* Campo 'motivo da atividade' removido */}
+                </div>
+                <div className="col-span-3">
                   <label
-                    className={`text-sm font-medium ${
+                    className={`text-base font-medium ${
                       theme === "dark" ? "text-gray-300" : "text-gray-900"
                     }`}
                   >
-                    {" "}
-                    Motivo da Atividade
+                    Descrição
                   </label>
                   <textarea
-                    value={formData.motivoAtividade}
+                    value={formData.descricao}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        motivoAtividade: e.target.value,
+                        descricao: e.target.value,
                       }))
                     }
-                    placeholder="Descreva o motivo da atividade externa"
-                    className={`mt-1 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 ${
+                    placeholder="Descrição da atividade externa"
+                    className={`mt-2 w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 ${
                       theme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white"
                         : "bg-transparent border-gray-300 text-gray-900"
@@ -385,15 +384,13 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                           </div>
                           <button
                             type="button"
-                            onClick={() =>
+                            onClick={() => {
                               setFormData((prev) => ({
                                 ...prev,
-                                equipeEnvolvida: prev.equipeEnvolvida.filter(
-                                  (_, i) => i !== index
-                                ),
-                              }))
-                            }
-                            className="text-[13px] text-red-500 hover:text-red-700"
+                                equipeEnvolvida: prev.equipeEnvolvida.filter((_, i) => i !== index),
+                              }));
+                            }}
+                            className={`ml-2 px-2 py-1 rounded text-xs ${theme === "dark" ? "bg-red-700 text-white" : "bg-red-200 text-red-800"}`}
                           >
                             Remover
                           </button>
@@ -419,7 +416,39 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    onSubmit(formData);
+                    // Log para debug
+                    console.log('Valor do setor selecionado:', formData.setorResponsavel);
+                    // Validação reforçada para setor
+                    const setorId = Number(formData.setorResponsavel);
+                    if (!formData.setorResponsavel || isNaN(setorId) || setorId === 0) {
+                      alert("Selecione um setor válido antes de salvar.");
+                      return;
+                    }
+                    // Validação obrigatória para descrição
+                    if (!formData.descricao || formData.descricao.trim().length === 0) {
+                      alert("Preencha a descrição da atividade externa.");
+                      return;
+                    }
+                    const payload = {
+                      title: formData.titulo,
+                      description: formData.descricao,
+                      type: "EXTERNAL_ACTIVITY",
+                      priority: "MEDIUM",
+                      startDate: formData.dataHoraSaida ? new Date(formData.dataHoraSaida).toISOString() : new Date().toISOString(),
+                      endDate: formData.dataHoraRetorno ? new Date(formData.dataHoraRetorno).toISOString() : new Date().toISOString(),
+                      isAllDay: false,
+                      location: formData.destino || "",
+                      sectorId: setorId,
+                      setorResponsavel: setorId,
+                      externalStatus: "PLANNED",
+                      destino: formData.destino || "",
+                      dataHoraSaida: formData.dataHoraSaida ? new Date(formData.dataHoraSaida).toISOString() : null,
+                      dataHoraRetorno: formData.dataHoraRetorno ? new Date(formData.dataHoraRetorno).toISOString() : null,
+                      meioTransporte: formData.meioTransporte || "",
+                      motivoAtividade: "",
+               equipeEnvolvida: formData.equipeEnvolvida,
+                    };
+                    onSubmit(payload);
                   }}
                   className="flex-1 h-12 rounded-lg font-medium text-white transition-all duration-200 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                 >

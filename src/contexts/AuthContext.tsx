@@ -57,25 +57,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simula chamada para API
-      const userData = await authenticateUser(email, password);
+      const response = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (userData) {
-        const authUser: AuthUser = {
-          ...userData,
-          lastLogin: new Date(),
-        };
-
-        setUser(authUser);
-        setIsAuthenticated(true);
-
-        // Salva no localStorage
-        localStorage.setItem("authUser", JSON.stringify(authUser));
-
-        return true;
+      if (!response.ok) {
+        return false;
       }
 
-      return false;
+      const data = await response.json();
+      const { token, user: userData } = data;
+
+      // Salva token no localStorage
+      localStorage.setItem("authToken", token);
+
+      // Monta objeto AuthUser
+      const authUser: AuthUser = {
+        id: userData.id,
+        email: userData.email,
+        name: userData.name,
+        role: userData.role,
+        sectorId: userData.sector?.id || userData.sectorId,
+        sectorName: userData.sector?.name || "",
+        isActive: userData.isActive,
+        lastLogin: userData.lastLogin
+          ? new Date(userData.lastLogin)
+          : undefined,
+      };
+
+      setUser(authUser);
+      setIsAuthenticated(true);
+      localStorage.setItem("authUser", JSON.stringify(authUser));
+      return true;
     } catch (error) {
       console.error("Erro no login:", error);
       return false;
@@ -125,72 +142,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Função para autenticar usuário (simulada)
-const authenticateUser = async (
-  email: string,
-  password: string
-): Promise<AuthUser | null> => {
-  // Dados mocados dos usuários
-  const mockUsers: AuthUser[] = [
-    {
-      id: 1,
-      email: "admin@agrese.com",
-      name: "Administrador Sistema",
-      role: "ADMIN",
-      sectorId: 1,
-      sectorName: "Presidência",
-      isActive: true,
-    },
-    {
-      id: 2,
-      email: "daf@agrese.com",
-      name: "Diretor Administrativo",
-      role: "MANAGER",
-      sectorId: 2,
-      sectorName: "DAF - Diretoria Administrativa Financeira",
-      isActive: true,
-    },
-    {
-      id: 3,
-      email: "diretor.tecnico@agrese.com",
-      name: "Diretor Técnico",
-      role: "MANAGER",
-      sectorId: 3,
-      sectorName: "Diretoria Técnica",
-      isActive: true,
-    },
-    {
-      id: 4,
-      email: "colaborador@agrese.com",
-      name: "Colaborador Geral",
-      role: "COLLABORATOR",
-      sectorId: 4,
-      sectorName: "Setor Operacional",
-      isActive: true,
-    },
-    {
-      id: 5,
-      email: "ti@agrese.com",
-      name: "Administrador TI",
-      role: "IT_ADMIN",
-      sectorId: 5,
-      sectorName: "Tecnologia da Informação",
-      isActive: true,
-    },
-  ];
-
-  // Simula delay de rede
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  // Para demonstração, qualquer senha é aceita se for "123456"
-  // Em produção, aqui você faria a validação real
-  if (password !== "123456") {
-    return null;
-  }
-
-  const user = mockUsers.find((u) => u.email === email && u.isActive);
-  return user || null;
-};
+// (Função mockada removida - agora usando API real)
 
 // Define as permissões por role
 const getRolePermissions = (role: UserRole): string[] => {

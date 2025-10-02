@@ -3,12 +3,14 @@ import { IoMdClose } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
 import { usePermissions } from "../../hooks/usePermissions";
 
-export type EventType =
-  | "reuniao"
-  | "reuniao-direx"
-  | "atividade"
-  | "atividades-externas"
-  | "documento";
+export enum EventType {
+  MEETING = "MEETING",
+  ACTIVITY = "ACTIVITY",
+  EXTERNAL_ACTIVITY = "EXTERNAL_ACTIVITY",
+  DOCUMENT = "DOCUMENT",
+  TASK = "TASK",
+  APPOINTMENT = "APPOINTMENT",
+}
 
 interface EventTypeModalProps {
   onSelectType: (type: EventType) => void;
@@ -24,7 +26,7 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
 
   const eventTypes = [
     {
-      type: "reuniao" as EventType,
+      type: EventType.MEETING,
       title: "Reunião",
       icon: "🤝",
       description:
@@ -32,22 +34,14 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       available: true,
     },
     {
-      type: "reuniao-direx" as EventType,
-      title: "Reunião Direx",
-      icon: "👥",
-      description:
-        "Reuniões da Diretoria Executiva com agenda especial e participantes da alta gestão.",
-      available: canCreateDirexMeeting(),
-    },
-    {
-      type: "atividade" as EventType,
+      type: EventType.ACTIVITY,
       title: "Atividade",
       icon: "📝",
       description: "Tarefas internas atribuídas a um ou mais usuários.",
       available: true,
     },
     {
-      type: "atividades-externas" as EventType,
+      type: EventType.EXTERNAL_ACTIVITY,
       title: "Atividade Externa",
       icon: "🌐",
       description:
@@ -55,7 +49,7 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       available: true,
     },
     {
-      type: "documento" as EventType,
+      type: EventType.DOCUMENT,
       title: "Documento",
       icon: "📂",
       description:
@@ -92,7 +86,6 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
             }`}
           />
         </div>
-
         <div className="grid grid-cols-2 gap-4">
           {eventTypes.map((eventType) => (
             <button
@@ -127,4 +120,4 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       </div>
     </div>
   );
-};
+}

@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { setorNomeParaId } from "../../../../src/utils/setorNomeParaId";
+import { useRef } from "react";
+import { sectorServices } from "../../../services/sectorsServices";
 import { ReuniaoFormData } from "../../../types/interfaces";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useEvents } from "../../../contexts/EventsContext";
@@ -9,7 +12,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { FaUserCircle } from "react-icons/fa";
 
 interface ReuniaoFormProps {
-  initialData?: Partial<ReuniaoFormData> & { id?: number };
+  initialData?: any;
   onSubmit: (data: ReuniaoFormData) => void;
   onCancel: () => void;
   isDirex?: boolean;
@@ -25,22 +28,38 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   const { checkRoomConflict, getRoomConflictingEvents } = useEvents();
   const [formData, setFormData] = useState<ReuniaoFormData>({
     titulo: initialData?.titulo || "",
-    setorResponsavel: initialData?.setorResponsavel || "",
-    descricao: initialData?.descricao || "",
-    autor: initialData?.autor || "",
-    dataHoraInicio: initialData?.dataHoraInicio || new Date(),
-    dataHoraTermino: initialData?.dataHoraTermino || new Date(),
+    setorResponsavel: initialData?.sector?.id || "",
+    descricao: initialData?.description  || "",
+    autor: initialData?.local  || "",
+    dataHoraInicio: initialData?.startDate  || new Date(),
+    dataHoraTermino: initialData?.endtDate  || new Date(),
     local: initialData?.local || "presencial",
     sala: initialData?.sala || "",
     participantes: initialData?.participantes || [],
     status: initialData?.status || "agendada",
     responsavelAta: initialData?.responsavelAta || "",
-    linkReuniao: initialData?.linkReuniao || "",
+    linkReuniao: initialData?.meetingLink  || "",
     notificacao: initialData?.notificacao || 30,
   });
 
   const [novoParticipante, setNovoParticipante] = useState("");
   const [roomConflictingEvents, setRoomConflictingEvents] = useState<any[]>([]);
+  const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const data = await sectorServices.getSectors();
+        if (Array.isArray(data)) {
+          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar setores:", error);
+        setSetores([]);
+      }
+    };
+    fetchSectors();
+  }, []);
 
   useEffect(() => {
     if (
@@ -111,8 +130,17 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       }
     }
 
-    console.log("Salvando reunião:", formData);
-    onSubmit(formData);
+    let setorId = formData.setorResponsavel;
+    if (typeof setorId === "string" && isNaN(Number(setorId))) {
+      const mapped = setorNomeParaId[setorId.toLowerCase()] || "";
+      setorId = mapped !== "" ? String(mapped) : "";
+    }
+    const dataToSend = {
+      ...formData,
+      setorResponsavel: setorId,
+    };
+
+    onSubmit(dataToSend);
   };
 
   return (
@@ -202,22 +230,25 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                     >
                       Setor Responsável
                     </label>
-                    <input
+                    <select
                       value={formData.setorResponsavel}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setFormData((prev) => ({
                           ...prev,
                           setorResponsavel: e.target.value,
-                        }))
-                      }
-                      placeholder="Setor Responsável"
-                      type="text"
-                      className={`w-full h-10 rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        }));
+                      }}
+                      className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                         theme === "dark"
                           ? "bg-gray-700 border-gray-600 text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
-                    />
+                    >
+                      <option value="">Selecione o setor</option>
+                      {setores.map((setor) => (
+                        <option key={setor.id} value={setor.id}>{setor.name}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 
@@ -300,9 +331,10 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
-                      <option value="agendada">Agendada</option>
-                      <option value="realizada">Realizada</option>
-                      <option value="cancelada">Cancelada</option>
+                      <option value="PENDING">Agendada</option>
+                      <option value="IN_PROGRESS">Em andamento</option>
+                      <option value="COMPLETED">Realizada</option>
+                      <option value="CANCELLED">Cancelada</option>
                     </select>
                   </div>
                 </div>

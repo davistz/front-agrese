@@ -25,20 +25,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (!user.isActive) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">
-            Acesso Negado
-          </h2>
-          <p className="text-gray-600">
-            Sua conta está inativa. Entre em contato com o administrador.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Removido: bloqueio de usuário inativo
 
   if (requiredRole && user.role !== requiredRole) {
     return (

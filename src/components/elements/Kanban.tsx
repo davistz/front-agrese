@@ -8,8 +8,11 @@ import { ReuniaoModalInfo } from "../modals/ReuniaoInfoModal";
 import { AtividadeModalInfo } from "../modals/AtividadeInfoModal";
 import { DocumentoModalInfo } from "../modals/DocumentoInfoModal";
 import { AtividadeExternaModalInfo } from "../modals/AtividadeExternaInfoModal";
-import { EventModal } from "../modals/EventModal";
 import "./Kanban.css";
+import {
+  mapMeetingToReuniao,
+  mapReuniaoToMeeting,
+} from "../../utils/eventMappers";
 import {
   convertEventToReuniaoModal,
   convertReuniaoModalToEvent,
@@ -70,27 +73,31 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
   const [eventoSelecionado, setEventoSelecionado] = useState<any>(null);
   const [draggedEvent, setDraggedEvent] = useState<any>(null);
 
-  const getEventColumn = (event: any): string => {
-    const status = event.status || "pendente";
-
-    for (const column of kanbanColumns) {
-      if (column.status.includes(status.toLowerCase())) {
-        return column.id;
-      }
-    }
-
-    const now = new Date();
-    const eventStart = new Date(event.start);
-    const eventEnd = new Date(event.end);
-
-    if (eventEnd < now) {
-      return "concluido";
-    } else if (eventStart <= now && eventEnd >= now) {
-      return "em-andamento";
-    } else {
+const normalizeStatus = (status: string) => {
+  if (!status) return "pendente";
+  switch (status.toUpperCase()) {
+    case "PENDING":
       return "pendente";
+    case "IN_PROGRESS":
+      return "em-andamento";
+    case "COMPLETED":
+      return "concluido";
+    case "CANCELLED":
+      return "cancelado";
+    default:
+      return status.toLowerCase();
+  }
+};
+
+const getEventColumn = (event: any): string => {
+  const status = normalizeStatus(event.status);
+  for (const column of kanbanColumns) {
+    if (column.status.includes(status)) {
+      return column.id;
     }
-  };
+  }
+  return "pendente";
+};
 
   const getEventsByColumn = (columnId: string) => {
     return events.filter((event: any) => getEventColumn(event) === columnId);
@@ -166,24 +173,27 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
     let newStatus = "pendente";
     switch (columnId) {
       case "pendente":
-        newStatus = "pendente";
+        newStatus = "PENDING";
         break;
       case "em-andamento":
-        newStatus = "em-andamento";
+        newStatus = "IN_PROGRESS";
         break;
       case "concluido":
-        newStatus = "concluido";
+        newStatus = "COMPLETED";
         break;
       case "cancelado":
-        newStatus = "cancelado";
+        newStatus = "CANCELLED";
         break;
     }
 
-    const updatedEvents = events.map((event: any) =>
-      event.id === draggedEvent.id ? { ...event, status: newStatus } : event
+    updateEvent(draggedEvent.id, { ...draggedEvent, status: newStatus });
+
+    setEvents((prevEvents: any[]) =>
+      prevEvents.map((ev) =>
+        ev.id === draggedEvent.id ? { ...ev, status: newStatus } : ev
+      )
     );
 
-    setEvents(updatedEvents);
     setDraggedEvent(null);
   };
 
@@ -205,21 +215,21 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
   const renderEventModal = () => {
     if (!eventoSelecionado) return null;
 
-    switch (eventoSelecionado.tipo) {
-      case "reuniao":
+    switch (eventoSelecionado.type) {
+      case EventType.MEETING:
         return (
           <ReuniaoModalInfo
             evento={convertEventToReuniaoModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
-              const convertedEvent = convertReuniaoModalToEvent(updatedEvent);
-              updateEvent(convertedEvent.id, convertedEvent);
+              const meetingData = convertReuniaoModalToEvent(updatedEvent);
+              updateEvent(eventoSelecionado.id, meetingData);
               handleSelectClose();
             }}
           />
         );
 
-      case "atividade":
+      case EventType.ACTIVITY:
         return (
           <AtividadeModalInfo
             evento={convertEventToAtividadeModal(eventoSelecionado)}
@@ -235,7 +245,7 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
           />
         );
 
-      case "atividades-externas":
+      case EventType.EXTERNAL_ACTIVITY:
         return (
           <AtividadeExternaModalInfo
             evento={convertEventToAtividadeExternaModal(eventoSelecionado)}
@@ -252,7 +262,7 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
           />
         );
 
-      case "documento":
+      case EventType.DOCUMENT:
         return (
           <DocumentoModalInfo
             evento={convertEventToDocumentoModal(eventoSelecionado)}
@@ -269,9 +279,7 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
         );
 
       default:
-        return (
-          <EventModal evento={eventoSelecionado} onClose={handleSelectClose} />
-        );
+        return <h1>teste</h1>;
     }
   };
 

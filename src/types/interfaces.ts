@@ -31,7 +31,7 @@ export type DocumentStatus =
   | "ARCHIVED";
 export type DocumentType =
   | "OFICIO"
-  | "RELATORIO"
+  // ...existing code...
   | "MEMORANDO"
   | "PORTARIA"
   | "DECRETO"
@@ -106,7 +106,7 @@ export interface ReuniaoFormData {
   local: "presencial" | "virtual";
   sala?: string;
   participantes: string[];
-  status: "agendada" | "realizada" | "cancelada";
+  status: EventStatus;
   responsavelAta: string;
   linkReuniao: string;
   notificacao: number;
@@ -137,10 +137,8 @@ export interface AtividadeExternaFormData {
   dataHoraSaida: Date;
   dataHoraRetorno: Date;
   destino: string;
-  responsavel: string;
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
-  motivoAtividade: string;
   meioTransporte?: string;
 }
 
@@ -266,7 +264,7 @@ export interface ReuniaoModalData {
   local: "presencial" | "virtual";
   sala?: string;
   participantes: string[];
-  status: "agendada" | "realizada" | "cancelada";
+  status: EventStatus;
   responsavelAta: string;
   linkReuniao: string;
   notificacao: number;
@@ -297,10 +295,10 @@ export interface AtividadeExternaModalData {
   dataHoraSaida: Date;
   dataHoraRetorno: Date;
   destino: string;
-  responsavel: string;
+  // responsavel removido
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
-  motivoAtividade: string;
+  // motivoAtividade removido
   meioTransporte: string;
 }
 
@@ -515,182 +513,4 @@ export interface SubsetorData {
   membrosAtivos: number;
 }
 
-export interface RelatorioAtividade {
-  id: number;
-  titulo: string;
-  tipo: EventType;
-  status: EventStatus;
-  prioridade: Priority;
-  dataInicio: Date;
-  dataFim?: Date;
-  dataConclusao?: Date;
-  responsavel: string;
-  setor: string;
-}
-
-export interface RelatorioSetor {
-  id: string;
-  nome: string;
-  responsavel?: string;
-  totalAtividades: number;
-  atividadesConcluidas: number;
-  atividadesPendentes: number;
-  atividadesEmAndamento: number;
-  atividadesAtrasadas: number;
-  atividades: RelatorioAtividade[];
-  membrosAtivos: number;
-  percentualConclusao: number;
-}
-
-export interface RelatorioMensal {
-  mes: number;
-  ano: number;
-  dataGeracao: Date;
-  setores: RelatorioSetor[];
-  totalGeralAtividades: number;
-  totalAtividadesConcluidas: number;
-  percentualGeralConclusao: number;
-}
-
-export interface RelatorioAnual {
-  ano: number;
-  dataGeracao: Date;
-  setores: RelatorioSetor[];
-  relatoriosMensais: RelatorioMensal[];
-  totalGeralAtividades: number;
-  totalAtividadesConcluidas: number;
-  percentualGeralConclusao: number;
-  evolucaoMensal: Array<{
-    mes: number;
-    totalAtividades: number;
-    atividadesConcluidas: number;
-    percentualConclusao: number;
-  }>;
-}
-
-export interface FiltrosRelatorio {
-  ano: number;
-  mes?: number;
-  setorId?: string;
-  usuarioId?: string;
-  tipoAtividade?: EventType;
-  status?: EventStatus;
-  tipoRelatorio?: "geral" | "setor" | "individual";
-}
-
-export interface RelatorioPessoa {
-  id: string;
-  nome: string;
-  email: string;
-  cargo: string;
-  setor: string;
-  totalAtividades: number;
-  atividadesConcluidas: number;
-  atividadesPendentes: number;
-  atividadesEmAndamento: number;
-  atividadesAtrasadas: number;
-  percentualConclusao: number;
-  atividades: RelatorioAtividade[];
-  horasTrabalhadas?: number;
-  avaliacaoDesempenho?: "excelente" | "bom" | "regular" | "precisa_melhorar";
-}
-
-export interface RelatorioIndividualMensal {
-  mes: number;
-  ano: number;
-  dataGeracao: Date;
-  pessoa: RelatorioPessoa;
-  comparativoSetor: {
-    mediaSetorAtividades: number;
-    mediaSetorConclusao: number;
-    posicaoRanking: number;
-    totalPessoasSetor: number;
-  };
-  evolucaoSemanal: Array<{
-    semana: number;
-    totalAtividades: number;
-    atividadesConcluidas: number;
-    percentualConclusao: number;
-  }>;
-}
-
-export interface RelatorioIndividualAnual {
-  ano: number;
-  dataGeracao: Date;
-  pessoa: RelatorioPessoa;
-  evolucaoMensal: Array<{
-    mes: number;
-    totalAtividades: number;
-    atividadesConcluidas: number;
-    percentualConclusao: number;
-    horasTrabalhadas?: number;
-  }>;
-  comparativoAnual: {
-    mediaSetorAtividades: number;
-    mediaSetorConclusao: number;
-    posicaoRankingAnual: number;
-    melhorMes: number;
-    piorMes: number;
-  };
-  metas: {
-    metaAtividadesMensais: number;
-    metaConclusaoPercentual: number;
-    metaAlcancada: boolean;
-  };
-}
-
-export interface RelatorioSetorDetalhado {
-  id: string;
-  nome: string;
-  responsavel?: string;
-  descricao?: string;
-  totalAtividades: number;
-  atividadesConcluidas: number;
-  atividadesPendentes: number;
-  atividadesEmAndamento: number;
-  atividadesAtrasadas: number;
-  percentualConclusao: number;
-  membros: RelatorioPessoa[];
-  distribuicaoTipoAtividade: Array<{
-    tipo: EventType;
-    quantidade: number;
-    percentual: number;
-  }>;
-  distribuicaoPrioridade: Array<{
-    prioridade: Priority;
-    quantidade: number;
-    percentual: number;
-  }>;
-}
-
-export interface RelatorioSetorMensal {
-  mes: number;
-  ano: number;
-  dataGeracao: Date;
-  setor: RelatorioSetorDetalhado;
-  comparativoGeral: {
-    posicaoRanking: number;
-    totalSetores: number;
-    mediaGeralConclusao: number;
-  };
-}
-
-export interface RelatorioSetorAnual {
-  ano: number;
-  dataGeracao: Date;
-  setor: RelatorioSetorDetalhado;
-  evolucaoMensal: Array<{
-    mes: number;
-    totalAtividades: number;
-    atividadesConcluidas: number;
-    percentualConclusao: number;
-    totalMembrosAtivos: number;
-  }>;
-  rankingMembros: RelatorioPessoa[];
-  metasSetor: {
-    metaAtividadesMensais: number;
-    metaConclusaoPercentual: number;
-    metaAlcancada: boolean;
-    mesesComMetaAlcancada: number;
-  };
-}
+// ...existing code...

@@ -89,16 +89,6 @@ export const UserInfoModal = ({
     return descriptions[role];
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
-
   const formatDateOnly = (dateString: string | Date) => {
   if (!dateString)
     return ''
@@ -468,7 +458,7 @@ export const UserInfoModal = ({
                           theme === "dark" ? "text-white" : "text-gray-900"
                         } font-medium`}
                       >
-                        {formatDate(user.lastLogin)}
+                        {formatDateOnly(user.lastLogin)}
                       </p>
                     </div>
                   )}
@@ -509,7 +499,7 @@ export const UserInfoModal = ({
                       } text-sm`}
                     >
                       {user.lastLogin
-                        ? formatDate(user.lastLogin)
+                        ? formatDateOnly(user.lastLogin)
                         : "Nunca fez login"}
                     </p>
                   </div>
@@ -534,7 +524,7 @@ export const UserInfoModal = ({
                         theme === "dark" ? "text-gray-300" : "text-gray-600"
                       } text-sm`}
                     >
-                      {formatDate(user.updatedAt)}
+                      {formatDateOnly(user.updatedAt)}
                     </p>
                   </div>
                 </div>
@@ -558,7 +548,7 @@ export const UserInfoModal = ({
                         theme === "dark" ? "text-gray-300" : "text-gray-600"
                       } text-sm`}
                     >
-                      {formatDate(user.createdAt)}
+                      {formatDateOnly(user.createdAt)}
                     </p>
                   </div>
                 </div>

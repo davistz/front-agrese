@@ -8,18 +8,18 @@ export const convertEventToReuniaoModal = (event: any): ReuniaoModalData => {
   return {
     id: event.id,
     titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    dataHoraInicio: event.start || new Date(),
-    dataHoraTermino: event.end || new Date(),
-    local: event.local || "presencial",
-    sala: event.sala || "",
-    participantes: event.participantes || [],
-    status: event.status || "agendada",
-    responsavelAta: event.responsavelAta || "",
-    linkReuniao: event.linkReuniao || "",
-    notificacao: event.notificacao || 30,
+    setorResponsavel: event.sector?.name || "",
+    descricao: event.description || "",
+    autor: event.creator?.name || "",
+    dataHoraInicio: event.startDate ? new Date(event.startDate) : new Date(),
+    dataHoraTermino: event.endDate ? new Date(event.endDate) : new Date(),
+    local: event.location || "presencial",
+    sala: "",
+    participantes: event.assignees || [],
+    status: event.status || "COMPLETED",
+    responsavelAta: "",
+    linkReuniao: event.meetingLink || "",
+    notificacao: 30,
   };
 };
 
@@ -133,17 +133,15 @@ export const convertEventToAtividadeExternaModal = (
   return {
     id: event.id,
     titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    dataHoraSaida: event.start || new Date(),
-    dataHoraRetorno: event.end || new Date(),
-    destino: event.destino || "",
-    responsavel: event.responsavel || "",
-    equipeEnvolvida: event.equipeEnvolvida || [],
-    status: event.status || "planejada",
-    motivoAtividade: event.motivoAtividade || "",
-    meioTransporte: event.meioTransporte || "",
+    setorResponsavel: event.sector?.name || "",
+    descricao: event.description || "",
+    autor: event.creator?.name || "",
+    dataHoraSaida: event.departureTime ? new Date(event.departureTime) : new Date(),
+    dataHoraRetorno: event.returnTime ? new Date(event.returnTime) : new Date(),
+    destino: event.destination || "",
+  equipeEnvolvida: event.equipeEnvolvida || event.teamInvolved || [],
+  status: event.externalStatus || "planejada",
+    meioTransporte: event.transportMode || "",
   };
 };
 
@@ -160,10 +158,8 @@ export const convertAtividadeExternaModalToEvent = (
     setor: atividade.setorResponsavel,
     tipo: "atividades-externas",
     destino: atividade.destino,
-    responsavel: atividade.responsavel,
     equipeEnvolvida: atividade.equipeEnvolvida,
     status: atividade.status,
-    motivoAtividade: atividade.motivoAtividade,
     meioTransporte: atividade.meioTransporte,
   };
 };

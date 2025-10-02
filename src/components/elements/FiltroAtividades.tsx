@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
 import { usePermissions } from "../../hooks/usePermissions";
@@ -33,7 +27,7 @@ interface SetorHierarquia {
   subsetores: string[];
 }
 
-const setoresHierarquia: { [key: string]: SetorHierarquia } = {
+const setoresHierarquia: Record<string, SetorHierarquia> = {
   Presidente: {
     nome: "Presidência",
     subsetores: [
@@ -107,18 +101,14 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     canFilterBySector() ? "setor" : "categoria"
   );
   const [setorSelecionado, setSetorSelecionado] = useState("");
-  const [subsetoresSelecionados, setSubsetoresSelecionados] = useState<
-    string[]
-  >([]);
-  const [categoriaSelecionada, setCategoriaSelecionada] = useState("");
-  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<
-    string[]
-  >([]);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [subsetoresSelecionados, setSubsetoresSelecionados] = useState<string[]>(
+    []
+  );
+  const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>(
+    []
+  );
 
-  const handleSetorClick = useCallback((setor: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleSetorClick = useCallback((setor: string) => {
     setSetorSelecionado((prev) => (prev === setor ? "" : setor));
   }, []);
 
@@ -161,25 +151,11 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
 
       return true;
     });
-  }, [
-    atividades,
-    setorSelecionado,
-    subsetoresSelecionados,
-    categoriasSelecionadas,
-    activeTab,
-  ]);
+  }, [atividades, setorSelecionado, subsetoresSelecionados, categoriasSelecionadas, activeTab]);
 
   useEffect(() => {
     onSelecionarAtividades(eventosFiltrados);
   }, [eventosFiltrados, onSelecionarAtividades]);
-
-  const handleCloseFilter = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setSetorSelecionado("");
-    setSubsetoresSelecionados([]);
-    setCategoriasSelecionadas([]);
-  }, []);
 
   const handleLimparFiltros = useCallback(() => {
     setSetorSelecionado("");
@@ -240,7 +216,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
                   }`}
                 >
                   <button
-                    onClick={(e) => handleSetorClick(key, e)}
+                    onClick={() => handleSetorClick(key)}
                     className={`w-full text-left px-2 py-1.5 text-sm rounded-md transition-colors ${
                       setorSelecionado === key
                         ? theme === "dark"

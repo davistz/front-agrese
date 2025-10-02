@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AtividadeFormData } from "../../../types/interfaces";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
 import { BsListTask } from "react-icons/bs";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { sectorServices } from "../../../services/sectorsServices";
 
 interface AtividadeFormProps {
   initialData?: Partial<AtividadeFormData>;
@@ -37,6 +38,22 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
   });
 
   const [novaSubtarefa, setNovaSubtarefa] = useState("");
+  const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const data = await sectorServices.getSectors();
+        if (Array.isArray(data)) {
+          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar setores:", error);
+        setSetores([]);
+      }
+    };
+    fetchSectors();
+  }, []);
 
   const handleAddSubtarefa = () => {
     if (novaSubtarefa.trim()) {
@@ -51,29 +68,25 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
   return (
     <div className="max-h-[90vh] overflow-y-auto">
       <section
-        className={`rounded-md py-6 flex flex-col items-center px-7 ${
-          theme === "dark" ? "bg-gray-800" : "bg-white"
-        }`}
+        className={`rounded-md py-6 flex flex-col items-center px-7 ${theme === "dark" ? "bg-gray-800" : "bg-white"
+          }`}
       >
         <h2
-          className={`text-2xl font-bold leading-tight ${
-            theme === "dark" ? "text-white" : "text-gray-900"
-          }`}
+          className={`text-2xl font-bold leading-tight ${theme === "dark" ? "text-white" : "text-gray-900"
+            }`}
         >
           Nova Atividade
         </h2>
         <IoMdClose
           onClick={onCancel}
-          className={`absolute top-4 right-4 text-2xl cursor-pointer ${
-            theme === "dark"
+          className={`absolute top-4 right-4 text-2xl cursor-pointer ${theme === "dark"
               ? "text-gray-400 hover:text-white"
               : "text-gray-600 hover:text-gray-900"
-          }`}
+            }`}
         />
         <p
-          className={`mt-2 text-base ${
-            theme === "dark" ? "text-gray-300" : "text-gray-600"
-          }`}
+          className={`mt-2 text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"
+            }`}
         >
           Preencha os detalhes da atividade
         </p>
@@ -82,9 +95,8 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Título da Atividade *
               </label>
@@ -97,47 +109,47 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                   }))
                 }
                 placeholder="Título da atividade"
-                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                }`}
+                  }`}
                 required
               />
             </div>
 
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Setor Responsável *
               </label>
-              <input
+              <select
                 value={formData.setorResponsavel}
-                onChange={(e) =>
+                onChange={(e) => {
                   setFormData((prev) => ({
                     ...prev,
                     setorResponsavel: e.target.value,
-                  }))
-                }
-                placeholder="Setor responsável"
-                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                  }));
+                }}
+                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                }`}
+                  }`}
                 required
-              />
+              >
+                <option value="" disabled>Selecione um setor</option>
+                {setores.map((setor) => (
+                  <option key={setor.id} value={setor.id}>{setor.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                theme === "dark" ? "text-gray-300" : "text-gray-900"
-              }`}
+              className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                }`}
             >
               Descrição
             </label>
@@ -150,11 +162,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                 }))
               }
               placeholder="Descrição da atividade"
-              className={`w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                theme === "dark"
+              className={`w-full rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                   ? "bg-gray-700 border-gray-600 text-white"
                   : "bg-white border-gray-300 text-gray-900"
-              }`}
+                }`}
               rows={3}
             />
           </div>
@@ -162,9 +173,8 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Data de Início *
               </label>
@@ -180,20 +190,18 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="dd/MM/yyyy HH:mm"
-                className={`w-[400px] h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-[400px] h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
-                }`}
+                  }`}
                 placeholderText="Selecione a data de início"
               />
             </div>
 
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Data de Fim *
               </label>
@@ -209,11 +217,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                 timeFormat="HH:mm"
                 timeIntervals={15}
                 dateFormat="dd/MM/yyyy HH:mm"
-                className={`w-[400px] h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-[400px] h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
-                }`}
+                  }`}
                 placeholderText="Selecione a data de fim"
               />
             </div>
@@ -222,9 +229,8 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Responsável
               </label>
@@ -237,19 +243,17 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                   }))
                 }
                 placeholder="Nome do responsável"
-                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-400"
-                }`}
+                  }`}
               />
             </div>
 
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Status
               </label>
@@ -261,11 +265,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                     status: e.target.value as AtividadeFormData["status"],
                   }))
                 }
-                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
-                }`}
+                  }`}
               >
                 <option value="pendente">Pendente</option>
                 <option value="em-andamento">Em Andamento</option>
@@ -276,9 +279,8 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
 
             <div>
               <label
-                className={`block text-sm font-medium mb-2 ${
-                  theme === "dark" ? "text-gray-300" : "text-gray-900"
-                }`}
+                className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
               >
                 Prioridade
               </label>
@@ -291,11 +293,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                       .value as AtividadeFormData["prioridade"],
                   }))
                 }
-                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                  theme === "dark"
+                className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                     ? "bg-gray-700 border-gray-600 text-white"
                     : "bg-white border-gray-300 text-gray-900"
-                }`}
+                  }`}
               >
                 <option value="baixa">Baixa</option>
                 <option value="media">Média</option>
@@ -306,9 +307,8 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
 
           <div>
             <label
-              className={`block text-sm font-medium mb-2 ${
-                theme === "dark" ? "text-gray-300" : "text-gray-900"
-              }`}
+              className={`block text-sm font-medium mb-2 ${theme === "dark" ? "text-gray-300" : "text-gray-900"
+                }`}
             >
               Subtarefas
             </label>
@@ -318,20 +318,18 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                   value={novaSubtarefa}
                   onChange={(e) => setNovaSubtarefa(e.target.value)}
                   placeholder="Nova subtarefa"
-                  className={`flex-1 h-10 rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                    theme === "dark"
+                  className={`flex-1 h-10 rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 ${theme === "dark"
                       ? "bg-gray-700 border-gray-600 text-white"
                       : "bg-white border-gray-300 text-gray-900"
-                  }`}
+                    }`}
                 />
                 <button
                   type="button"
                   onClick={handleAddSubtarefa}
-                  className={`px-4 py-2 rounded-md text-white font-medium transition-colors ${
-                    theme === "dark"
+                  className={`px-4 py-2 rounded-md text-white font-medium transition-colors ${theme === "dark"
                       ? "bg-blue-600 hover:bg-blue-700"
                       : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                    }`}
                 >
                   Adicionar
                 </button>
@@ -341,11 +339,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
                   {formData.subtarefas.map((subtarefa, index) => (
                     <li
                       key={index}
-                      className={`flex items-center justify-between p-3 rounded-md ${
-                        theme === "dark"
+                      className={`flex items-center justify-between p-3 rounded-md ${theme === "dark"
                           ? "bg-gray-700 text-gray-200"
                           : "bg-gray-50 text-gray-900"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <BsListTask
@@ -380,11 +377,10 @@ export const AtividadeForm: React.FC<AtividadeFormProps> = ({
             <button
               type="button"
               onClick={onCancel}
-              className={`flex-1 h-12 rounded-lg font-medium transition-all duration-200 ${
-                theme === "dark"
+              className={`flex-1 h-12 rounded-lg font-medium transition-all duration-200 ${theme === "dark"
                   ? "bg-gray-600 hover:bg-gray-700 text-white"
                   : "bg-gray-200 hover:bg-gray-300 text-gray-900"
-              }`}
+                }`}
             >
               Cancelar
             </button>

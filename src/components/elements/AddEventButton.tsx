@@ -29,6 +29,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
   const [pendingEventData, setPendingEventData] = useState<any>(null);
 
   const handleTypeSelect = (type: EventType) => {
+    console.log("Selected event type:", type);
     setSelectedType(type);
     setShowTypeModal(false);
   };
@@ -41,7 +42,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
   };
 
   const handleFormSubmit = (formData: any) => {
-    if (selectedType === "reuniao" || selectedType === "reuniao-direx") {
+    if (selectedType === EventType.MEETING) {
       const startDate = formData.dataHoraInicio;
       const endDate = formData.dataHoraTermino;
 
@@ -139,20 +140,20 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
         />
       )}
 
-      {(selectedType === "reuniao" || selectedType === "reuniao-direx") && (
+      {(selectedType === EventType.MEETING) && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
             <ReuniaoForm
               onSubmit={handleFormSubmit}
               onCancel={handleFormClose}
-              isDirex={selectedType === "reuniao-direx"}
+              isDirex={selectedType === EventType.MEETING}
             />
           </div>
         </div>
       )}
 
-      {selectedType === "atividade" && (
+      {selectedType === EventType.ACTIVITY && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
@@ -163,7 +164,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
           </div>
         </div>
       )}
-      {selectedType === "atividades-externas" && (
+      {selectedType === EventType.EXTERNAL_ACTIVITY && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
@@ -174,7 +175,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
           </div>
         </div>
       )}
-      {selectedType === "documento" && (
+      {selectedType === EventType.DOCUMENT && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">

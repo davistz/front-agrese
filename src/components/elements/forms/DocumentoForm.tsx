@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DocumentoFormData } from "../../../types/interfaces";
 import { IoMdClose } from "react-icons/io";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "../../../contexts/ThemeContext";
+import { sectorServices } from "../../../services/sectorsServices";
 
 interface DocumentoFormProps {
   initialData?: Partial<DocumentoFormData>;
@@ -30,6 +31,22 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
     dataEnvioRecebimento: initialData?.dataEnvioRecebimento || null,
     observacoes: initialData?.observacoes || "",
   });
+  const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+
+  useEffect(() => {
+    const fetchSectors = async () => {
+      try {
+        const data = await sectorServices.getSectors();
+        if (Array.isArray(data)) {
+          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar setores:", error);
+        setSetores([]);
+      }
+    };
+    fetchSectors();
+  }, []);
 
   return (
     <div className="">
@@ -98,21 +115,25 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                   >
                     Setor de Origem
                   </label>
-                  <input
-                    value={formData.setorResponsavel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        setorResponsavel: e.target.value,
-                      }))
-                    }
-                    placeholder="Setor de origem"
+                  <select
+                      value={formData.setorResponsavel}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          setorResponsavel: e.target.value,
+                        }));
+                      }}
                     className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
                       theme === "dark"
                         ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     }`}
-                  />
+                  >
+                    <option value="">Selecione o setor</option>
+                    {setores.map((setor) => (
+                      <option key={setor.id} value={setor.id}>{setor.name}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>

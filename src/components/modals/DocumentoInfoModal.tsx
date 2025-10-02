@@ -109,12 +109,12 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
                   </label>
                   <input
                     value={formData.setorResponsavel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        setorResponsavel: e.target.value,
-                      }))
-                    }
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            setorResponsavel: e.target.value,
+                          }))
+                        }
                     placeholder="Setor de origem"
                     className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
                       theme === "dark"

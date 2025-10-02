@@ -27,7 +27,7 @@ export const mapReuniaoToMeeting = (
     description: reuniao.descricao,
     type: "MEETING",
     priority: "MEDIUM",
-    status: "PENDING",
+    status: reuniao.status,
     startDate: reuniao.dataHoraInicio,
     endDate: reuniao.dataHoraTermino,
     isAllDay: false,
@@ -227,7 +227,7 @@ export const convertLegacyPriority = (oldPriority: string): Priority => {
 export const convertLegacyDocumentType = (oldType: string): DocumentType => {
   const typeMap: Record<string, DocumentType> = {
     oficio: "OFICIO",
-    relatorio: "RELATORIO",
+  // ...existing code...
     memorando: "MEMORANDO",
     portaria: "PORTARIA",
     decreto: "DECRETO",

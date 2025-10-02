@@ -172,30 +172,30 @@ export const useNotifications = () => {
   }, [user]);
 
   useEffect(() => {
-    console.log("Notificações não lidas:", notificacoesNaoLidas);
-    console.log("Total de notificações:", notificacoes.length);
-    console.log(
-      "Notificações:",
-      notificacoes.map((n) => ({ id: n.id, titulo: n.titulo, lida: n.lida }))
-    );
+    // console.log("Notificações não lidas:", notificacoesNaoLidas);
+    // console.log("Total de notificações:", notificacoes.length);
+    // console.log(
+    //   "Notificações:",
+    //   notificacoes.map((n) => ({ id: n.id, titulo: n.titulo, lida: n.lida }))
+    // );
   }, [notificacoesNaoLidas, notificacoes]);
 
   const marcarComoLida = (notificacaoId: string) => {
-    console.log("Marcando notificação como lida:", notificacaoId);
+    // console.log("Marcando notificação como lida:", notificacaoId);
     setNotificacoes((prev) => {
       const updated = prev.map((n) =>
         n.id === notificacaoId ? { ...n, lida: !n.lida } : n
       );
-      console.log(
-        "Estado atualizado:",
-        updated.map((n) => ({ id: n.id, lida: n.lida }))
-      );
+      // console.log(
+      //   "Estado atualizado:",
+      //   updated.map((n) => ({ id: n.id, lida: n.lida }))
+      // );
       return updated;
     });
   };
 
   const marcarComoLidaApenas = (notificacaoId: string) => {
-    console.log("Marcando notificação apenas como lida:", notificacaoId);
+    // console.log("Marcando notificação apenas como lida:", notificacaoId);
     setNotificacoes((prev) =>
       prev.map((n) => (n.id === notificacaoId ? { ...n, lida: true } : n))
     );

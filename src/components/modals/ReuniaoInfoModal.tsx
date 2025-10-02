@@ -8,7 +8,7 @@ import { ReuniaoModalData } from "../../types/interfaces";
 
 interface ReuniaoModalInfoProps {
   onClose: () => void;
-  evento: ReuniaoModalData;
+  evento: any;
   onSave?: (data: ReuniaoModalData) => void;
 }
 
@@ -29,11 +29,12 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
     local: evento.local || "presencial",
     sala: evento.sala || "",
     participantes: evento.participantes || [],
-    status: evento.status || "agendada",
+    status: evento?.status,
     responsavelAta: evento.responsavelAta || "",
     linkReuniao: evento.linkReuniao || "",
     notificacao: evento.notificacao || 30,
   });
+  console.log("Evento recebido no modal:", evento);
 
   const handleSave = () => {
     if (onSave) {
@@ -273,12 +274,9 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                       value={formData.status}
                       onChange={(e) =>
                         setFormData((prev) => ({
-                          ...prev,
-                          status: e.target.value as
-                            | "agendada"
-                            | "realizada"
-                            | "cancelada",
-                        }))
+                                                  ...prev,
+                                                  status: e.target.value
+                                                }))
                       }
                       className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${
                         theme === "dark"
@@ -286,9 +284,10 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                           : "bg-transparent border-gray-300 text-gray-900"
                       }`}
                     >
-                      <option value="agendada">Agendada</option>
-                      <option value="realizada">Realizada</option>
-                      <option value="cancelada">Cancelada</option>
+                      <option value="PENDING">Agendada</option>
+                      <option value="IN_PROGRESS">Em andamento</option>
+                      <option value="COMPLETED">Realizada</option>
+                      <option value="CANCELLED">Cancelada</option>
                     </select>
                   </div>
                 </div>

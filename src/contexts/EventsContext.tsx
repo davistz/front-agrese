@@ -3,10 +3,14 @@ import React, {
   useContext,
   useState,
   useCallback,
+  useEffect,
   ReactNode,
 } from "react";
-import { eventosPadrao } from "../components/elements/eventosPadrao";
 import { EventType } from "../components/elements/EventTypeModal";
+import { eventTypeFrontendToBackend } from "../utils/eventTypeFrontendToBackend";
+import { eventTypeBackendToFrontend } from "../utils/eventTypeBackendToFrontend";
+import { eventservices } from "../services/eventsServices";
+import { useAuth } from "./AuthContext";
 
 interface Event {
   id: number;
@@ -61,176 +65,132 @@ interface EventsProviderProps {
 }
 
 export const EventsProvider = ({ children }: EventsProviderProps) => {
-  const [events, setEvents] = useState<Event[]>(eventosPadrao);
-  const [filteredEvents, setFilteredEvents] = useState<Event[]>(eventosPadrao);
+  const { user } = useAuth();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-  const addEvent = useCallback(
-    (type: EventType, eventData: any) => {
-      if (
-        (type === "reuniao" || type === "reuniao-direx") &&
-        eventData.local === "presencial" &&
-        eventData.sala
-      ) {
-        const hasConflict = events.some((event) => {
-          if (!["reuniao", "reuniao-direx"].includes(event.tipo)) {
-            return false;
-          }
-
-          if (
-            event.local !== "presencial" ||
-            !event.sala ||
-            event.sala.trim() === ""
-          ) {
-            return false;
-          }
-
-          if (event.sala !== eventData.sala) {
-            return false;
-          }
-
-          const eventStart = new Date(event.start);
-          const eventEnd = new Date(event.end);
-          const newStart = new Date(eventData.dataHoraInicio);
-          const newEnd = new Date(eventData.dataHoraTermino);
-
-          return (
-            (newStart >= eventStart && newStart < eventEnd) ||
-            (newEnd > eventStart && newEnd <= eventEnd) ||
-            (newStart <= eventStart && newEnd >= eventEnd)
-          );
-        });
-
-        if (hasConflict) {
-          console.error("Conflito de sala detectado!");
-          throw new Error("A sala já está ocupada neste horário!");
-        }
+  // Buscar eventos do backend ao carregar
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        let data = await eventservices.getEvents();
+        console.log('[EventsContext] Eventos recebidos do backend:', data);
+        const eventosArray = Array.isArray(data.events) ? data.events : [];
+        const parsed = eventosArray.map((ev: any) => ({
+          ...ev,
+          start: ev.start ? new Date(ev.start) : (ev.startDate ? new Date(ev.startDate) : undefined),
+          end: ev.end ? new Date(ev.end) : (ev.endDate ? new Date(ev.endDate) : undefined),
+          tipo: eventTypeBackendToFrontend[ev.type] || ev.type,
+        }));
+        setEvents(parsed);
+        setFilteredEvents(parsed);
+      } catch (error) {
+        console.error("Erro ao buscar eventos do backend:", error);
       }
+    };
+    fetchEvents();
+  }, []);
 
-      let novoEvento: Event;
-      const newId = Math.max(...events.map((e) => e.id || 0), 0) + 1;
-
-      switch (type) {
-        case "reuniao":
-          novoEvento = {
-            id: newId,
-            title: eventData.titulo || "Nova Reunião",
-            start: eventData.dataHoraInicio || new Date(),
-            end:
-              eventData.dataHoraTermino ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            status: "pendente",
-            ...eventData,
-          };
-          break;
-        case "reuniao-direx":
-          novoEvento = {
-            id: newId,
-            title: eventData.titulo || "Nova Reunião Direx",
-            start: eventData.dataHoraInicio || new Date(),
-            end:
-              eventData.dataHoraTermino ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "Diretoria Executiva",
-            tipo: type,
-            status: "pendente",
-            prioridade: "alta",
-            ...eventData,
-          };
-          break;
-        case "atividade":
-          novoEvento = {
-            id: newId,
-            title: eventData.titulo || "Nova Atividade",
-            start: eventData.dataInicio || new Date(),
-            end:
-              eventData.dataFim ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            status: "pendente",
-            ...eventData,
-          };
-          break;
-        case "atividades-externas":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Atividade Externa",
-            start: eventData.dataHoraSaida || new Date(),
-            end:
-              eventData.dataHoraRetorno ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            status: "pendente",
-            ...eventData,
-          };
-          break;
-        case "documento":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Novo Documento",
-            start: eventData.prazoAnalise || new Date(),
-            end:
-              eventData.prazoAnalise ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            status: "pendente",
-            ...eventData,
-          };
-          break;
-        default:
-          novoEvento = {
-            id: events.length + 1,
-            title: "Novo Evento",
-            start: new Date(),
-            end: new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: "",
-            autor: "Usuário",
-            setor: "",
-            tipo: type,
-            status: "pendente",
-          };
+  // Adicionar evento no backend
+  const addEvent = useCallback(async (type: EventType, eventData: any) => {
+    try {
+      let sectorId = eventData.setorId || eventData.sectorId || eventData.setorResponsavel;
+      if (typeof sectorId === "string" && !isNaN(Number(sectorId))) {
+        sectorId = Number(sectorId);
       }
+      if (typeof sectorId !== "number" || isNaN(sectorId)) {
+        console.error("[ADD EVENT] sectorId inválido:", sectorId);
+        alert("Selecione um setor válido!");
+        return;
+      }
+      const backendType = eventTypeFrontendToBackend[type] || type;
+      let payload;
+      if (backendType === "EXTERNAL_ACTIVITY") {
+        // Mapeamento correto dos campos do formulário
+        const statusMap: { [key: string]: string } = {
+          'planejada': 'PLANNED',
+          'em-execucao': 'IN_EXECUTION',
+          'realizada': 'COMPLETED',
+          'cancelada': 'CANCELLED'
+        };
+        payload = {
+          title: eventData.titulo || eventData.title,
+          description: eventData.descricao || eventData.description || "",
+          type: backendType,
+          priority: eventData.prioridade || eventData.priority || "MEDIUM",
+          startDate: eventData.dataHoraSaida || eventData.startDate,
+          endDate: eventData.dataHoraRetorno || eventData.endDate,
+          sectorId: Number(eventData.setorResponsavel),
+          externalStatus: statusMap[String(eventData.status)] || "PLANNED",
+          destination: eventData.destino,
+          departureTime: eventData.dataHoraSaida,
+          returnTime: eventData.dataHoraRetorno,
+          transportMode: eventData.meioTransporte,
+          activityReason: eventData.motivoAtividade,
+          assignees: eventData.assigneeIds || eventData.responsaveis || [],
+        };
+      } else {
+        const priorityMap = { baixa: "LOW", media: "MEDIUM", alta: "HIGH" };
+        payload = {
+          title: eventData.titulo || eventData.title,
+          description: eventData.descricao || eventData.description || "",
+          type: backendType,
+          priority: priorityMap[eventData.prioridade] || eventData.priority || "MEDIUM",
+          startDate: eventData.dataHoraInicio || eventData.startDate,
+          endDate: eventData.dataHoraTermino || eventData.endDate,
+          isAllDay: eventData.isAllDay || false,
+          location: eventData.local || eventData.location || "",
+          sectorId,
+          assigneeIds: eventData.assigneeIds || eventData.responsaveis || [],
+        };
+      }
+  console.log('[addEvent] Payload enviado:', payload);
+  const created = await eventservices.postEvents(payload);
+      if (created) {
+        const parsed = {
+          ...created,
+          start: created.startDate ? new Date(created.startDate) : undefined,
+          end: created.endDate ? new Date(created.endDate) : undefined,
+          tipo: eventTypeBackendToFrontend[created.type] || created.type,
+        };
+        setEvents((prev) => [...prev, parsed]);
+        setFilteredEvents((prev) => [...prev, parsed]);
+      }
+    } catch (error) {
+      console.error("[ADD EVENT] Erro ao adicionar evento:", error);
+    }
+  }, []);
 
-      const newEvents = [...events, novoEvento];
-      setEvents(newEvents);
-      setFilteredEvents(newEvents);
-    },
-    [events]
-  );
-
+  // Editar evento no backend
   const updateEvent = useCallback(
-    (id: number, updatedEvent: Partial<Event>) => {
-      const newEvents = events.map((event) =>
-        event.id === id ? { ...event, ...updatedEvent } : event
-      );
-      setEvents(newEvents);
-      setFilteredEvents(newEvents);
+    async (id: number, updatedEvent: Partial<Event>) => {
+      try {
+        const updated = await eventservices.putEvents(String(id), updatedEvent);
+        if (updated) {
+          setEvents((prev) =>
+            prev.map((event) => (event.id === id ? { ...event, ...updated } : event))
+          );
+          setFilteredEvents((prev) =>
+            prev.map((event) => (event.id === id ? { ...event, ...updated } : event))
+);
+        }
+      } catch (error) {
+        console.error("Erro ao editar evento:", error);
+      }
     },
-    [events]
+    []
   );
 
-  const deleteEvent = useCallback(
-    (id: number) => {
-      const newEvents = events.filter((event) => event.id !== id);
-      setEvents(newEvents);
-      setFilteredEvents(newEvents);
-    },
-    [events]
-  );
+  // Excluir evento no backend
+  const deleteEvent = useCallback(async (id: number) => {
+    try {
+      await eventservices.deleteEvents(String(id));
+      setEvents((prev) => prev.filter((event) => event.id !== id));
+      setFilteredEvents((prev) => prev.filter((event) => event.id !== id));
+    } catch (error) {
+      console.error("Erro ao excluir evento:", error);
+    }
+  }, []);
 
   const checkTimeConflict = useCallback(
     (startDate: Date, endDate: Date, excludeId?: number): boolean => {

@@ -10,7 +10,6 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "./Components-Calendario-css.css";
 import { useCallback, useState } from "react";
-import { EventModal } from "../modals/EventModal";
 import "moment/locale/pt-br";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useEvents } from "../../contexts/EventsContext";
@@ -18,6 +17,7 @@ import { CustomToolbar } from "./CustomToolbarProps";
 import { FiltroAtividades } from "./FiltroAtividades";
 import { AddEventButton } from "./AddEventButton";
 import { EventType } from "./EventTypeModal";
+import { eventTypeBackendToFrontend } from "../../utils/eventTypeBackendToFrontend";
 import { ReuniaoModalInfo } from "../modals/ReuniaoInfoModal";
 import {
   convertEventToReuniaoModal,
@@ -176,24 +176,20 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   const eventStyleProp = (event: any) => {
     let backgroundColor = "#3174ad";
 
-    switch (event.tipo) {
-      case "reuniao":
+    switch (event.type) {
+      case EventType.MEETING:
         backgroundColor = "#d0923a";
         break;
-      case "reuniao-direx":
-        backgroundColor = "#8B0000";
-        break;
-      case "atividade":
+      case EventType.ACTIVITY:
         backgroundColor = "#3ca13c";
         break;
-      case "documento":
+      case EventType.DOCUMENT:
         backgroundColor = "#990a0a";
         break;
-      case "atividades-externas":
+      case EventType.EXTERNAL_ACTIVITY:
         backgroundColor = "#8B4513";
         break;
     }
-
     return {
       style: {
         backgroundColor,
@@ -221,10 +217,10 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const renderEventModal = () => {
     if (!eventoSelecionado) return null;
-
-    switch (eventoSelecionado.tipo) {
-      case "reuniao":
-      case "reuniao-direx":
+    const tipoFrontend = eventTypeBackendToFrontend[eventoSelecionado.type] || eventoSelecionado.type;
+                console.log(eventoSelecionado)
+    switch (tipoFrontend) {
+      case EventType.MEETING:
         return (
           <ReuniaoModalInfo
             evento={convertEventToReuniaoModal(eventoSelecionado)}
@@ -236,8 +232,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             }}
           />
         );
-
-      case "atividade":
+      case EventType.ACTIVITY:
         return (
           <AtividadeModalInfo
             evento={convertEventToAtividadeModal(eventoSelecionado)}
@@ -249,22 +244,19 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             }}
           />
         );
-
-      case "atividades-externas":
+      case EventType.EXTERNAL_ACTIVITY:
         return (
           <AtividadeExternaModalInfo
             evento={convertEventToAtividadeExternaModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
-              const convertedEvent =
-                convertAtividadeExternaModalToEvent(updatedEvent);
+              const convertedEvent = convertAtividadeExternaModalToEvent(updatedEvent);
               updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
           />
         );
-
-      case "documento":
+      case EventType.DOCUMENT:
         return (
           <DocumentoModalInfo
             evento={convertEventToDocumentoModal(eventoSelecionado)}
@@ -276,11 +268,8 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             }}
           />
         );
-
       default:
-        return (
-          <EventModal evento={eventoSelecionado} onClose={handleSelectClose} />
-        );
+        return <h1>calendario</h1>;
     }
   };
 

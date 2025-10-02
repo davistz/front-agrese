@@ -16,6 +16,7 @@ import {
   FaTasks,
 } from "react-icons/fa";
 import { MdGroups2 } from "react-icons/md";
+import { formatDate } from "../../utils/formatDate";
 
 export interface SetorInfoModalProps {
   setor: SectorModalData;
@@ -49,16 +50,6 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
 
   const cancelDeleteUser = () => {
     setUserToDelete(null);
-  };
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
   };
 
   const getRoleBadge = (role: UserRole) => {
@@ -506,24 +497,7 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                             </div>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleDeleteUser(user.id)}
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                              theme === "dark"
-                                ? "bg-red-900 hover:bg-red-800"
-                                : "bg-red-100 hover:bg-red-200"
-                            }`}
-                          >
-                            <FaTrash
-                              className={`w-4 h-4 ${
-                                theme === "dark"
-                                  ? "text-red-300"
-                                  : "text-red-600"
-                              }`}
-                            />
-                          </button>
-                        </div>
+                        
                       </div>
                     </div>
                   ))}
