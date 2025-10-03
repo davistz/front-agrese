@@ -40,6 +40,49 @@ export type DocumentType =
   | "PARECER"
   | "OUTROS";
 
+// Notification types
+export type NotificationType = 
+  | "EVENT_REMINDER"
+  | "EVENT_CREATED"
+  | "EVENT_UPDATED"
+  | "EVENT_CANCELLED"
+  | "DEADLINE_APPROACHING"
+  | "TASK_ASSIGNED"
+  | "MEETING_INVITATION"
+  | "DOCUMENT_APPROVAL"
+  | "GENERAL";
+
+export type NotificationPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export interface NotificationData {
+  id: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  isRead: boolean;
+  userId: number;
+  eventId?: number;
+  sectorId?: number;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  readAt?: Date;
+  scheduledFor?: Date;
+}
+
+export interface NotificationFormData {
+  title: string;
+  message: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  userId?: number;
+  userIds?: number[];
+  sectorId?: number;
+  eventId?: number;
+  scheduledFor?: Date;
+  metadata?: Record<string, any>;
+}
+
 export interface EventFormData {
   title: string;
   description?: string;

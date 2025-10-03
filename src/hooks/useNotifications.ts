@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { notificationServices } from "../services/notificationsServices";
+import { NotificationData, NotificationFormData } from "../types/interfaces";
 
 export interface NotificacaoSetor {
   id: string;
@@ -18,202 +20,183 @@ export interface NotificacaoSetor {
 
 export const useNotifications = () => {
   const { user, hasPermission } = useAuth();
-  const [notificacoes, setNotificacoes] = useState<NotificacaoSetor[]>([]);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const gerarNotificacoesPorSetor = (
-    sectorId: number,
-    sectorName: string
-  ): NotificacaoSetor[] => {
-    return [
-      {
-        id: `${sectorId}_1`,
-        titulo: "Novo evento criado",
-        descricao:
-          "Maria Silva criou o evento 'Reunião de Planejamento Mensal' para amanhã às 14:00",
-        tipo: "evento_criado",
-        lida: false,
-        dataHora: new Date(2025, 6, 30, 9, 30),
-        setorId: sectorId,
-        setorNome: sectorName,
-        autorId: 2,
-        autorNome: "Maria Silva",
-        eventoId: "evt_001",
-        eventoTitulo: "Reunião de Planejamento Mensal",
-      },
-      {
-        id: `${sectorId}_2`,
-        titulo: "Evento editado",
-        descricao:
-          "João Santos alterou o horário do evento 'Workshop de Capacitação' de 10:00 para 15:00",
-        tipo: "evento_editado",
-        lida: false,
-        dataHora: new Date(2025, 6, 30, 8, 15),
-        setorId: sectorId,
-        setorNome: sectorName,
-        autorId: 3,
-        autorNome: "João Santos",
-        eventoId: "evt_002",
-        eventoTitulo: "Workshop de Capacitação",
-      },
-      {
-        id: `${sectorId}_3`,
-        titulo: "Evento cancelado",
-        descricao:
-          "Ana Costa cancelou o evento 'Apresentação de Resultados' que estava marcado para sexta-feira",
-        tipo: "evento_excluido",
-        lida: false,
-        dataHora: new Date(2025, 6, 29, 16, 45),
-        setorId: sectorId,
-        setorNome: sectorName,
-        autorId: 4,
-        autorNome: "Ana Costa",
-        eventoId: "evt_003",
-        eventoTitulo: "Apresentação de Resultados",
-      },
-      {
-        id: `${sectorId}_4`,
-        titulo: "Novo evento criado",
-        descricao:
-          "Carlos Oliveira criou o evento 'Reunião de Alinhamento' para a próxima segunda-feira",
-        tipo: "evento_criado",
-        lida: true,
-        dataHora: new Date(2025, 6, 28, 14, 20),
-        setorId: sectorId,
-        setorNome: sectorName,
-        autorId: 5,
-        autorNome: "Carlos Oliveira",
-        eventoId: "evt_004",
-        eventoTitulo: "Reunião de Alinhamento",
-      },
-      {
-        id: `${sectorId}_5`,
-        titulo: "Evento editado",
-        descricao:
-          "Fernanda Lima atualizou a descrição do evento 'Treinamento Técnico'",
-        tipo: "evento_editado",
-        lida: true,
-        dataHora: new Date(2025, 6, 27, 11, 10),
-        setorId: sectorId,
-        setorNome: sectorName,
-        autorId: 6,
-        autorNome: "Fernanda Lima",
-        eventoId: "evt_005",
-        eventoTitulo: "Treinamento Técnico",
-      },
-    ];
-  };
-
-  useEffect(() => {
-    if (user) {
-      let todasNotificacoes: NotificacaoSetor[] = [];
-
-      if (hasPermission("view_all_sectors")) {
-        const setoresMock = [
-          { id: 1, nome: "DAF" },
-          { id: 2, nome: "TI" },
-          { id: 3, nome: "RH" },
-          { id: 4, nome: "Comercial" },
-        ];
-
-        setoresMock.forEach((setor) => {
-          const notificacoesSetor = gerarNotificacoesPorSetor(
-            setor.id,
-            setor.nome
-          );
-          todasNotificacoes = [...todasNotificacoes, ...notificacoesSetor];
-        });
-      } else {
-        todasNotificacoes = gerarNotificacoesPorSetor(
-          user.sectorId,
-          user.sectorName
-        );
-      }
-
-      todasNotificacoes.sort(
-        (a, b) => b.dataHora.getTime() - a.dataHora.getTime()
-      );
-
-      setNotificacoes(todasNotificacoes);
+  // Buscar notificações do backend
+  const fetchNotifications = useCallback(async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      const data = await notificationServices.getNotifications();
+      const notificationsArray = Array.isArray(data.notifications) ? data.notifications : data;
+      const parsed = notificationsArray.map((notification: any) => ({
+        ...notification,
+        createdAt: new Date(notification.createdAt),
+        readAt: notification.readAt ? new Date(notification.readAt) : undefined,
+        scheduledFor: notification.scheduledFor ? new Date(notification.scheduledFor) : undefined,
+      }));
+      setNotifications(parsed);
+      setError(null);
+    } catch (err) {
+      console.error("Erro ao buscar notificações:", err);
+      setError("Erro ao carregar notificações");
+    } finally {
+      setLoading(false);
     }
-  }, [user, hasPermission]);
+  }, [user]);
 
-  const [contadorAtualizado, setContadorAtualizado] = useState(0);
-  const notificacoesNaoLidas = notificacoes.filter((n) => !n.lida).length;
+  // Criar nova notificação
+  const createNotification = useCallback(async (notificationData: NotificationFormData) => {
+    try {
+      const created = await notificationServices.createNotification(notificationData);
+      const parsed = {
+        ...created,
+        createdAt: new Date(created.createdAt),
+        readAt: created.readAt ? new Date(created.readAt) : undefined,
+        scheduledFor: created.scheduledFor ? new Date(created.scheduledFor) : undefined,
+      };
+      setNotifications(prev => [parsed, ...prev]);
+      return created;
+    } catch (err) {
+      console.error("Erro ao criar notificação:", err);
+      setError("Erro ao criar notificação");
+      throw err;
+    }
+  }, []);
 
+  // Marcar como lida
+  const markAsRead = useCallback(async (notificationId: string) => {
+    try {
+      await notificationServices.markAsRead(notificationId);
+      setNotifications(prev => 
+        prev.map(notification => 
+          notification.id === parseInt(notificationId) 
+            ? { ...notification, isRead: true, readAt: new Date() }
+            : notification
+        )
+      );
+    } catch (err) {
+      console.error("Erro ao marcar notificação como lida:", err);
+      setError("Erro ao marcar como lida");
+    }
+  }, []);
+
+  // Marcar todas como lidas
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await notificationServices.markAllAsRead(user?.id.toString());
+      setNotifications(prev => 
+        prev.map(notification => ({ 
+          ...notification, 
+          isRead: true, 
+          readAt: new Date() 
+        }))
+      );
+    } catch (err) {
+      console.error("Erro ao marcar todas como lidas:", err);
+      setError("Erro ao marcar todas como lidas");
+    }
+  }, [user?.id]);
+
+  // Excluir notificação
+  const deleteNotification = useCallback(async (notificationId: string) => {
+    try {
+      await notificationServices.deleteNotification(notificationId);
+      setNotifications(prev => 
+        prev.filter(notification => notification.id !== parseInt(notificationId))
+      );
+    } catch (err) {
+      console.error("Erro ao excluir notificação:", err);
+      setError("Erro ao excluir notificação");
+    }
+  }, []);
+
+  // Buscar contagem de não lidas
+  const getUnreadCount = useCallback(async (): Promise<number> => {
+    try {
+      const data = await notificationServices.getUnreadCount(user?.id.toString());
+      return data.count || 0;
+    } catch (err) {
+      console.error("Erro ao buscar contagem de não lidas:", err);
+      return 0;
+    }
+  }, [user?.id]);
+
+  // Carregar notificações ao montar componente
   useEffect(() => {
-    setContadorAtualizado((prev) => prev + 1);
-  }, [notificacoes]);
+    fetchNotifications();
+  }, [fetchNotifications]);
 
+  // Polling para atualizações em tempo real (opcional)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
-      if (Math.random() < 0.1) {
-        const novaNotificacao: NotificacaoSetor = {
-          id: `realtime_${Date.now()}`,
-          titulo: "Nova notificação em tempo real",
-          descricao:
-            "Esta é uma notificação gerada automaticamente para demonstrar atualizações em tempo real",
-          tipo: Math.random() > 0.5 ? "evento_criado" : "evento_editado",
-          lida: false,
-          dataHora: new Date(),
-          setorId: user.sectorId,
-          setorNome: user.sectorName,
-          autorId: Date.now(),
-          autorNome: "Sistema",
-          eventoId: `evt_${Date.now()}`,
-          eventoTitulo: "Evento em Tempo Real",
-        };
+      fetchNotifications();
+    }, 30000); // Busca a cada 30 segundos
 
-        setNotificacoes((prev) => [novaNotificacao, ...prev]);
-      }
-    }, 30000);
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, fetchNotifications]);
 
-  useEffect(() => {
-    // console.log("Notificações não lidas:", notificacoesNaoLidas);
-    // console.log("Total de notificações:", notificacoes.length);
-    // console.log(
-    //   "Notificações:",
-    //   notificacoes.map((n) => ({ id: n.id, titulo: n.titulo, lida: n.lida }))
-    // );
-  }, [notificacoesNaoLidas, notificacoes]);
+  // Computar valores derivados
+  const unreadNotifications = notifications.filter(n => !n.isRead);
+  const unreadCount = unreadNotifications.length;
 
-  const marcarComoLida = (notificacaoId: string) => {
-    // console.log("Marcando notificação como lida:", notificacaoId);
-    setNotificacoes((prev) => {
-      const updated = prev.map((n) =>
-        n.id === notificacaoId ? { ...n, lida: !n.lida } : n
-      );
-      // console.log(
-      //   "Estado atualizado:",
-      //   updated.map((n) => ({ id: n.id, lida: n.lida }))
-      // );
-      return updated;
-    });
+  // Manter compatibilidade com interface legacy
+  const notificacoes: NotificacaoSetor[] = notifications.map(notification => ({
+    id: notification.id.toString(),
+    titulo: notification.title,
+    descricao: notification.message,
+    tipo: notification.type === "EVENT_CREATED" ? "evento_criado" : 
+          notification.type === "EVENT_UPDATED" ? "evento_editado" : "evento_excluido",
+    lida: notification.isRead,
+    dataHora: notification.createdAt,
+    setorId: notification.sectorId || 0,
+    setorNome: "", // Pode ser populado com dados do setor se necessário
+    autorId: 0, // Pode ser populado se o backend fornecer
+    autorNome: "", // Pode ser populado se o backend fornecer
+    eventoId: notification.eventId?.toString(),
+    eventoTitulo: notification.metadata?.eventTitle || "",
+  }));
+
+  const marcarComoLida = (notificationId: string) => {
+    markAsRead(notificationId);
   };
 
-  const marcarComoLidaApenas = (notificacaoId: string) => {
-    // console.log("Marcando notificação apenas como lida:", notificacaoId);
-    setNotificacoes((prev) =>
-      prev.map((n) => (n.id === notificacaoId ? { ...n, lida: true } : n))
-    );
+  const marcarComoLidaApenas = (notificationId: string) => {
+    markAsRead(notificationId);
   };
 
   const marcarTodasComoLidas = () => {
-    setNotificacoes((prev) => prev.map((n) => ({ ...n, lida: true })));
+    markAllAsRead();
   };
 
-  const excluirNotificacao = (notificacaoId: string) => {
-    setNotificacoes((prev) => prev.filter((n) => n.id !== notificacaoId));
+  const excluirNotificacao = (notificationId: string) => {
+    deleteNotification(notificationId);
   };
 
   return {
+    // Nova interface
+    notifications,
+    unreadNotifications,
+    unreadCount,
+    loading,
+    error,
+    fetchNotifications,
+    createNotification,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    getUnreadCount,
+
+    // Interface legacy para compatibilidade
     notificacoes,
-    notificacoesNaoLidas,
-    contadorAtualizado,
-    setNotificacoes,
+    notificacoesNaoLidas: unreadCount,
+    contadorAtualizado: 0, // Mantido para compatibilidade
+    setNotificacoes: setNotifications,
     marcarComoLida,
     marcarComoLidaApenas,
     marcarTodasComoLidas,

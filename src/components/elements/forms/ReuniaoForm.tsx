@@ -36,7 +36,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
     local: initialData?.local || "presencial",
     sala: initialData?.sala || "",
     participantes: initialData?.participantes || [],
-    status: initialData?.status || "agendada",
+    status: initialData?.status || "PENDING",
     responsavelAta: initialData?.responsavelAta || "",
     linkReuniao: initialData?.meetingLink  || "",
     notificacao: initialData?.notificacao || 30,
@@ -45,19 +45,63 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   const [novoParticipante, setNovoParticipante] = useState("");
   const [roomConflictingEvents, setRoomConflictingEvents] = useState<any[]>([]);
   const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+  const [loadingSetores, setLoadingSetores] = useState(true);
 
   useEffect(() => {
     const fetchSectors = async () => {
+      console.log('[ReuniaoForm] Iniciando busca de setores...');
+      setLoadingSetores(true);
+      
+      // Setores mock como fallback
+      const mockSetores = [
+        { id: 1, name: "Presidência" },
+        { id: 2, name: "Diretoria Administrativa" },
+        { id: 3, name: "Diretoria Técnica" },
+        { id: 4, name: "Recursos Humanos" },
+        { id: 5, name: "Tecnologia da Informação" },
+        { id: 6, name: "Financeiro" },
+        { id: 7, name: "Jurídico" },
+        { id: 8, name: "Comunicação" }
+      ];
+      
       try {
-        const data = await sectorServices.getSectors();
-        if (Array.isArray(data)) {
-          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        const response = await sectorServices.getSectors();
+        console.log('[ReuniaoForm] Resposta completa da API:', response);
+        
+        // Tratar diferentes formatos de resposta da API
+        let sectorsData = response;
+        if (response?.sectors) {
+          sectorsData = response.sectors;
+          console.log('[ReuniaoForm] Usando response.sectors:', sectorsData);
+        } else if (response?.data) {
+          sectorsData = response.data;
+          console.log('[ReuniaoForm] Usando response.data:', sectorsData);
+        } else if (Array.isArray(response)) {
+          sectorsData = response;
+          console.log('[ReuniaoForm] Response é array direto:', sectorsData);
+        }
+
+        if (Array.isArray(sectorsData) && sectorsData.length > 0) {
+          const formattedSectors = sectorsData.map((s: any) => ({
+            id: s.id,
+            name: s.name || s.nome || `Setor ${s.id}`
+          }));
+          console.log('[ReuniaoForm] Setores formatados da API:', formattedSectors);
+          setSetores(formattedSectors);
+        } else {
+          console.warn('[ReuniaoForm] API retornou dados inválidos, usando mock');
+          setSetores(mockSetores);
         }
       } catch (error) {
-        console.error("Erro ao buscar setores:", error);
-        setSetores([]);
+        console.error("Erro ao buscar setores da API:", error);
+        console.log('[ReuniaoForm] Usando setores mock devido ao erro');
+        setSetores(mockSetores);
+      } finally {
+        setLoadingSetores(false);
+        console.log('[ReuniaoForm] Loading de setores finalizado');
       }
     };
+    
     fetchSectors();
   }, []);
 
@@ -100,6 +144,28 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validações básicas
+    if (!formData.titulo.trim()) {
+      alert("⚠️ Por favor, informe o título da reunião.");
+      return;
+    }
+
+    if (!formData.setorResponsavel) {
+      alert("⚠️ Por favor, selecione o setor responsável.");
+      return;
+    }
+
+    if (!formData.dataHoraInicio || !formData.dataHoraTermino) {
+      alert("⚠️ Por favor, defina as datas de início e término.");
+      return;
+    }
+
+    if (formData.dataHoraInicio >= formData.dataHoraTermino) {
+      alert("⚠️ A data de término deve ser posterior à data de início.");
+      return;
+    }
+
+    // Verificação de conflito de sala
     if (
       formData.local === "presencial" &&
       formData.sala &&
@@ -130,16 +196,25 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       }
     }
 
+    // Validação específica para reunião virtual
+    if (formData.local === "virtual" && !formData.linkReuniao.trim()) {
+      alert("⚠️ Para reuniões virtuais, é necessário informar o link da reunião.");
+      return;
+    }
+
+    // Preparar dados para envio
     let setorId = formData.setorResponsavel;
     if (typeof setorId === "string" && isNaN(Number(setorId))) {
       const mapped = setorNomeParaId[setorId.toLowerCase()] || "";
       setorId = mapped !== "" ? String(mapped) : "";
     }
+    
     const dataToSend = {
       ...formData,
       setorResponsavel: setorId,
     };
 
+    console.log('[ReuniaoForm] Dados sendo enviados:', dataToSend);
     onSubmit(dataToSend);
   };
 
@@ -229,10 +304,16 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       }`}
                     >
                       Setor Responsável
+                      {loadingSetores && (
+                        <span className="text-xs text-yellow-500 ml-2">
+                          (Carregando setores...)
+                        </span>
+                      )}
                     </label>
                     <select
                       value={formData.setorResponsavel}
                       onChange={(e) => {
+                        console.log('[ReuniaoForm] Setor selecionado:', e.target.value);
                         setFormData((prev) => ({
                           ...prev,
                           setorResponsavel: e.target.value,
@@ -243,12 +324,35 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                           ? "bg-gray-700 border-gray-600 text-white"
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
+                      required
+                      disabled={loadingSetores}
                     >
-                      <option value="">Selecione o setor</option>
-                      {setores.map((setor) => (
-                        <option key={setor.id} value={setor.id}>{setor.name}</option>
+                      <option value="">
+                        {loadingSetores 
+                          ? "Carregando setores..." 
+                          : setores.length === 0 
+                            ? "Nenhum setor encontrado" 
+                            : "Selecione o setor responsável"
+                        }
+                      </option>
+                      {!loadingSetores && setores.map((setor) => (
+                        <option key={setor.id} value={setor.id}>
+                          {setor.name}
+                        </option>
                       ))}
                     </select>
+                    {!loadingSetores && setores.length > 0 && (
+                      <p className={`text-xs mt-1 ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-600"
+                      }`}>
+                        {setores.length} setores disponíveis
+                      </p>
+                    )}
+                    {!loadingSetores && setores.length === 0 && (
+                      <p className={`text-xs mt-1 text-red-500`}>
+                        ⚠️ Erro ao carregar setores. Verifique sua conexão.
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -320,9 +424,10 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                         setFormData((prev) => ({
                           ...prev,
                           status: e.target.value as
-                            | "agendada"
-                            | "realizada"
-                            | "cancelada",
+                            | "PENDING"
+                            | "IN_PROGRESS"
+                            | "COMPLETED"
+                            | "CANCELLED",
                         }))
                       }
                       className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${

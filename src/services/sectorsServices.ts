@@ -2,10 +2,22 @@ import api from "./api";
 export const sectorServices = {
     getSectors: async () => {
         try {
-            const response = await api.get("/sectors")
-            return response.data
+            console.log('[sectorsServices] Fazendo requisição para /sectors');
+            const response = await api.get("/sectors");
+            console.log('[sectorsServices] Resposta recebida:', response);
+            return response.data;
         } catch (error) {
             console.error("Error fetching sectors:", error);
+            // Tentar endpoint alternativo
+            try {
+                console.log('[sectorsServices] Tentando endpoint alternativo /setores');
+                const response = await api.get("/setores");
+                console.log('[sectorsServices] Resposta alternativa recebida:', response);
+                return response.data;
+            } catch (alternativeError) {
+                console.error("Error fetching from alternative endpoint:", alternativeError);
+                throw error; // Relançar o erro original
+            }
         }
     },
     getSectorsbyId: async (id: number) => {

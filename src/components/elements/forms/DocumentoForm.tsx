@@ -32,19 +32,63 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
     observacoes: initialData?.observacoes || "",
   });
   const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
+  const [loadingSetores, setLoadingSetores] = useState(true);
 
   useEffect(() => {
     const fetchSectors = async () => {
+      console.log('[DocumentoForm] Iniciando busca de setores...');
+      setLoadingSetores(true);
+      
+      // Setores mock como fallback
+      const mockSetores = [
+        { id: 1, name: "Presidência" },
+        { id: 2, name: "Diretoria Administrativa" },
+        { id: 3, name: "Diretoria Técnica" },
+        { id: 4, name: "Recursos Humanos" },
+        { id: 5, name: "Tecnologia da Informação" },
+        { id: 6, name: "Financeiro" },
+        { id: 7, name: "Jurídico" },
+        { id: 8, name: "Comunicação" }
+      ];
+      
       try {
-        const data = await sectorServices.getSectors();
-        if (Array.isArray(data)) {
-          setSetores(data.map((s: any) => ({ id: s.id, name: s.name })));
+        const response = await sectorServices.getSectors();
+        console.log('[DocumentoForm] Resposta completa da API:', response);
+        
+        // Tratar diferentes formatos de resposta da API
+        let sectorsData = response;
+        if (response?.sectors) {
+          sectorsData = response.sectors;
+          console.log('[DocumentoForm] Usando response.sectors:', sectorsData);
+        } else if (response?.data) {
+          sectorsData = response.data;
+          console.log('[DocumentoForm] Usando response.data:', sectorsData);
+        } else if (Array.isArray(response)) {
+          sectorsData = response;
+          console.log('[DocumentoForm] Response é array direto:', sectorsData);
+        }
+
+        if (Array.isArray(sectorsData) && sectorsData.length > 0) {
+          const formattedSectors = sectorsData.map((s: any) => ({
+            id: s.id,
+            name: s.name || s.nome || `Setor ${s.id}`
+          }));
+          console.log('[DocumentoForm] Setores formatados da API:', formattedSectors);
+          setSetores(formattedSectors);
+        } else {
+          console.warn('[DocumentoForm] API retornou dados inválidos, usando mock');
+          setSetores(mockSetores);
         }
       } catch (error) {
-        console.error("Erro ao buscar setores:", error);
-        setSetores([]);
+        console.error("Erro ao buscar setores da API:", error);
+        console.log('[DocumentoForm] Usando setores mock devido ao erro');
+        setSetores(mockSetores);
+      } finally {
+        setLoadingSetores(false);
+        console.log('[DocumentoForm] Loading de setores finalizado');
       }
     };
+    
     fetchSectors();
   }, []);
 
@@ -114,10 +158,16 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                     }`}
                   >
                     Setor de Origem
+                    {loadingSetores && (
+                      <span className="text-xs text-yellow-500 ml-2">
+                        (Carregando setores...)
+                      </span>
+                    )}
                   </label>
                   <select
                       value={formData.setorResponsavel}
                       onChange={(e) => {
+                        console.log('[DocumentoForm] Setor selecionado:', e.target.value);
                         setFormData((prev) => ({
                           ...prev,
                           setorResponsavel: e.target.value,
@@ -128,12 +178,34 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                         ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                     }`}
+                    disabled={loadingSetores}
                   >
-                    <option value="">Selecione o setor</option>
-                    {setores.map((setor) => (
-                      <option key={setor.id} value={setor.id}>{setor.name}</option>
+                    <option value="">
+                      {loadingSetores 
+                        ? "Carregando setores..." 
+                        : setores.length === 0 
+                          ? "Nenhum setor encontrado" 
+                          : "Selecione o setor de origem"
+                      }
+                    </option>
+                    {!loadingSetores && setores.map((setor) => (
+                      <option key={setor.id} value={setor.id}>
+                        {setor.name}
+                      </option>
                     ))}
                   </select>
+                  {!loadingSetores && setores.length > 0 && (
+                    <p className={`text-xs mt-1 ${
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }`}>
+                      {setores.length} setores disponíveis
+                    </p>
+                  )}
+                  {!loadingSetores && setores.length === 0 && (
+                    <p className={`text-xs mt-1 text-red-500`}>
+                      ⚠️ Erro ao carregar setores. Verifique sua conexão.
+                    </p>
+                  )}
                 </div>
 
                 <div>

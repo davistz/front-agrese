@@ -11,6 +11,8 @@ import { eventTypeFrontendToBackend } from "../utils/eventTypeFrontendToBackend"
 import { eventTypeBackendToFrontend } from "../utils/eventTypeBackendToFrontend";
 import { eventservices } from "../services/eventsServices";
 import { useAuth } from "./AuthContext";
+import { notificationServices } from "../services/notificationsServices";
+import { userServices } from "../services/usersServices";
 
 interface Event {
   id: number;
@@ -68,6 +70,127 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
   const { user } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
+
+  // Função para criar notificação automática
+  const createEventNotification = useCallback(async (event: any, tipo: string) => {
+    try {
+      console.log('[NOTIFICATION] Criando notificação para evento:', event.title);
+      
+      // Mapear tipo de evento para português
+      const tipoEventoMap: { [key: string]: string } = {
+        'MEETING': 'Reunião',
+        'ACTIVITY': 'Atividade',
+        'EXTERNAL_ACTIVITY': 'Atividade Externa',
+        'DOCUMENT': 'Documento'
+      };
+
+      const tipoEvento = tipoEventoMap[event.type] || 'Evento';
+      
+      // Criar mensagem da notificação
+      let title = "";
+      let message = "";
+      
+      if (tipo === 'criado') {
+        title = `📅 Nova ${tipoEvento} Criada`;
+        message = `${tipoEvento} "${event.title}" foi criada para ${new Date(event.startDate).toLocaleDateString('pt-BR')} às ${new Date(event.startDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+        
+        // Adicionar informações específicas para reunião
+        if (event.type === 'MEETING') {
+          const sectorName = event.sector?.name || 'Setor não informado';
+          message += `\n\n📍 Setor: ${sectorName}`;
+          
+          if (event.location) {
+            message += `\n🏢 Local: ${event.location}`;
+          }
+          
+          if (event.description) {
+            message += `\n📝 Descrição: ${event.description}`;
+          }
+          
+          if (event.participants && event.participants.length > 0) {
+            message += `\n👥 Participantes: ${event.participants.length} pessoas`;
+          }
+        }
+      }
+
+      // Buscar todos os usuários do setor para notificar
+      let usersToNotify = [];
+      try {
+        if (event.sectorId) {
+          console.log(`[NOTIFICATION] Buscando usuários do setor ${event.sectorId}`);
+          const allUsersResponse = await userServices.getUsers();
+          
+          if (allUsersResponse && allUsersResponse.users && Array.isArray(allUsersResponse.users)) {
+            // Filtrar usuários do mesmo setor
+            const sectorUsers = allUsersResponse.users.filter((u: any) => {
+              return u.sectorId === event.sectorId && u.isActive !== false;
+            });
+            
+            usersToNotify = sectorUsers.map((u: any) => ({
+              id: u.id,
+              name: u.name,
+              email: u.email
+            }));
+            
+            console.log(`[NOTIFICATION] Encontrados ${usersToNotify.length} usuários no setor ${event.sectorId}:`, 
+              usersToNotify.map((u: any) => u.name).join(', '));
+          } else {
+            console.log('[NOTIFICATION] Resposta de usuários inválida:', allUsersResponse);
+          }
+        }
+        
+        // Se não encontrou usuários do setor, notificar apenas o criador
+        if (usersToNotify.length === 0 && user?.id) {
+          usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
+          console.log(`[NOTIFICATION] Fallback: notificando apenas o criador ${user.name}`);
+        }
+      } catch (error) {
+        console.error('[NOTIFICATION] Erro ao buscar usuários do setor:', error);
+        // Fallback: notificar apenas o usuário logado
+        if (user?.id) {
+          usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
+        }
+      }
+
+      // Criar notificação para cada usuário do setor
+      let notificationsCreated = 0;
+      for (const targetUser of usersToNotify) {
+        try {
+          const notificationData = {
+            title,
+            message,
+            type: 'EVENT_CREATED',
+            priority: 'MEDIUM',
+            eventId: event.id,
+            sectorId: event.sectorId,
+            userId: targetUser.id, // Destinatário específico
+            recipientId: targetUser.id, // Campo alternativo
+            metadata: {
+              eventTitle: event.title,
+              eventType: event.type,
+              eventDate: event.startDate,
+              sectorName: event.sector?.name || `Setor ${event.sectorId}`,
+              authorName: user?.name || 'Sistema',
+              createdBy: user?.id,
+              recipientName: targetUser.name,
+              totalRecipients: usersToNotify.length
+            }
+          };
+
+          await notificationServices.createNotification(notificationData);
+          notificationsCreated++;
+          console.log(`[NOTIFICATION] ✅ Notificação criada para ${targetUser.name} (${targetUser.email})`);
+        } catch (error) {
+          console.error(`[NOTIFICATION] ❌ Erro ao criar notificação para ${targetUser.name}:`, error);
+        }
+      }
+
+      console.log(`[NOTIFICATION] 🎉 ${notificationsCreated}/${usersToNotify.length} notificações criadas com sucesso para o setor`);
+      
+    } catch (error) {
+      console.error('[NOTIFICATION] Erro ao criar notificação:', error);
+    }
+  }, [user]);
 
   // Buscar eventos do backend ao carregar
   useEffect(() => {
@@ -130,7 +253,7 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
           assignees: eventData.assigneeIds || eventData.responsaveis || [],
         };
       } else {
-        const priorityMap = { baixa: "LOW", media: "MEDIUM", alta: "HIGH" };
+        const priorityMap: { [key: string]: string } = { baixa: "LOW", media: "MEDIUM", alta: "HIGH" };
         payload = {
           title: eventData.titulo || eventData.title,
           description: eventData.descricao || eventData.description || "",
@@ -155,9 +278,23 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
         };
         setEvents((prev) => [...prev, parsed]);
         setFilteredEvents((prev) => [...prev, parsed]);
+        
+        // Criar notificação automática
+        await createEventNotification(created, 'criado');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("[ADD EVENT] Erro ao adicionar evento:", error);
+      
+      // Verificar se é erro de autenticação
+      if (error?.response?.status === 401) {
+        alert("❌ Erro de Autenticação!\n\nSua sessão expirou ou você não está logado.\nPor favor, faça login novamente.");
+        // Redirecionar para login se necessário
+        window.location.href = '/login';
+      } else if (error?.response?.status === 403) {
+        alert("❌ Acesso Negado!\n\nVocê não tem permissão para criar eventos.");
+      } else {
+        alert("❌ Erro ao criar evento!\n\nVerifique sua conexão e tente novamente.");
+      }
     }
   }, []);
 

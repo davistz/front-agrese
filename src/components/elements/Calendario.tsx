@@ -201,6 +201,69 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     };
   };
 
+  // Componente customizado para exibir eventos no calendário
+  const EventComponent = ({ event }: { event: any }) => {
+    const formatTime = (date: Date) => {
+      return new Date(date).toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    };
+
+    const getEventTypeLabel = (type: string) => {
+      switch (type) {
+        case EventType.MEETING:
+          return "Reunião";
+        case EventType.ACTIVITY:
+          return "Atividade";
+        case EventType.DOCUMENT:
+          return "Documento";
+        case EventType.EXTERNAL_ACTIVITY:
+          return "Ativ. Externa";
+        default:
+          return "Evento";
+      }
+    };
+
+    return (
+      <div className="p-1 text-xs leading-tight">
+        <div className="font-semibold truncate">{event.title}</div>
+        {event.type === EventType.MEETING && (
+          <div className="text-white/90">
+            <div className="truncate">
+              {formatTime(event.start)} - {formatTime(event.end)}
+            </div>
+            {event.setor && (
+              <div className="truncate text-white/80">
+                📍 {event.setor}
+              </div>
+            )}
+            {event.local && (
+              <div className="truncate text-white/80">
+                📍 {event.local}
+              </div>
+            )}
+            {event.numeroParticipantes && (
+              <div className="text-white/80">
+                👥 {event.numeroParticipantes} participantes
+              </div>
+            )}
+          </div>
+        )}
+        {event.type !== EventType.MEETING && (
+          <div className="text-white/90">
+            <div className="text-white/80 text-xs">
+              {getEventTypeLabel(event.type)}
+            </div>
+            <div className="truncate">
+              {formatTime(event.start)} - {formatTime(event.end)}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleCalendarNavigate = useCallback(
     (newDate: Date, view: View, action: NavigateAction) => {
       setCurrentDate(newDate);
@@ -328,6 +391,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           resizable
           components={{
             toolbar: () => null,
+            event: EventComponent,
           }}
           onEventDrop={onEventDrop}
           onEventResize={onEventResize}
