@@ -32,7 +32,7 @@ export const usePermissions = () => {
   };
 
   const canViewNotifications = () => {
-    if (user?.role === "COLLABORATOR") return false;
+    // NOTIFICAÇÕES SÃO PÚBLICAS - TODOS OS USUÁRIOS PODEM VER
     return true;
   };
 

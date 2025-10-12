@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { setorNomeParaId } from "../../../../src/utils/setorNomeParaId";
 import { useRef } from "react";
 import { sectorServices } from "../../../services/sectorsServices";
+import { userServices } from "../../../services/usersServices";
 import { ReuniaoFormData } from "../../../types/interfaces";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { useEvents } from "../../../contexts/EventsContext";
@@ -46,6 +47,9 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   const [roomConflictingEvents, setRoomConflictingEvents] = useState<any[]>([]);
   const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
   const [loadingSetores, setLoadingSetores] = useState(true);
+  const [usuarios, setUsuarios] = useState<{ id: number; name: string; email: string; sectorId: number }[]>([]);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(true);
+  const [usuariosSelecionados, setUsuariosSelecionados] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchSectors = async () => {
@@ -101,11 +105,48 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
         console.log('[ReuniaoForm] Loading de setores finalizado');
       }
     };
-    
-    fetchSectors();
-  }, []);
 
-  useEffect(() => {
+    const fetchUsuarios = async () => {
+      console.log('[ReuniaoForm] Iniciando busca de usuários...');
+      setLoadingUsuarios(true);
+      
+      try {
+        const response = await userServices.getUsers();
+        console.log('[ReuniaoForm] Resposta de usuários:', response);
+        
+        let usersData = response;
+        if (response?.users) {
+          usersData = response.users;
+        } else if (response?.data) {
+          usersData = response.data;
+        } else if (Array.isArray(response)) {
+          usersData = response;
+        }
+
+        if (Array.isArray(usersData) && usersData.length > 0) {
+          const formattedUsers = usersData.map((u: any) => ({
+            id: u.id,
+            name: u.name || u.nome || `Usuário ${u.id}`,
+            email: u.email,
+            sectorId: u.sectorId
+          }));
+          console.log(`[ReuniaoForm] ${formattedUsers.length} usuários carregados`);
+          setUsuarios(formattedUsers);
+        } else {
+          console.warn('[ReuniaoForm] Nenhum usuário encontrado');
+          setUsuarios([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        setUsuarios([]);
+      } finally {
+        setLoadingUsuarios(false);
+      }
+    };
+
+    fetchSectors();
+    fetchUsuarios();
+  }, []);  useEffect(() => {
     if (
       formData.local === "presencial" &&
       formData.sala &&
@@ -212,9 +253,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
     const dataToSend = {
       ...formData,
       setorResponsavel: setorId,
+      assigneeIds: usuariosSelecionados, // ← IDs dos usuários selecionados para notificações
     };
 
     console.log('[ReuniaoForm] Dados sendo enviados:', dataToSend);
+    console.log('[ReuniaoForm] Usuários que receberão notificações (assigneeIds):', usuariosSelecionados);
     onSubmit(dataToSend);
   };
 
@@ -508,71 +551,129 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       theme === "dark" ? "text-gray-300" : "text-gray-900"
                     }`}
                   >
-                    Participantes
+                    🔔 Usuários que Receberão Notificação
                   </label>
-                  <div className="space-y-3">
-                    <div className="flex gap-2">
-                      <input
-                        value={novoParticipante}
-                        onChange={(e) => setNovoParticipante(e.target.value)}
-                        placeholder="Adicionar participante"
-                        className={`flex-1 h-10 rounded-md border px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  
+                  {loadingUsuarios ? (
+                    <div className={`p-4 rounded-md text-center ${
+                      theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
+                    }`}>
+                      Carregando usuários...
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className={`p-3 rounded-md border ${
+                        theme === "dark" 
+                          ? "bg-blue-900/20 border-blue-700" 
+                          : "bg-blue-50 border-blue-200"
+                      }`}>
+                        <p className={`text-xs ${
+                          theme === "dark" ? "text-blue-300" : "text-blue-700"
+                        }`}>
+                          💡 <strong>Dica:</strong> Selecione os usuários que devem ser notificados automaticamente quando esta reunião for criada.
+                        </p>
+                      </div>
+
+                      <select
+                        onChange={(e) => {
+                          const userId = parseInt(e.target.value);
+                          if (userId && !usuariosSelecionados.includes(userId)) {
+                            setUsuariosSelecionados(prev => [...prev, userId]);
+                          }
+                          e.target.value = "";
+                        }}
+                        className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                           theme === "dark"
                             ? "bg-gray-700 border-gray-600 text-white"
                             : "bg-white border-gray-300 text-gray-900"
                         }`}
-                      />
-                      <button
-                        type="button"
-                        onClick={handleAddParticipante}
-                        className={`px-4 py-2 rounded-md text-white font-medium transition-colors ${
-                          theme === "dark"
-                            ? "bg-blue-600 hover:bg-blue-700"
-                            : "bg-blue-500 hover:bg-blue-600"
-                        }`}
                       >
-                        Adicionar
-                      </button>
-                    </div>
+                        <option value="">➕ Adicionar usuário para notificar</option>
+                        {usuarios
+                          .filter(u => !usuariosSelecionados.includes(u.id))
+                          .map(usuario => (
+                            <option key={usuario.id} value={usuario.id}>
+                              {usuario.name} ({usuario.email})
+                            </option>
+                          ))
+                        }
+                      </select>
 
-                    <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-                      {formData.participantes.map((participante, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center justify-between p-2 rounded-md mb-1 ${
-                            theme === "dark"
-                              ? "bg-gray-700 text-gray-200"
-                              : "bg-[#eaeaea] text-gray-900"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <FaUserCircle
-                              className={
-                                theme === "dark"
-                                  ? "text-gray-400"
-                                  : "text-gray-600"
-                              }
-                            />
-                            <span className="text-[15px]">{participante}</span>
+                      <div className="max-h-40 overflow-y-auto space-y-2">
+                        {usuariosSelecionados.length === 0 ? (
+                          <div className={`p-3 rounded-md text-center text-sm ${
+                            theme === "dark" 
+                              ? "bg-gray-700/50 text-gray-400" 
+                              : "bg-gray-100 text-gray-500"
+                          }`}>
+                            Nenhum usuário selecionado. Selecione acima para notificar.
                           </div>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                participantes: prev.participantes.filter(
-                                  (_, i) => i !== index
-                                ),
-                              }))
-                            }
-                            className="text-[13px] text-red-500 hover:text-red-700"
-                          >
-                            Remover
-                          </button>
+                        ) : (
+                          usuariosSelecionados.map(userId => {
+                            const usuario = usuarios.find(u => u.id === userId);
+                            if (!usuario) return null;
+                            
+                            return (
+                              <div
+                                key={userId}
+                                className={`flex items-center justify-between p-3 rounded-md ${
+                                  theme === "dark"
+                                    ? "bg-gray-700 text-gray-200"
+                                    : "bg-gray-100 text-gray-900"
+                                }`}
+                              >
+                                <div className="flex items-center gap-2 flex-1">
+                                  <FaUserCircle className={`text-lg ${
+                                    theme === "dark" ? "text-blue-400" : "text-blue-600"
+                                  }`} />
+                                  <div className="flex-1">
+                                    <div className="font-medium text-sm">{usuario.name}</div>
+                                    <div className={`text-xs ${
+                                      theme === "dark" ? "text-gray-400" : "text-gray-500"
+                                    }`}>
+                                      {usuario.email}
+                                    </div>
+                                  </div>
+                                  <span className={`text-xs px-2 py-1 rounded-full ${
+                                    theme === "dark"
+                                      ? "bg-blue-900/30 text-blue-300"
+                                      : "bg-blue-100 text-blue-700"
+                                  }`}>
+                                    🔔 Será notificado
+                                  </span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setUsuariosSelecionados(prev => 
+                                      prev.filter(id => id !== userId)
+                                    );
+                                  }}
+                                  className={`ml-2 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                    theme === "dark"
+                                      ? "bg-red-600/20 text-red-400 hover:bg-red-600/30"
+                                      : "bg-red-100 text-red-600 hover:bg-red-200"
+                                  }`}
+                                >
+                                  ✕ Remover
+                                </button>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+
+                      {usuariosSelecionados.length > 0 && (
+                        <div className={`p-2 rounded-md text-xs text-center font-medium ${
+                          theme === "dark"
+                            ? "bg-green-900/20 text-green-300"
+                            : "bg-green-50 text-green-700"
+                        }`}>
+                          ✅ {usuariosSelecionados.length} usuário(s) será(ão) notificado(s) automaticamente
                         </div>
-                      ))}
+                      )}
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {formData.local === "virtual" && (

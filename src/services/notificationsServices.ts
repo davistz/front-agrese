@@ -3,10 +3,14 @@ import api from "./api";
 export const notificationServices = {
     getNotifications: async () => {
         try {
+            console.log('[notificationServices] Fazendo requisição GET /notifications');
             const response = await api.get("/notifications");
+            console.log('[notificationServices] Resposta recebida:', response);
+            console.log('[notificationServices] Data:', response.data);
             return response.data;
-        } catch (error) {
-            console.error("Error fetching notifications:", error);
+        } catch (error: any) {
+            console.error("[notificationServices] Error fetching notifications:", error);
+            console.error("[notificationServices] Error details:", error.response?.data || error.message);
             throw error;
         }
     },

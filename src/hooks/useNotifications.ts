@@ -26,22 +26,45 @@ export const useNotifications = () => {
 
   // Buscar notificações do backend
   const fetchNotifications = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      console.log('[useNotifications] Usuário não autenticado, não buscando notificações');
+      return;
+    }
     
+    console.log('[useNotifications] Buscando notificações do backend...');
     setLoading(true);
     try {
       const data = await notificationServices.getNotifications();
-      const notificationsArray = Array.isArray(data.notifications) ? data.notifications : data;
+      console.log('[useNotifications] Resposta do backend:', data);
+      
+      // Verificar estrutura da resposta
+      let notificationsArray = [];
+      if (Array.isArray(data)) {
+        notificationsArray = data;
+      } else if (data.notifications && Array.isArray(data.notifications)) {
+        notificationsArray = data.notifications;
+      } else if (data.data && Array.isArray(data.data)) {
+        notificationsArray = data.data;
+      } else {
+        console.warn('[useNotifications] Estrutura de resposta desconhecida:', data);
+        notificationsArray = [];
+      }
+      
+      console.log(`[useNotifications] ${notificationsArray.length} notificações encontradas`);
+      
       const parsed = notificationsArray.map((notification: any) => ({
         ...notification,
-        createdAt: new Date(notification.createdAt),
+        createdAt: notification.createdAt ? new Date(notification.createdAt) : new Date(),
         readAt: notification.readAt ? new Date(notification.readAt) : undefined,
         scheduledFor: notification.scheduledFor ? new Date(notification.scheduledFor) : undefined,
       }));
+      
+      console.log('[useNotifications] Notificações parseadas:', parsed);
       setNotifications(parsed);
       setError(null);
-    } catch (err) {
-      console.error("Erro ao buscar notificações:", err);
+    } catch (err: any) {
+      console.error("[useNotifications] Erro ao buscar notificações:", err);
+      console.error("[useNotifications] Detalhes do erro:", err.response?.data || err.message);
       setError("Erro ao carregar notificações");
     } finally {
       setLoading(false);
@@ -146,21 +169,26 @@ export const useNotifications = () => {
   const unreadCount = unreadNotifications.length;
 
   // Manter compatibilidade com interface legacy
-  const notificacoes: NotificacaoSetor[] = notifications.map(notification => ({
-    id: notification.id.toString(),
-    titulo: notification.title,
-    descricao: notification.message,
-    tipo: notification.type === "EVENT_CREATED" ? "evento_criado" : 
-          notification.type === "EVENT_UPDATED" ? "evento_editado" : "evento_excluido",
-    lida: notification.isRead,
-    dataHora: notification.createdAt,
-    setorId: notification.sectorId || 0,
-    setorNome: "", // Pode ser populado com dados do setor se necessário
-    autorId: 0, // Pode ser populado se o backend fornecer
-    autorNome: "", // Pode ser populado se o backend fornecer
-    eventoId: notification.eventId?.toString(),
-    eventoTitulo: notification.metadata?.eventTitle || "",
-  }));
+  const notificacoes: NotificacaoSetor[] = notifications.map(notification => {
+    console.log('[useNotifications] Convertendo notificação:', notification);
+    return {
+      id: notification.id.toString(),
+      titulo: notification.title || "Notificação",
+      descricao: notification.message || "",
+      tipo: notification.type === "EVENT_CREATED" ? "evento_criado" : 
+            notification.type === "EVENT_UPDATED" ? "evento_editado" : "evento_excluido",
+      lida: notification.isRead || false,
+      dataHora: notification.createdAt || new Date(),
+      setorId: notification.sectorId || 0,
+      setorNome: notification.metadata?.sectorName || "Setor não informado",
+      autorId: notification.metadata?.createdBy || 0,
+      autorNome: notification.metadata?.authorName || "Sistema",
+      eventoId: notification.eventId?.toString(),
+      eventoTitulo: notification.metadata?.eventTitle || "",
+    };
+  });
+  
+  console.log(`[useNotifications] ${notificacoes.length} notificações no formato legacy`);
 
   const marcarComoLida = (notificationId: string) => {
     markAsRead(notificationId);

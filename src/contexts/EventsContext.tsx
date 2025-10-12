@@ -113,15 +113,40 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
         }
       }
 
-      // Buscar todos os usuários do setor para notificar
+      // Buscar usuários que foram selecionados no formulário (assigneeIds)
       let usersToNotify = [];
       try {
-        if (event.sectorId) {
-          console.log(`[NOTIFICATION] Buscando usuários do setor ${event.sectorId}`);
+        // Se o evento tem assignees (usuários atribuídos), notificar apenas eles
+        if (event.assignees && Array.isArray(event.assignees) && event.assignees.length > 0) {
+          console.log(`[NOTIFICATION] Notificando usuários atribuídos ao evento (assignees)`);
+          
+          // Buscar dados completos dos usuários atribuídos
           const allUsersResponse = await userServices.getUsers();
           
           if (allUsersResponse && allUsersResponse.users && Array.isArray(allUsersResponse.users)) {
-            // Filtrar usuários do mesmo setor
+            // Extrair IDs dos assignees
+            const assigneeIds = event.assignees.map((a: any) => a.userId || a.id || a);
+            
+            // Filtrar apenas os usuários atribuídos
+            const assignedUsers = allUsersResponse.users.filter((u: any) => {
+              return assigneeIds.includes(u.id) && u.isActive !== false;
+            });
+            
+            usersToNotify = assignedUsers.map((u: any) => ({
+              id: u.id,
+              name: u.name,
+              email: u.email
+            }));
+            
+            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários atribuídos serão notificados:`, 
+              usersToNotify.map((u: any) => u.name).join(', '));
+          }
+        } else {
+          // Se não há assignees, notificar todos do setor como fallback
+          console.log(`[NOTIFICATION] Nenhum assignee específico, notificando usuários do setor ${event.sectorId}`);
+          const allUsersResponse = await userServices.getUsers();
+          
+          if (allUsersResponse && allUsersResponse.users && Array.isArray(allUsersResponse.users)) {
             const sectorUsers = allUsersResponse.users.filter((u: any) => {
               return u.sectorId === event.sectorId && u.isActive !== false;
             });
@@ -132,20 +157,18 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
               email: u.email
             }));
             
-            console.log(`[NOTIFICATION] Encontrados ${usersToNotify.length} usuários no setor ${event.sectorId}:`, 
+            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários do setor serão notificados:`, 
               usersToNotify.map((u: any) => u.name).join(', '));
-          } else {
-            console.log('[NOTIFICATION] Resposta de usuários inválida:', allUsersResponse);
           }
         }
         
-        // Se não encontrou usuários do setor, notificar apenas o criador
+        // Se não encontrou usuários, notificar apenas o criador
         if (usersToNotify.length === 0 && user?.id) {
           usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
           console.log(`[NOTIFICATION] Fallback: notificando apenas o criador ${user.name}`);
         }
       } catch (error) {
-        console.error('[NOTIFICATION] Erro ao buscar usuários do setor:', error);
+        console.error('[NOTIFICATION] Erro ao buscar usuários:', error);
         // Fallback: notificar apenas o usuário logado
         if (user?.id) {
           usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
