@@ -45,8 +45,9 @@ interface CalendarioProps {
 export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   const { theme } = useTheme();
   const {
-    filteredEvents: events,
-    setFilteredEvents: setEvents,
+    events: allEvents,
+    filteredEvents,
+    setFilteredEvents,
     addEvent,
     updateEvent,
   } = useEvents();
@@ -144,7 +145,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const onEventDrop = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event: any) => {
+    const updatedEvents = filteredEvents.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -155,12 +156,12 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
       return event;
     });
 
-    setEvents(updatedEvents);
+    setFilteredEvents(updatedEvents);
   };
 
   const onEventResize = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event: any) => {
+    const updatedEvents = filteredEvents.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -170,7 +171,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
       }
       return event;
     });
-    setEvents(updatedEvents);
+    setFilteredEvents(updatedEvents);
   };
 
   const eventStyleProp = (event: any) => {
@@ -349,8 +350,8 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             onNavigate={handleNavigate}
             view={currentView}
             onView={handleView}
-            eventos={events}
-            onFiltroChange={setEvents}
+            eventos={filteredEvents}
+            onFiltroChange={setFilteredEvents}
             label={currentDate.toLocaleDateString("pt-BR", {
               month: "long",
               year: "numeric",
@@ -367,8 +368,8 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           }`}
         >
           <FiltroAtividades
-            atividades={events}
-            onSelecionarAtividades={setEvents}
+            atividades={allEvents}
+            onSelecionarAtividades={setFilteredEvents}
           />
         </div>
       </div>
@@ -379,7 +380,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           onNavigate={handleCalendarNavigate}
           view={currentView}
           onView={handleView}
-          events={events}
+          events={filteredEvents}
           localizer={localizer}
           formats={{
             weekdayFormat: (date: Date) => {

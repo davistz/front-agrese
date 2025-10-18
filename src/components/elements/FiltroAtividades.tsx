@@ -62,10 +62,10 @@ const setoresHierarquia: Record<string, SetorHierarquia> = {
 };
 
 const categorias = [
-  { id: "atividade", nome: "Atividade" },
-  { id: "reuniao", nome: "Reunião" },
-  { id: "documento", nome: "Documento" },
-  { id: "atividades-externas", nome: "Atividades Externas" },
+  { id: "ACTIVITY", nome: "Atividade", aliases: ["atividade", "ACTIVITY"] },
+  { id: "MEETING", nome: "Reunião", aliases: ["reuniao", "MEETING"] },
+  { id: "DOCUMENT", nome: "Documento", aliases: ["documento", "DOCUMENT"] },
+  { id: "EXTERNAL_ACTIVITY", nome: "Atividades Externas", aliases: ["atividades-externas", "EXTERNAL_ACTIVITY", "external_activity"] },
 ];
 
 interface TabProps {
@@ -108,6 +108,18 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     []
   );
 
+  // Limpar filtros quando trocar de aba
+  const handleTabChange = useCallback((tab: "setor" | "categoria") => {
+    setActiveTab(tab);
+    // Limpar os filtros da aba anterior
+    if (tab === "setor") {
+      setCategoriasSelecionadas([]);
+    } else {
+      setSetorSelecionado("");
+      setSubsetoresSelecionados([]);
+    }
+  }, []);
+
   const handleSetorClick = useCallback((setor: string) => {
     setSetorSelecionado((prev) => (prev === setor ? "" : setor));
   }, []);
@@ -129,41 +141,71 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   }, []);
 
   const eventosFiltrados = useMemo(() => {
-    if (
-      !setorSelecionado &&
-      !subsetoresSelecionados.length &&
-      !categoriasSelecionadas.length
-    ) {
+    // Verificar se não há nenhum filtro ativo NA ABA ATUAL
+    const nenhumFiltroAtivo = 
+      (activeTab === "categoria" && categoriasSelecionadas.length === 0) ||
+      (activeTab === "setor" && !setorSelecionado && subsetoresSelecionados.length === 0);
+    
+    if (nenhumFiltroAtivo) {
       return atividades;
     }
 
-    return atividades.filter((atividade) => {
-      if (activeTab === "categoria" && categoriasSelecionadas.length > 0) {
-        return categoriasSelecionadas.includes(atividade.tipo.toLowerCase());
+    const resultados = atividades.filter((atividade) => {
+      // Filtro por categoria (APENAS se a aba categoria estiver ativa)
+      if (activeTab === "categoria") {
+        if (categoriasSelecionadas.length === 0) {
+          return true;
+        }
+        
+        const atividadeTipo = String(atividade.tipo || '');
+        const atividadeTipoUpper = atividadeTipo.toUpperCase();
+        
+        const match = categoriasSelecionadas.some(categoriaId => {
+          const categoria = categorias.find(c => c.id === categoriaId);
+          if (!categoria) return false;
+          
+          return categoria.aliases.some(alias => {
+            const aliasUpper = alias.toUpperCase();
+            return atividadeTipoUpper === aliasUpper || atividadeTipoUpper.includes(aliasUpper);
+          });
+        });
+        
+        return match;
       }
 
+      // Filtro por setor (APENAS se a aba setor estiver ativa)
       if (activeTab === "setor") {
         if (subsetoresSelecionados.length > 0) {
           return subsetoresSelecionados.includes(atividade.setor);
         }
-        return atividade.setor === setorSelecionado;
+        if (setorSelecionado) {
+          return atividade.setor === setorSelecionado;
+        }
+        return true;
       }
 
       return true;
     });
+    
+    return resultados;
   }, [atividades, setorSelecionado, subsetoresSelecionados, categoriasSelecionadas, activeTab]);
 
+  // Usar useRef para evitar loop infinito com onSelecionarAtividades
+  const onSelecionarAtividadesRef = React.useRef(onSelecionarAtividades);
+  
   useEffect(() => {
-    onSelecionarAtividades(eventosFiltrados);
-  }, [eventosFiltrados, onSelecionarAtividades]);
+    onSelecionarAtividadesRef.current = onSelecionarAtividades;
+  }, [onSelecionarAtividades]);
+  
+  useEffect(() => {
+    onSelecionarAtividadesRef.current(eventosFiltrados);
+  }, [eventosFiltrados]);
 
   const handleLimparFiltros = useCallback(() => {
     setSetorSelecionado("");
     setSubsetoresSelecionados([]);
     setCategoriasSelecionadas([]);
-    setActiveTab(canFilterBySector() ? "setor" : "categoria");
-    onSelecionarAtividades(atividades);
-  }, [atividades, onSelecionarAtividades, canFilterBySector]);
+  }, []);
 
   return (
     <div
@@ -185,13 +227,13 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
             <Tab
               label="Por Setor"
               isActive={activeTab === "setor"}
-              onClick={() => setActiveTab("setor")}
+              onClick={() => handleTabChange("setor")}
             />
           )}
           <Tab
             label="Por Categoria"
             isActive={activeTab === "categoria"}
-            onClick={() => setActiveTab("categoria")}
+            onClick={() => handleTabChange("categoria")}
           />
         </div>
       </div>
