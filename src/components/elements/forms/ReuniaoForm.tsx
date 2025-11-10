@@ -53,10 +53,8 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
 
   useEffect(() => {
     const fetchSectors = async () => {
-      console.log('[ReuniaoForm] Iniciando busca de setores...');
-      setLoadingSetores(true);
+  setLoadingSetores(true);
       
-      // Setores mock como fallback
       const mockSetores = [
         { id: 1, name: "Presidência" },
         { id: 2, name: "Diretoria Administrativa" },
@@ -69,20 +67,18 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       ];
       
       try {
-        const response = await sectorServices.getSectors();
-        console.log('[ReuniaoForm] Resposta completa da API:', response);
+    const response = await sectorServices.getSectors();
         
-        // Tratar diferentes formatos de resposta da API
         let sectorsData = response;
         if (response?.sectors) {
           sectorsData = response.sectors;
-          console.log('[ReuniaoForm] Usando response.sectors:', sectorsData);
+          
         } else if (response?.data) {
           sectorsData = response.data;
-          console.log('[ReuniaoForm] Usando response.data:', sectorsData);
+          
         } else if (Array.isArray(response)) {
           sectorsData = response;
-          console.log('[ReuniaoForm] Response é array direto:', sectorsData);
+          
         }
 
         if (Array.isArray(sectorsData) && sectorsData.length > 0) {
@@ -90,29 +86,25 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
             id: s.id,
             name: s.name || s.nome || `Setor ${s.id}`
           }));
-          console.log('[ReuniaoForm] Setores formatados da API:', formattedSectors);
           setSetores(formattedSectors);
         } else {
           console.warn('[ReuniaoForm] API retornou dados inválidos, usando mock');
           setSetores(mockSetores);
         }
-      } catch (error) {
-        console.error("Erro ao buscar setores da API:", error);
-        console.log('[ReuniaoForm] Usando setores mock devido ao erro');
-        setSetores(mockSetores);
+    } catch (error) {
+    console.error("Erro ao buscar setores da API:", error);
+    setSetores(mockSetores);
       } finally {
         setLoadingSetores(false);
-        console.log('[ReuniaoForm] Loading de setores finalizado');
+        
       }
     };
 
     const fetchUsuarios = async () => {
-      console.log('[ReuniaoForm] Iniciando busca de usuários...');
-      setLoadingUsuarios(true);
+  setLoadingUsuarios(true);
       
       try {
         const response = await userServices.getUsers();
-        console.log('[ReuniaoForm] Resposta de usuários:', response);
         
         let usersData = response;
         if (response?.users) {
@@ -130,17 +122,16 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
             email: u.email,
             sectorId: u.sectorId
           }));
-          console.log(`[ReuniaoForm] ${formattedUsers.length} usuários carregados`);
           setUsuarios(formattedUsers);
         } else {
           console.warn('[ReuniaoForm] Nenhum usuário encontrado');
           setUsuarios([]);
         }
       } catch (error) {
-        console.error("Erro ao buscar usuários:", error);
+  console.error("Erro ao buscar usuários:", error);
         setUsuarios([]);
       } finally {
-        setLoadingUsuarios(false);
+    setLoadingUsuarios(false);
       }
     };
 
@@ -185,7 +176,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validações básicas
     if (!formData.titulo.trim()) {
       alert("⚠️ Por favor, informe o título da reunião.");
       return;
@@ -206,7 +196,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       return;
     }
 
-    // Verificação de conflito de sala
     if (
       formData.local === "presencial" &&
       formData.sala &&
@@ -219,12 +208,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
         initialData?.id
       );
 
-      console.log("Verificando conflito de sala:", {
-        sala: formData.sala,
-        inicio: formData.dataHoraInicio,
-        fim: formData.dataHoraTermino,
-        conflito: hasRoomConflict,
-      });
+      
 
       if (hasRoomConflict) {
         alert(
@@ -237,13 +221,11 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       }
     }
 
-    // Validação específica para reunião virtual
     if (formData.local === "virtual" && !formData.linkReuniao.trim()) {
       alert("⚠️ Para reuniões virtuais, é necessário informar o link da reunião.");
       return;
     }
 
-    // Preparar dados para envio
     let setorId = formData.setorResponsavel;
     if (typeof setorId === "string" && isNaN(Number(setorId))) {
       const mapped = setorNomeParaId[setorId.toLowerCase()] || "";
@@ -253,11 +235,10 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
     const dataToSend = {
       ...formData,
       setorResponsavel: setorId,
-      assigneeIds: usuariosSelecionados, // ← IDs dos usuários selecionados para notificações
+  assigneeIds: usuariosSelecionados,
     };
 
-    console.log('[ReuniaoForm] Dados sendo enviados:', dataToSend);
-    console.log('[ReuniaoForm] Usuários que receberão notificações (assigneeIds):', usuariosSelecionados);
+    
     onSubmit(dataToSend);
   };
 
@@ -356,7 +337,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                     <select
                       value={formData.setorResponsavel}
                       onChange={(e) => {
-                        console.log('[ReuniaoForm] Setor selecionado:', e.target.value);
                         setFormData((prev) => ({
                           ...prev,
                           setorResponsavel: e.target.value,
