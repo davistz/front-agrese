@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
 import { MdGroups } from "react-icons/md";
+import { FaTrash } from "react-icons/fa";
 import { useTheme } from "../../contexts/ThemeContext";
 import { AtividadeExternaModalData } from "../../types/interfaces";
 
@@ -10,11 +11,12 @@ interface AtividadeExternaModalInfoProps {
   onClose: () => void;
   evento: AtividadeExternaModalData;
   onSave?: (data: AtividadeExternaModalData) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const AtividadeExternaModalInfo: React.FC<
   AtividadeExternaModalInfoProps
-> = ({ onClose, evento, onSave }) => {
+> = ({ onClose, evento, onSave, onDelete }) => {
   const { theme } = useTheme();
   const eventoData: any = evento;
   const [formData, setFormData] = useState({
@@ -178,6 +180,13 @@ export const AtividadeExternaModalInfo: React.FC<
               </div>
 
               <div className="flex gap-2 pt-2">
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(formData.id)}
+                    className="h-[40px] px-4 flex items-center justify-center gap-2 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white bg-red-600 hover:bg-red-700"
+                    type="button"
+                  ><FaTrash /> Excluir</button>
+                )}
                 <button
                   onClick={onClose}
                   className={`flex-1 h-[40px] flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${theme === "dark" ? "bg-gray-600 hover:bg-gray-500" : "bg-gray-500 hover:bg-gray-600"}`}

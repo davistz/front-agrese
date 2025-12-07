@@ -50,6 +50,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     setFilteredEvents,
     addEvent,
     updateEvent,
+    deleteEvent,
   } = useEvents();
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -176,18 +177,23 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const eventStyleProp = (event: any) => {
     let backgroundColor = "#3174ad";
+    const eventType = event.type || event.tipo;
 
-    switch (event.type) {
+    switch (eventType) {
       case EventType.MEETING:
+      case "MEETING":
         backgroundColor = "#d0923a";
         break;
       case EventType.ACTIVITY:
+      case "ACTIVITY":
         backgroundColor = "#3ca13c";
         break;
       case EventType.DOCUMENT:
+      case "DOCUMENT":
         backgroundColor = "#990a0a";
         break;
       case EventType.EXTERNAL_ACTIVITY:
+      case "EXTERNAL_ACTIVITY":
         backgroundColor = "#8B4513";
         break;
     }
@@ -214,22 +220,29 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     const getEventTypeLabel = (type: string) => {
       switch (type) {
         case EventType.MEETING:
+        case "MEETING":
           return "Reunião";
         case EventType.ACTIVITY:
+        case "ACTIVITY":
           return "Atividade";
         case EventType.DOCUMENT:
+        case "DOCUMENT":
           return "Documento";
         case EventType.EXTERNAL_ACTIVITY:
+        case "EXTERNAL_ACTIVITY":
           return "Ativ. Externa";
         default:
           return "Evento";
       }
     };
 
+    const eventType = event.type || event.tipo;
+    const isMeeting = eventType === EventType.MEETING || eventType === "MEETING";
+
     return (
       <div className="p-1 text-xs leading-tight">
         <div className="font-semibold truncate">{event.title}</div>
-        {event.type === EventType.MEETING && (
+        {isMeeting && (
           <div className="text-white/90">
             <div className="truncate">
               {formatTime(event.start)} - {formatTime(event.end)}
@@ -251,10 +264,10 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             )}
           </div>
         )}
-        {event.type !== EventType.MEETING && (
+        {!isMeeting && (
           <div className="text-white/90">
             <div className="text-white/80 text-xs">
-              {getEventTypeLabel(event.type)}
+              {getEventTypeLabel(eventType)}
             </div>
             <div className="truncate">
               {formatTime(event.start)} - {formatTime(event.end)}
@@ -281,10 +294,19 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const renderEventModal = () => {
     if (!eventoSelecionado) return null;
-    const tipoFrontend = eventTypeBackendToFrontend[eventoSelecionado.type] || eventoSelecionado.type;
-                console.log(eventoSelecionado)
+    const eventType = eventoSelecionado.type || eventoSelecionado.tipo;
+    const tipoFrontend = eventTypeBackendToFrontend[eventType] || eventType;
+    
+    const handleDelete = (id: number) => {
+      if (window.confirm("Tem certeza que deseja excluir este evento?")) {
+        deleteEvent(id);
+        handleSelectClose();
+      }
+    };
+    
     switch (tipoFrontend) {
       case EventType.MEETING:
+      case "MEETING":
         return (
           <ReuniaoModalInfo
             evento={convertEventToReuniaoModal(eventoSelecionado)}
@@ -294,9 +316,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
               updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
       case EventType.ACTIVITY:
+      case "ACTIVITY":
         return (
           <AtividadeModalInfo
             evento={convertEventToAtividadeModal(eventoSelecionado)}
@@ -306,9 +330,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
               updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
       case EventType.EXTERNAL_ACTIVITY:
+      case "EXTERNAL_ACTIVITY":
         return (
           <AtividadeExternaModalInfo
             evento={convertEventToAtividadeExternaModal(eventoSelecionado)}
@@ -318,9 +344,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
               updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
       case EventType.DOCUMENT:
+      case "DOCUMENT":
         return (
           <DocumentoModalInfo
             evento={convertEventToDocumentoModal(eventoSelecionado)}
@@ -330,6 +358,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
               updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
       default:

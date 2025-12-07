@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaTrash } from "react-icons/fa";
 import { useTheme } from "../../contexts/ThemeContext";
 import { ReuniaoModalData } from "../../types/interfaces";
 
@@ -10,12 +10,14 @@ interface ReuniaoModalInfoProps {
   onClose: () => void;
   evento: any;
   onSave?: (data: ReuniaoModalData) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
   onClose,
   evento,
   onSave,
+  onDelete,
 }) => {
   const { theme } = useTheme();
   const [formData, setFormData] = useState<ReuniaoModalData>({
@@ -484,6 +486,15 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                 </div>
 
                 <div className="flex gap-2">
+                  {onDelete && (
+                    <button
+                      onClick={() => onDelete(formData.id)}
+                      className="h-[50px] mt-4 px-4 flex items-center justify-center gap-2 rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white bg-red-600 hover:bg-red-700"
+                      type="button"
+                    >
+                      <FaTrash /> Excluir
+                    </button>
+                  )}
                   <button
                     onClick={onClose}
                     className={`flex-1 h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${

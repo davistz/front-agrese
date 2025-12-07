@@ -241,6 +241,10 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
   const addEvent = useCallback(async (type: EventType, eventData: any) => {
     try {
       let sectorId = eventData.setorId || eventData.sectorId || eventData.setorResponsavel;
+      // Se setorResponsavel é um array (caso DocumentoForm), pegar o primeiro elemento
+      if (Array.isArray(sectorId) && sectorId.length > 0) {
+        sectorId = sectorId[0];
+      }
       if (typeof sectorId === "string" && !isNaN(Number(sectorId))) {
         sectorId = Number(sectorId);
       }
@@ -282,8 +286,8 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
           description: eventData.descricao || eventData.description || "",
           type: backendType,
           priority: priorityMap[eventData.prioridade] || eventData.priority || "MEDIUM",
-          startDate: eventData.dataHoraInicio || eventData.startDate,
-          endDate: eventData.dataHoraTermino || eventData.endDate,
+          startDate: eventData.dataHoraInicio || eventData.dataInicio || eventData.dataInicioPrevista || eventData.dataCriacao || eventData.startDate,
+          endDate: eventData.dataHoraTermino || eventData.dataFim || eventData.prazoFinal || eventData.prazoAnalise || eventData.endDate,
           isAllDay: eventData.isAllDay || false,
           location: eventData.local || eventData.location || "",
           sectorId,

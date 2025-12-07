@@ -170,6 +170,7 @@ export interface AtividadeFormData {
   subtarefas: string[];
   comentarios: string;
   dataConclusaoReal: Date | null;
+  assigneeIds?: number[];
 }
 
 export interface AtividadeExternaFormData {
@@ -183,11 +184,12 @@ export interface AtividadeExternaFormData {
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
   meioTransporte?: string;
+  assigneeIds?: number[];
 }
 
 export interface DocumentoFormData {
   titulo: string;
-  setorResponsavel: string;
+  setorResponsavel: number[];
   descricao: string;
   autor: string;
   tipoDocumento: string;
@@ -197,6 +199,7 @@ export interface DocumentoFormData {
   prazoAnalise: Date;
   dataEnvioRecebimento: Date | null;
   observacoes: string;
+  assigneeIds?: number[];
 }
 
 export interface EventModalData {

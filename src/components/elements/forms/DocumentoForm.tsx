@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { DocumentoFormData } from "../../../types/interfaces";
 import { IoMdClose } from "react-icons/io";
+import { FaUserCircle } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { sectorServices } from "../../../services/sectorsServices";
+import { userServices } from "../../../services/usersServices";
 
 interface DocumentoFormProps {
   initialData?: Partial<DocumentoFormData>;
@@ -20,7 +22,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
   const { theme } = useTheme();
   const [formData, setFormData] = useState<DocumentoFormData>({
     titulo: initialData?.titulo || "",
-    setorResponsavel: initialData?.setorResponsavel || "",
+    setorResponsavel: initialData?.setorResponsavel || [],
     descricao: initialData?.descricao || "",
     autor: initialData?.autor || "",
     tipoDocumento: initialData?.tipoDocumento || "",
@@ -33,13 +35,14 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
   });
   const [setores, setSetores] = useState<{ id: number; name: string }[]>([]);
   const [loadingSetores, setLoadingSetores] = useState(true);
+  const [usuarios, setUsuarios] = useState<{ id: number; name: string; email: string; sectorId: number }[]>([]);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(true);
+  const [usuariosSelecionados, setUsuariosSelecionados] = useState<number[]>([]);
 
   useEffect(() => {
     const fetchSectors = async () => {
-      console.log('[DocumentoForm] Iniciando busca de setores...');
       setLoadingSetores(true);
       
-      // Setores mock como fallback
       const mockSetores = [
         { id: 1, name: "Presidência" },
         { id: 2, name: "Diretoria Administrativa" },
@@ -53,19 +56,14 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
       
       try {
         const response = await sectorServices.getSectors();
-        console.log('[DocumentoForm] Resposta completa da API:', response);
         
-        // Tratar diferentes formatos de resposta da API
         let sectorsData = response;
         if (response?.sectors) {
           sectorsData = response.sectors;
-          console.log('[DocumentoForm] Usando response.sectors:', sectorsData);
         } else if (response?.data) {
           sectorsData = response.data;
-          console.log('[DocumentoForm] Usando response.data:', sectorsData);
         } else if (Array.isArray(response)) {
           sectorsData = response;
-          console.log('[DocumentoForm] Response é array direto:', sectorsData);
         }
 
         if (Array.isArray(sectorsData) && sectorsData.length > 0) {
@@ -73,23 +71,51 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
             id: s.id,
             name: s.name || s.nome || `Setor ${s.id}`
           }));
-          console.log('[DocumentoForm] Setores formatados da API:', formattedSectors);
           setSetores(formattedSectors);
         } else {
-          console.warn('[DocumentoForm] API retornou dados inválidos, usando mock');
           setSetores(mockSetores);
         }
       } catch (error) {
         console.error("Erro ao buscar setores da API:", error);
-        console.log('[DocumentoForm] Usando setores mock devido ao erro');
         setSetores(mockSetores);
       } finally {
         setLoadingSetores(false);
-        console.log('[DocumentoForm] Loading de setores finalizado');
+      }
+    };
+
+    const fetchUsuarios = async () => {
+      setLoadingUsuarios(true);
+      try {
+        const response = await userServices.getUsers();
+        let usersData = response;
+        if (response?.users) {
+          usersData = response.users;
+        } else if (response?.data) {
+          usersData = response.data;
+        } else if (Array.isArray(response)) {
+          usersData = response;
+        }
+        if (Array.isArray(usersData) && usersData.length > 0) {
+          const formattedUsers = usersData.map((u: any) => ({
+            id: u.id,
+            name: u.name || u.nome || `Usuário ${u.id}`,
+            email: u.email,
+            sectorId: u.sectorId
+          }));
+          setUsuarios(formattedUsers);
+        } else {
+          setUsuarios([]);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar usuários:", error);
+        setUsuarios([]);
+      } finally {
+        setLoadingUsuarios(false);
       }
     };
     
     fetchSectors();
+    fetchUsuarios();
   }, []);
 
   return (
@@ -164,48 +190,55 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                       </span>
                     )}
                   </label>
-                  <select
-                      value={formData.setorResponsavel}
-                      onChange={(e) => {
-                        console.log('[DocumentoForm] Setor selecionado:', e.target.value);
-                        setFormData((prev) => ({
-                          ...prev,
-                          setorResponsavel: e.target.value,
-                        }));
-                      }}
-                    className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
+                  <div className="space-y-2">
+                    <div className={`mt-1 max-h-32 overflow-y-auto rounded-md border p-2 ${
                       theme === "dark"
-                        ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
-                        : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
-                    }`}
-                    disabled={loadingSetores}
-                  >
-                    <option value="">
-                      {loadingSetores 
-                        ? "Carregando setores..." 
-                        : setores.length === 0 
-                          ? "Nenhum setor encontrado" 
-                          : "Selecione o setor de origem"
-                      }
-                    </option>
-                    {!loadingSetores && setores.map((setor) => (
-                      <option key={setor.id} value={setor.id}>
-                        {setor.name}
-                      </option>
-                    ))}
-                  </select>
-                  {!loadingSetores && setores.length > 0 && (
-                    <p className={`text-xs mt-1 ${
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                        ? "bg-gray-700 border-gray-600"
+                        : "bg-white border-gray-300"
                     }`}>
-                      {setores.length} setores disponíveis
-                    </p>
-                  )}
-                  {!loadingSetores && setores.length === 0 && (
-                    <p className={`text-xs mt-1 text-red-500`}>
-                      ⚠️ Erro ao carregar setores. Verifique sua conexão.
-                    </p>
-                  )}
+                      {loadingSetores ? (
+                        <p className="text-sm text-gray-400">Carregando setores...</p>
+                      ) : setores.length === 0 ? (
+                        <p className="text-sm text-red-500">Nenhum setor encontrado</p>
+                      ) : (
+                        setores.map((setor) => (
+                          <label
+                            key={setor.id}
+                            className={`flex items-center gap-2 py-1 px-1 rounded cursor-pointer hover:bg-opacity-50 ${
+                              theme === "dark" ? "hover:bg-gray-600 text-white" : "hover:bg-gray-100 text-gray-900"
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={formData.setorResponsavel.includes(setor.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    setorResponsavel: [...prev.setorResponsavel, setor.id],
+                                  }));
+                                } else {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    setorResponsavel: prev.setorResponsavel.filter((id) => id !== setor.id),
+                                  }));
+                                }
+                              }}
+                              className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                            />
+                            <span className="text-sm">{setor.name}</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                    {formData.setorResponsavel.length > 0 && (
+                      <p className={`text-xs ${
+                        theme === "dark" ? "text-gray-400" : "text-gray-600"
+                      }`}>
+                        {formData.setorResponsavel.length} setor(es) selecionado(s)
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -454,6 +487,138 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 </div>
               </div>
 
+              {/* Seção de Usuários para Notificação */}
+              <div className="col-span-3 mt-4">
+                <label
+                  className={`block text-sm font-medium mb-2 ${
+                    theme === "dark" ? "text-gray-300" : "text-gray-900"
+                  }`}
+                >
+                  🔔 Usuários que Receberão Notificação
+                </label>
+                
+                {loadingUsuarios ? (
+                  <div className={`p-4 rounded-md text-center ${
+                    theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
+                  }`}>
+                    Carregando usuários...
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <div className={`p-3 rounded-md border ${
+                      theme === "dark" 
+                        ? "bg-blue-900/20 border-blue-700" 
+                        : "bg-blue-50 border-blue-200"
+                    }`}>
+                      <p className={`text-xs ${
+                        theme === "dark" ? "text-blue-300" : "text-blue-700"
+                      }`}>
+                        💡 <strong>Dica:</strong> Selecione os usuários que devem ser notificados automaticamente quando este documento for criado.
+                      </p>
+                    </div>
+
+                    <select
+                      onChange={(e) => {
+                        const userId = parseInt(e.target.value);
+                        if (userId && !usuariosSelecionados.includes(userId)) {
+                          setUsuariosSelecionados(prev => [...prev, userId]);
+                        }
+                        e.target.value = "";
+                      }}
+                      className={`w-full h-10 rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        theme === "dark"
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      }`}
+                    >
+                      <option value="">➕ Adicionar usuário para notificar</option>
+                      {usuarios
+                        .filter(u => !usuariosSelecionados.includes(u.id))
+                        .map(usuario => (
+                          <option key={usuario.id} value={usuario.id}>
+                            {usuario.name} ({usuario.email})
+                          </option>
+                        ))
+                      }
+                    </select>
+
+                    <div className="max-h-40 overflow-y-auto space-y-2">
+                      {usuariosSelecionados.length === 0 ? (
+                        <div className={`p-3 rounded-md text-center text-sm ${
+                          theme === "dark" 
+                            ? "bg-gray-700/50 text-gray-400" 
+                            : "bg-gray-100 text-gray-500"
+                        }`}>
+                          Nenhum usuário selecionado. Selecione acima para notificar.
+                        </div>
+                      ) : (
+                        usuariosSelecionados.map(userId => {
+                          const usuario = usuarios.find(u => u.id === userId);
+                          if (!usuario) return null;
+                          
+                          return (
+                            <div
+                              key={userId}
+                              className={`flex items-center justify-between p-3 rounded-md ${
+                                theme === "dark"
+                                  ? "bg-gray-700 text-gray-200"
+                                  : "bg-gray-100 text-gray-900"
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 flex-1">
+                                <FaUserCircle className={`text-lg ${
+                                  theme === "dark" ? "text-blue-400" : "text-blue-600"
+                                }`} />
+                                <div className="flex-1">
+                                  <div className="font-medium text-sm">{usuario.name}</div>
+                                  <div className={`text-xs ${
+                                    theme === "dark" ? "text-gray-400" : "text-gray-500"
+                                  }`}>
+                                    {usuario.email}
+                                  </div>
+                                </div>
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  theme === "dark"
+                                    ? "bg-blue-900/30 text-blue-300"
+                                    : "bg-blue-100 text-blue-700"
+                                }`}>
+                                  🔔 Será notificado
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setUsuariosSelecionados(prev => 
+                                    prev.filter(id => id !== userId)
+                                  );
+                                }}
+                                className={`ml-2 px-3 py-1 rounded-md text-xs font-medium transition-colors ${
+                                  theme === "dark"
+                                    ? "bg-red-600/20 text-red-400 hover:bg-red-600/30"
+                                    : "bg-red-100 text-red-600 hover:bg-red-200"
+                                }`}
+                              >
+                                ✕ Remover
+                              </button>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {usuariosSelecionados.length > 0 && (
+                      <div className={`p-2 rounded-md text-xs text-center font-medium ${
+                        theme === "dark"
+                          ? "bg-green-900/20 text-green-300"
+                          : "bg-green-50 text-green-700"
+                      }`}>
+                        ✅ {usuariosSelecionados.length} usuário(s) será(ão) notificado(s) automaticamente
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-4 pt-4">
                 <button
                   type="button"
@@ -470,7 +635,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                   type="button"
                   onClick={(e) => {
                     e.preventDefault();
-                    onSubmit(formData);
+                    onSubmit({ ...formData, assigneeIds: usuariosSelecionados });
                   }}
                   className="flex-1 h-12 rounded-lg font-medium text-white transition-all duration-200 bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
                 >
