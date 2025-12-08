@@ -295,19 +295,27 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
         };
       }
   console.log('[addEvent] Payload enviado:', payload);
-  const created = await eventservices.postEvents(payload);
-      if (created) {
+  const response = await eventservices.postEvents(payload);
+  console.log('[addEvent] Resposta completa:', response);
+  
+  // O backend pode retornar { event: {...} } ou diretamente o evento
+  const created = response?.event || response;
+  
+      if (created && created.id) {
         const parsed = {
           ...created,
-          start: created.startDate ? new Date(created.startDate) : undefined,
-          end: created.endDate ? new Date(created.endDate) : undefined,
+          start: created.startDate ? new Date(created.startDate) : (created.start ? new Date(created.start) : new Date()),
+          end: created.endDate ? new Date(created.endDate) : (created.end ? new Date(created.end) : new Date()),
           tipo: eventTypeBackendToFrontend[created.type] || created.type,
         };
+        console.log('[addEvent] Evento parseado:', parsed);
         setEvents((prev) => [...prev, parsed]);
         setFilteredEvents((prev) => [...prev, parsed]);
         
         // Criar notificação automática
         await createEventNotification(created, 'criado');
+      } else {
+        console.error('[addEvent] Resposta sem evento válido:', response);
       }
     } catch (error: any) {
       console.error("[ADD EVENT] Erro ao adicionar evento:", error);

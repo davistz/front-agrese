@@ -5,21 +5,22 @@ import {
 } from "../types/interfaces";
 
 export const convertEventToReuniaoModal = (event: any): ReuniaoModalData => {
+  console.log('[convertEventToReuniaoModal] Evento recebido:', event);
   return {
     id: event.id,
-    titulo: event.title || "",
-    setorResponsavel: event.sector?.name || "",
-    descricao: event.description || "",
-    autor: event.creator?.name || "",
-    dataHoraInicio: event.startDate ? new Date(event.startDate) : new Date(),
-    dataHoraTermino: event.endDate ? new Date(event.endDate) : new Date(),
-    local: event.location || "presencial",
-    sala: "",
-    participantes: event.assignees || [],
-    status: event.status || "COMPLETED",
-    responsavelAta: "",
-    linkReuniao: event.meetingLink || "",
-    notificacao: 30,
+    titulo: event.title || event.titulo || "",
+    setorResponsavel: event.sector?.name || event.setor || "",
+    descricao: event.description || event.desc || "",
+    autor: event.creator?.name || event.autor || "",
+    dataHoraInicio: event.start ? new Date(event.start) : (event.startDate ? new Date(event.startDate) : new Date()),
+    dataHoraTermino: event.end ? new Date(event.end) : (event.endDate ? new Date(event.endDate) : new Date()),
+    local: event.location || event.local || "presencial",
+    sala: event.sala || "",
+    participantes: event.assignees || event.participantes || [],
+    status: event.status || "PENDING",
+    responsavelAta: event.responsavelAta || "",
+    linkReuniao: event.meetingLink || event.linkReuniao || "",
+    notificacao: event.notificacao || 30,
   };
 };
 

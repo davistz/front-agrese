@@ -20,18 +20,29 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
+  
+  // Garantir que as datas são objetos Date válidos
+  const parseDate = (date: any): Date => {
+    if (date instanceof Date && !isNaN(date.getTime())) return date;
+    if (typeof date === 'string' || typeof date === 'number') {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) return parsed;
+    }
+    return new Date();
+  };
+
   const [formData, setFormData] = useState<ReuniaoModalData>({
     id: evento.id,
     titulo: evento.titulo || "",
     setorResponsavel: evento.setorResponsavel || "",
     descricao: evento.descricao || "",
     autor: evento.autor || "",
-    dataHoraInicio: evento.dataHoraInicio || new Date(),
-    dataHoraTermino: evento.dataHoraTermino || new Date(),
+    dataHoraInicio: parseDate(evento.dataHoraInicio),
+    dataHoraTermino: parseDate(evento.dataHoraTermino),
     local: evento.local || "presencial",
     sala: evento.sala || "",
     participantes: evento.participantes || [],
-    status: evento?.status,
+    status: evento?.status || "PENDING",
     responsavelAta: evento.responsavelAta || "",
     linkReuniao: evento.linkReuniao || "",
     notificacao: evento.notificacao || 30,
@@ -448,25 +459,32 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                   </label>
                   <div className="mt-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                     {formData.participantes.length > 0 ? (
-                      formData.participantes.map((participante, index) => (
-                        <div
-                          key={index}
-                          className={`flex items-center gap-2 p-2 rounded-md mb-1 ${
-                            theme === "dark"
-                              ? "bg-gray-700 text-gray-200"
-                              : "bg-[#eaeaea] text-gray-900"
-                          }`}
-                        >
-                          <FaUserCircle
-                            className={
+                      formData.participantes.map((participante: any, index: number) => {
+                        // Participante pode ser string (nome direto) ou objeto do backend
+                        const nomeParticipante = typeof participante === 'string' 
+                          ? participante 
+                          : (participante?.user?.name || participante?.name || participante?.email || `Participante ${index + 1}`);
+                        
+                        return (
+                          <div
+                            key={index}
+                            className={`flex items-center gap-2 p-2 rounded-md mb-1 ${
                               theme === "dark"
-                                ? "text-gray-400"
-                                : "text-gray-600"
-                            }
-                          />
-                          <span className="text-[15px]">{participante}</span>
-                        </div>
-                      ))
+                                ? "bg-gray-700 text-gray-200"
+                                : "bg-[#eaeaea] text-gray-900"
+                            }`}
+                          >
+                            <FaUserCircle
+                              className={
+                                theme === "dark"
+                                  ? "text-gray-400"
+                                  : "text-gray-600"
+                              }
+                            />
+                            <span className="text-[15px]">{nomeParticipante}</span>
+                          </div>
+                        );
+                      })
                     ) : (
                       <div
                         className={`flex items-center gap-2 p-2 rounded-md ${
