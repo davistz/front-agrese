@@ -30,6 +30,8 @@ import {
 } from "react-icons/fa";
 import { MdAdminPanelSettings } from "react-icons/md";
 import { UserInfoModal } from "../components/modals/UserInfoModal";
+import { userServices } from "../services/usersServices";
+import { sectorServices } from "../services/sectorsServices";
 
 export const UserPage = () => {
   const { theme } = useTheme();
@@ -40,7 +42,7 @@ export const UserPage = () => {
     "calendario" | "setores" | "usuarios"
   >("usuarios");
   const [users, setUsers] = useState<UserData[]>([]);
-  const [sectors, setSectors] = useState<SectorData[]>([]);
+  const [sectors, setSectors] = useState<any[]>([]);
   const [showUserForm, setShowUserForm] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<UserData | null>(null);
@@ -56,915 +58,38 @@ export const UserPage = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   useEffect(() => {
-    const mockUsers: UserData[] = [
-      // Presidência
-      {
-        id: 1,
-        email: "luizhamilton.oliveira@agrese.se.gov.br",
-        name: "Luiz Hamilton Oliveira",
-        role: "ADMIN",
-        sectorId: 1,
-        sector: {
-          id: 1,
-          name: "Presidência",
-          description: "Setor principal",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-15T10:30:00"),
-        createdAt: new Date("2023-01-01T08:00:00"),
-        updatedAt: new Date("2024-01-15T10:30:00"),
-      },
-      {
-        id: 5,
-        email: "roberta.antunes@agrese.se.gov.br",
-        name: "Roberta Antunes",
-        role: "COLLABORATOR",
-        sectorId: 1,
-        sector: {
-          id: 1,
-          name: "Presidência",
-          description: "Setor principal",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T14:20:00"),
-        createdAt: new Date("2023-01-15T08:00:00"),
-        updatedAt: new Date("2024-01-14T14:20:00"),
-      },
-      // TI
-      {
-        id: 2,
-        email: "pablo.cortes@agrese.se.gov.br",
-        name: "Pablo Cortes",
-        role: "IT_ADMIN",
-        sectorId: 2,
-        sector: {
-          id: 2,
-          name: "Tecnologia da Informação",
-          description: "Coordenação de TI",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-15T09:45:00"),
-        createdAt: new Date("2023-02-01T09:00:00"),
-        updatedAt: new Date("2024-01-15T09:45:00"),
-      },
-      {
-        id: 3,
-        email: "marcelino.souza@agrese.se.gov.br",
-        name: "Marcelino Souza",
-        role: "IT_ADMIN",
-        sectorId: 2,
-        sector: {
-          id: 2,
-          name: "Tecnologia da Informação",
-          description: "Coordenação de TI",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T16:30:00"),
-        createdAt: new Date("2023-02-15T10:00:00"),
-        updatedAt: new Date("2024-01-14T16:30:00"),
-      },
-      // Gabinete
-      {
-        id: 4,
-        email: "aline.souza@agrese.se.gov.br",
-        name: "Aline Souza",
-        role: "MANAGER",
-        sectorId: 3,
-        sector: {
-          id: 3,
-          name: "Gabinete",
-          description: "Chefia de Gabinete",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T11:15:00"),
-        createdAt: new Date("2023-03-01T10:00:00"),
-        updatedAt: new Date("2024-01-14T11:15:00"),
-      },
-      {
-        id: 6,
-        email: "isabela.grossi@agrese.se.gov.br",
-        name: "Isabela Grossi",
-        role: "COLLABORATOR",
-        sectorId: 3,
-        sector: {
-          id: 3,
-          name: "Gabinete",
-          description: "Chefia de Gabinete",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T15:20:00"),
-        createdAt: new Date("2023-03-15T11:00:00"),
-        updatedAt: new Date("2024-01-13T15:20:00"),
-      },
-      // Procuradoria
-      {
-        id: 7,
-        email: "danielle.fantim@agrese.se.gov.br",
-        name: "Danielle Fantim",
-        role: "MANAGER",
-        sectorId: 4,
-        sector: {
-          id: 4,
-          name: "Procuradoria",
-          description: "Procuradoria Jurídica",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T10:30:00"),
-        createdAt: new Date("2023-04-01T12:00:00"),
-        updatedAt: new Date("2024-01-14T10:30:00"),
-      },
-      {
-        id: 8,
-        email: "bruna.mariana@agrese.se.gov.br",
-        name: "Bruna Mariana",
-        role: "COLLABORATOR",
-        sectorId: 4,
-        sector: {
-          id: 4,
-          name: "Procuradoria",
-          description: "Procuradoria Jurídica",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T14:45:00"),
-        createdAt: new Date("2023-04-15T13:00:00"),
-        updatedAt: new Date("2024-01-13T14:45:00"),
-      },
-      {
-        id: 9,
-        email: "luanna.ramos@agrese.se.gov.br",
-        name: "Luanna Ramos",
-        role: "COLLABORATOR",
-        sectorId: 4,
-        sector: {
-          id: 4,
-          name: "Procuradoria",
-          description: "Procuradoria Jurídica",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T16:10:00"),
-        createdAt: new Date("2023-05-01T14:00:00"),
-        updatedAt: new Date("2024-01-12T16:10:00"),
-      },
-      {
-        id: 10,
-        email: "james.charles@agrese.se.gov.br",
-        name: "James Charles",
-        role: "COLLABORATOR",
-        sectorId: 4,
-        sector: {
-          id: 4,
-          name: "Procuradoria",
-          description: "Procuradoria Jurídica",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T13:25:00"),
-        createdAt: new Date("2023-05-15T15:00:00"),
-        updatedAt: new Date("2024-01-11T13:25:00"),
-      },
-      // CT Gás
-      {
-        id: 11,
-        email: "douglas.santos@agrese.se.gov.br",
-        name: "Douglas Santos",
-        role: "MANAGER",
-        sectorId: 5,
-        sector: {
-          id: 5,
-          name: "CT Gás",
-          description: "Câmara Técnica de Gás",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T09:15:00"),
-        createdAt: new Date("2023-06-01T08:00:00"),
-        updatedAt: new Date("2024-01-14T09:15:00"),
-      },
-      {
-        id: 12,
-        email: "fernanda.figueiredo@agrese.se.gov.br",
-        name: "Fernanda Figueiredo",
-        role: "COLLABORATOR",
-        sectorId: 5,
-        sector: {
-          id: 5,
-          name: "CT Gás",
-          description: "Câmara Técnica de Gás",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T11:40:00"),
-        createdAt: new Date("2023-06-15T09:00:00"),
-        updatedAt: new Date("2024-01-13T11:40:00"),
-      },
-      // CT Saneamento
-      {
-        id: 13,
-        email: "josewellington.leite@agrese.se.gov.br",
-        name: "José Wellington Leite",
-        role: "MANAGER",
-        sectorId: 6,
-        sector: {
-          id: 6,
-          name: "CT Saneamento",
-          description: "Câmara Técnica de Saneamento",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T08:30:00"),
-        createdAt: new Date("2023-07-01T10:00:00"),
-        updatedAt: new Date("2024-01-14T08:30:00"),
-      },
-      {
-        id: 14,
-        email: "carla.pinheiro@agrese.se.gov.br",
-        name: "Carla Pinheiro",
-        role: "COLLABORATOR",
-        sectorId: 6,
-        sector: {
-          id: 6,
-          name: "CT Saneamento",
-          description: "Câmara Técnica de Saneamento",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T14:15:00"),
-        createdAt: new Date("2023-07-15T11:00:00"),
-        updatedAt: new Date("2024-01-13T14:15:00"),
-      },
-      {
-        id: 15,
-        email: "eryson.viera@agrese.se.gov.br",
-        name: "Eryson Vieira",
-        role: "COLLABORATOR",
-        sectorId: 6,
-        sector: {
-          id: 6,
-          name: "CT Saneamento",
-          description: "Câmara Técnica de Saneamento",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T15:50:00"),
-        createdAt: new Date("2023-08-01T12:00:00"),
-        updatedAt: new Date("2024-01-12T15:50:00"),
-      },
-      {
-        id: 16,
-        email: "matheus.silva@agrese.se.gov.br",
-        name: "Matheus Silva",
-        role: "COLLABORATOR",
-        sectorId: 6,
-        sector: {
-          id: 6,
-          name: "CT Saneamento",
-          description: "Câmara Técnica de Saneamento",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T10:20:00"),
-        createdAt: new Date("2023-08-15T13:00:00"),
-        updatedAt: new Date("2024-01-11T10:20:00"),
-      },
-      // Recursos Humanos
-      {
-        id: 17,
-        email: "lady.diana@agrese.se.gov.br",
-        name: "Lady Diana",
-        role: "COLLABORATOR",
-        sectorId: 7,
-        sector: {
-          id: 7,
-          name: "Recursos Humanos",
-          description: "Gestão de Pessoas",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T12:45:00"),
-        createdAt: new Date("2023-09-01T14:00:00"),
-        updatedAt: new Date("2024-01-14T12:45:00"),
-      },
-      // Almoxarifado
-      {
-        id: 18,
-        email: "juliocesar.melo@agrese.se.gov.br",
-        name: "Júlio César Melo",
-        role: "COLLABORATOR",
-        sectorId: 8,
-        sector: {
-          id: 8,
-          name: "Almoxarifado",
-          description: "Controle de Estoque",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T16:30:00"),
-        createdAt: new Date("2023-09-15T15:00:00"),
-        updatedAt: new Date("2024-01-13T16:30:00"),
-      },
-      {
-        id: 19,
-        email: "marcio.silveira@agrese.se.gov.br",
-        name: "Márcio Silveira",
-        role: "COLLABORATOR",
-        sectorId: 8,
-        sector: {
-          id: 8,
-          name: "Almoxarifado",
-          description: "Controle de Estoque",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T09:15:00"),
-        createdAt: new Date("2023-10-01T08:00:00"),
-        updatedAt: new Date("2024-01-12T09:15:00"),
-      },
-      {
-        id: 20,
-        email: "flavia.danielle@agrese.se.gov.br",
-        name: "Flávia Danielle",
-        role: "COLLABORATOR",
-        sectorId: 8,
-        sector: {
-          id: 8,
-          name: "Almoxarifado",
-          description: "Controle de Estoque",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T14:45:00"),
-        createdAt: new Date("2023-10-15T09:00:00"),
-        updatedAt: new Date("2024-01-11T14:45:00"),
-      },
-      // ASCOM
-      {
-        id: 21,
-        email: "ingrid.ferreira@agrese.se.gov.br",
-        name: "Ingrid Ferreira",
-        role: "COLLABORATOR",
-        sectorId: 9,
-        sector: {
-          id: 9,
-          name: "ASCOM",
-          description: "Assessoria de Comunicação",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T13:20:00"),
-        createdAt: new Date("2023-11-01T10:00:00"),
-        updatedAt: new Date("2024-01-14T13:20:00"),
-      },
-      // CT Energia
-      {
-        id: 22,
-        email: "tercio.brito@agrese.se.gov.br",
-        name: "Tércio Brito",
-        role: "COLLABORATOR",
-        sectorId: 10,
-        sector: {
-          id: 10,
-          name: "CT Energia",
-          description: "Câmara Técnica de Energia",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T10:30:00"),
-        createdAt: new Date("2023-11-15T11:00:00"),
-        updatedAt: new Date("2024-01-13T10:30:00"),
-      },
-      {
-        id: 23,
-        email: "elisson.santos@agrese.se.gov.br",
-        name: "Elisson Santos",
-        role: "COLLABORATOR",
-        sectorId: 10,
-        sector: {
-          id: 10,
-          name: "CT Energia",
-          description: "Câmara Técnica de Energia",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T15:45:00"),
-        createdAt: new Date("2023-12-01T12:00:00"),
-        updatedAt: new Date("2024-01-12T15:45:00"),
-      },
-      // CT Loterias
-      {
-        id: 24,
-        email: "kelly.menendez@agrese.se.gov.br",
-        name: "Kelly Menendez",
-        role: "COLLABORATOR",
-        sectorId: 11,
-        sector: {
-          id: 11,
-          name: "CT Loterias",
-          description: "Câmara Técnica de Loterias",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T11:15:00"),
-        createdAt: new Date("2023-12-15T13:00:00"),
-        updatedAt: new Date("2024-01-11T11:15:00"),
-      },
-      // CT Tarifária
-      {
-        id: 25,
-        email: "franciscopedro.filho@agrese.se.gov.br",
-        name: "Francisco Pedro Filho",
-        role: "MANAGER",
-        sectorId: 12,
-        sector: {
-          id: 12,
-          name: "CT Tarifária",
-          description: "Câmara Técnica Tarifária",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T14:30:00"),
-        createdAt: new Date("2024-01-01T08:00:00"),
-        updatedAt: new Date("2024-01-14T14:30:00"),
-      },
-      // DAF
-      {
-        id: 26,
-        email: "alexandre.sobral@agrese.se.gov.br",
-        name: "Alexandre Sobral",
-        role: "MANAGER",
-        sectorId: 13,
-        sector: {
-          id: 13,
-          name: "DAF - Diretoria Administrativa Financeira",
-          description: "Diretoria Administrativa e Financeira",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T16:45:00"),
-        createdAt: new Date("2024-01-15T09:00:00"),
-        updatedAt: new Date("2024-01-14T16:45:00"),
-      },
-      {
-        id: 27,
-        email: "mariaconceicao.albuquerque@agrese.se.gov.br",
-        name: "Maria Conceição Albuquerque",
-        role: "COLLABORATOR",
-        sectorId: 13,
-        sector: {
-          id: 13,
-          name: "DAF - Diretoria Administrativa Financeira",
-          description: "Diretoria Administrativa e Financeira",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T12:20:00"),
-        createdAt: new Date("2024-02-01T10:00:00"),
-        updatedAt: new Date("2024-01-13T12:20:00"),
-      },
-      // Diretoria Técnica
-      {
-        id: 28,
-        email: "michaelangel.arcieri@agrese.se.gov.br",
-        name: "Michael Angel Arcieri",
-        role: "MANAGER",
-        sectorId: 14,
-        sector: {
-          id: 14,
-          name: "Diretoria Técnica",
-          description: "Área técnica e operacional",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T13:15:00"),
-        createdAt: new Date("2024-02-15T11:00:00"),
-        updatedAt: new Date("2024-01-14T13:15:00"),
-      },
-      // Ouvidoria
-      {
-        id: 29,
-        email: "juliana.costa@agrese.se.gov.br",
-        name: "Juliana Costa",
-        role: "MANAGER",
-        sectorId: 15,
-        sector: {
-          id: 15,
-          name: "Ouvidoria",
-          description: "Ouvidoria Geral",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T15:30:00"),
-        createdAt: new Date("2024-03-01T12:00:00"),
-        updatedAt: new Date("2024-01-13T15:30:00"),
-      },
-      {
-        id: 30,
-        email: "amandaguimaraes.santana@agrese.se.gov.br",
-        name: "Amanda Guimarães Santana",
-        role: "COLLABORATOR",
-        sectorId: 15,
-        sector: {
-          id: 15,
-          name: "Ouvidoria",
-          description: "Ouvidoria Geral",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T10:45:00"),
-        createdAt: new Date("2024-03-15T13:00:00"),
-        updatedAt: new Date("2024-01-12T10:45:00"),
-      },
-      {
-        id: 31,
-        email: "evelyn.bispo@agrese.se.gov.br",
-        name: "Evelyn Bispo",
-        role: "COLLABORATOR",
-        sectorId: 15,
-        sector: {
-          id: 15,
-          name: "Ouvidoria",
-          description: "Ouvidoria Geral",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T16:20:00"),
-        createdAt: new Date("2024-04-01T14:00:00"),
-        updatedAt: new Date("2024-01-11T16:20:00"),
-      },
-      // Licitação
-      {
-        id: 32,
-        email: "ayanneiris.santana@agrese.se.gov.br",
-        name: "Ayanne Iris Santana",
-        role: "COLLABORATOR",
-        sectorId: 16,
-        sector: {
-          id: 16,
-          name: "Licitação",
-          description: "Setor de Licitações",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T11:30:00"),
-        createdAt: new Date("2024-04-15T15:00:00"),
-        updatedAt: new Date("2024-01-14T11:30:00"),
-      },
-      {
-        id: 33,
-        email: "muriel.augusta@agrese.se.gov.br",
-        name: "Muriel Augusta",
-        role: "COLLABORATOR",
-        sectorId: 16,
-        sector: {
-          id: 16,
-          name: "Licitação",
-          description: "Setor de Licitações",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T09:15:00"),
-        createdAt: new Date("2024-05-01T08:00:00"),
-        updatedAt: new Date("2024-01-13T09:15:00"),
-      },
-      // Contabilidade
-      {
-        id: 34,
-        email: "marialucia.dossantos@agrese.se.gov.br",
-        name: "Maria Lúcia dos Santos",
-        role: "COLLABORATOR",
-        sectorId: 17,
-        sector: {
-          id: 17,
-          name: "Contabilidade",
-          description: "Setor Contábil",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T14:45:00"),
-        createdAt: new Date("2024-05-15T09:00:00"),
-        updatedAt: new Date("2024-01-12T14:45:00"),
-      },
-      {
-        id: 35,
-        email: "andre.santosoliveira@agrese.se.gov.br",
-        name: "André Santos Oliveira",
-        role: "COLLABORATOR",
-        sectorId: 17,
-        sector: {
-          id: 17,
-          name: "Contabilidade",
-          description: "Setor Contábil",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-11T13:20:00"),
-        createdAt: new Date("2024-06-01T10:00:00"),
-        updatedAt: new Date("2024-01-11T13:20:00"),
-      },
-      // Compras
-      {
-        id: 36,
-        email: "marcelo.ribeiro@agrese.se.gov.br",
-        name: "Marcelo Ribeiro",
-        role: "COLLABORATOR",
-        sectorId: 18,
-        sector: {
-          id: 18,
-          name: "Compras",
-          description: "Setor de Compras",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-14T10:15:00"),
-        createdAt: new Date("2024-06-15T11:00:00"),
-        updatedAt: new Date("2024-01-14T10:15:00"),
-      },
-      {
-        id: 38,
-        email: "aderaldo.barroso@agrese.se.gov.br",
-        name: "Aderaldo Barroso",
-        role: "COLLABORATOR",
-        sectorId: 18,
-        sector: {
-          id: 18,
-          name: "Compras",
-          description: "Setor de Compras",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-12T16:40:00"),
-        createdAt: new Date("2024-07-15T13:00:00"),
-        updatedAt: new Date("2024-01-12T16:40:00"),
-      },
-      // Controle Interno
-      {
-        id: 37,
-        email: "fatima.luane@agrese.se.gov.br",
-        name: "Fátima Luane",
-        role: "COLLABORATOR",
-        sectorId: 19,
-        sector: {
-          id: 19,
-          name: "Controle Interno",
-          description: "Auditoria Interna",
-          users: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        isActive: true,
-        lastLogin: new Date("2024-01-13T12:30:00"),
-        createdAt: new Date("2024-07-01T12:00:00"),
-        updatedAt: new Date("2024-01-13T12:30:00"),
-      },
-    ];
+    const fetchData = async () => {
+      try {
+        const [usersResponse, sectorsResponse] = await Promise.all([
+          userServices.getUsers(),
+          sectorServices.getSectors(),
+        ]);
 
-    let filteredUsers = mockUsers;
+        if (!usersResponse || !sectorsResponse) return;
 
-    if (user?.role === "MANAGER") {
-      filteredUsers = mockUsers.filter((u) => u.sectorId === user.sectorId);
-    }
+        const usersArray: UserData[] = Array.isArray(usersResponse.users)
+          ? usersResponse.users
+          : [];
 
-    setUsers(filteredUsers);
+        const sectorsArray = Array.isArray(sectorsResponse) ? sectorsResponse : [];
 
-    const mockSectors: SectorData[] = [
-      {
-        id: 1,
-        name: "Presidência",
-        description: "Setor principal da empresa",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 2,
-        name: "Tecnologia da Informação",
-        description: "Coordenação de TI",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 3,
-        name: "Gabinete",
-        description: "Chefia de Gabinete",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 4,
-        name: "Procuradoria",
-        description: "Procuradoria Jurídica",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 5,
-        name: "CT Gás",
-        description: "Câmara Técnica de Gás",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 6,
-        name: "CT Saneamento",
-        description: "Câmara Técnica de Saneamento",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 7,
-        name: "Recursos Humanos",
-        description: "Gestão de Pessoas",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 8,
-        name: "Almoxarifado",
-        description: "Controle de Estoque",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 9,
-        name: "ASCOM",
-        description: "Assessoria de Comunicação",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 10,
-        name: "CT Energia",
-        description: "Câmara Técnica de Energia",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 11,
-        name: "CT Loterias",
-        description: "Câmara Técnica de Loterias",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 12,
-        name: "CT Tarifária",
-        description: "Câmara Técnica Tarifária",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 13,
-        name: "DAF - Diretoria Administrativa Financeira",
-        description: "Diretoria Administrativa e Financeira",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 14,
-        name: "Diretoria Técnica",
-        description: "Área técnica e operacional",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 15,
-        name: "Ouvidoria",
-        description: "Ouvidoria Geral",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 16,
-        name: "Licitação",
-        description: "Setor de Licitações",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 17,
-        name: "Contabilidade",
-        description: "Setor Contábil",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 18,
-        name: "Compras",
-        description: "Setor de Compras",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-      {
-        id: 19,
-        name: "Controle Interno",
-        description: "Auditoria Interna",
-        users: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
-    ];
+        let filteredUsers = usersArray;
 
-    setSectors(mockSectors);
+        if (user?.role === "MANAGER") {
+          filteredUsers = usersArray.filter(
+            (u: UserData) => u.sectorId === user.sectorId
+          );
+        }
+
+        setUsers(filteredUsers);
+        setSectors(sectorsArray);
+      } catch (err) {
+        console.error("Erro ao carregar usuários/setores:", err);
+      }
+    };
+    fetchData();
   }, [user]);
+
 
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
@@ -1039,15 +164,22 @@ export const UserPage = () => {
     );
   };
 
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(date);
-  };
+  const formatDate = (dateString: string | Date) => {
+  if (!dateString)
+    return ''
+  const date = new Date(dateString)
+
+  return date.toLocaleString('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo',
+  })
+}
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
@@ -1066,65 +198,87 @@ export const UserPage = () => {
     return matchesSearch && matchesRole && matchesSector && matchesStatus;
   });
 
-  const handleCreateUser = (data: UserFormData) => {
-    const newUser: UserData = {
-      id: Date.now(),
-      email: data.email,
-      name: data.name,
-      role: data.role,
-      sectorId: data.sectorId,
-      sector: sectors.find((s) => s.id === data.sectorId),
-      isActive: data.isActive,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+  const handleCreateUser = async (data: UserFormData) => {
+    try {
+      const userData = {
+        email: data.email,
+        name: data.name,
+        password: data.password,
+        role: data.role,
+        sectorId: data.sectorId,
+        isActive: data.isActive,
+      };
 
-    setUsers([...users, newUser]);
-    setShowUserForm(false);
-    setEditingUser(null);
+      const createdUser = await userServices.postUser(userData);
+
+      if (createdUser) {
+        setUsers([...users, createdUser]);
+        setShowUserForm(false);
+        setEditingUser(null);
+      }
+    } catch (error) {
+      console.error("Erro ao criar usuário:", error);
+    }
   };
 
-  const handleEditUser = (data: UserFormData) => {
-    if (editingUser) {
-      const updatedUsers = users.map((user) => {
-        if (user.id === editingUser.id) {
-          return {
-            ...user,
-            email: data.email,
-            name: data.name,
-            role: data.role,
-            sectorId: data.sectorId,
-            sector: sectors.find((s) => s.id === data.sectorId),
-            isActive: data.isActive,
-            updatedAt: new Date(),
-          };
-        }
-        return user;
-      });
+  const handleEditUser = async (data: UserFormData) => {
+  if (editingUser) {
+    try {
+
+      const updatedUser = await userServices.putUser(editingUser.id , data);
+
+      const updatedUsers = users.map((user) =>
+        user.id === editingUser.id
+          ? {
+              ...user,
+              ...updatedUser,
+              sector: sectors.find((s) => s.id === data.sectorId),
+              updatedAt: new Date(),
+            }
+          : user
+      );
 
       setUsers(updatedUsers);
       setShowUserForm(false);
       setEditingUser(null);
+    } catch (error) {
+      console.error("Erro ao editar usuário:", error);
     }
-  };
+  }
+};
 
-  const handleToggleUserStatus = (userId: number) => {
-    const updatedUsers = users.map((user) => {
-      if (user.id === userId) {
-        return {
-          ...user,
-          isActive: !user.isActive,
-          updatedAt: new Date(),
-        };
-      }
-      return user;
-    });
-    setUsers(updatedUsers);
-  };
+const handleToggleUserStatus = async (userId: number) => {
+  try {
+    const user = users.find((u) => u.id === userId);
+    if (!user) return;
 
-  const handleDeleteUser = (userId: number) => {
+    const updatedUserData = {
+      ...user,
+      isActive: !user.isActive,
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedUser = await userServices.putUser(userId, updatedUserData);
+
+    if (updatedUser) {
+      const updatedUsers = users.map((u) =>
+        u.id === userId ? updatedUser : u
+      );
+      setUsers(updatedUsers);
+    }
+  } catch (error) {
+    console.error("Erro ao atualizar status do usuário:", error);
+  }
+};
+
+  const handleDeleteUser = async (userId: number) => {
     if (confirm("Tem certeza que deseja excluir este usuário?")) {
-      setUsers(users.filter((user) => user.id !== userId));
+      try {
+        await userServices.deleteUser(userId);
+        setUsers((prevUsers) => prevUsers.filter((user) => user.id !== userId));
+      } catch (error) {
+        console.error("Erro ao deletar usuário:", error);
+      }
     }
   };
 

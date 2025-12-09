@@ -4,7 +4,9 @@ import { ReuniaoForm } from "./forms/ReuniaoForm";
 import { AtividadeForm } from "./forms/AtividadeForm";
 import { AtividadeExternaForm } from "./forms/AtividadeExterna";
 import { DocumentoForm } from "./forms/DocumentoForm";
+import { ConflictWarning } from "./ConflictWarning";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useEvents } from "../../contexts/EventsContext";
 
 interface AddEventButtonProps {
   onAddEvent: (type: EventType, eventData: any) => void;
@@ -14,21 +16,96 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
   onAddEvent,
 }) => {
   const { theme } = useTheme();
+  const {
+    checkTimeConflict,
+    getConflictingEvents,
+    checkRoomConflict,
+    getRoomConflictingEvents,
+  } = useEvents();
   const [showTypeModal, setShowTypeModal] = useState(false);
   const [selectedType, setSelectedType] = useState<EventType | null>(null);
+  const [conflictingEvents, setConflictingEvents] = useState<any[]>([]);
+  const [showConflictWarning, setShowConflictWarning] = useState(false);
+  const [pendingEventData, setPendingEventData] = useState<any>(null);
 
   const handleTypeSelect = (type: EventType) => {
+    console.log("Selected event type:", type);
     setSelectedType(type);
     setShowTypeModal(false);
   };
 
   const handleFormClose = () => {
     setSelectedType(null);
+    setShowConflictWarning(false);
+    setConflictingEvents([]);
+    setPendingEventData(null);
   };
 
   const handleFormSubmit = (formData: any) => {
+    if (selectedType === EventType.MEETING) {
+      const startDate = formData.dataHoraInicio;
+      const endDate = formData.dataHoraTermino;
+
+      if (checkTimeConflict(startDate, endDate)) {
+        const conflicts = getConflictingEvents(startDate, endDate);
+        setConflictingEvents(conflicts);
+        setPendingEventData(formData);
+        setShowConflictWarning(true);
+        return;
+      }
+
+      if (
+        formData.local === "presencial" &&
+        formData.sala &&
+        formData.sala.trim() !== ""
+      ) {
+        const hasRoomConflict = checkRoomConflict(
+          startDate,
+          endDate,
+          formData.sala
+        );
+
+        if (hasRoomConflict) {
+          const roomConflicts = getRoomConflictingEvents(
+            startDate,
+            endDate,
+            formData.sala
+          );
+
+          alert(
+            `⚠️ CONFLITO DE SALA DETECTADO!\n\n` +
+              `A sala "${
+                formData.sala === "auditorio"
+                  ? "Auditório"
+                  : formData.sala === "sala-reuniao"
+                  ? "Sala de Reunião"
+                  : formData.sala === "sala-multiuso"
+                  ? "Sala Multiuso"
+                  : formData.sala
+              }" já está ocupada neste horário.\n\n` +
+              `Eventos conflitantes:\n` +
+              roomConflicts
+                .map(
+                  (event: any) =>
+                    `• ${event.title} (${new Date(event.start).toLocaleString(
+                      "pt-BR"
+                    )} - ${new Date(event.end).toLocaleString("pt-BR")})`
+                )
+                .join("\n") +
+              `\n\nPor favor, escolha outro horário ou outra sala.`
+          );
+          return;
+        }
+      }
+    }
+
     onAddEvent(selectedType!, formData);
     setSelectedType(null);
+  };
+
+  const handleProceedWithConflict = () => {
+    onAddEvent(selectedType!, pendingEventData);
+    handleFormClose();
   };
 
   return (
@@ -63,19 +140,20 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
         />
       )}
 
-      {selectedType === "reuniao" && (
+      {(selectedType === EventType.MEETING) && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
             <ReuniaoForm
               onSubmit={handleFormSubmit}
               onCancel={handleFormClose}
+              isDirex={selectedType === EventType.MEETING}
             />
           </div>
         </div>
       )}
 
-      {selectedType === "atividade" && (
+      {selectedType === EventType.ACTIVITY && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
@@ -86,7 +164,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
           </div>
         </div>
       )}
-      {selectedType === "atividades-externas" && (
+      {selectedType === EventType.EXTERNAL_ACTIVITY && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
@@ -97,7 +175,7 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
           </div>
         </div>
       )}
-      {selectedType === "documento" && (
+      {selectedType === EventType.DOCUMENT && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div className="relative z-50">
@@ -107,6 +185,14 @@ export const AddEventButton: React.FC<AddEventButtonProps> = ({
             />
           </div>
         </div>
+      )}
+
+      {showConflictWarning && (
+        <ConflictWarning
+          conflictingEvents={conflictingEvents}
+          onProceed={handleProceedWithConflict}
+          onCancel={() => setShowConflictWarning(false)}
+        />
       )}
     </>
   );

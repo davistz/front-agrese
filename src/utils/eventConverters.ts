@@ -5,19 +5,21 @@ import {
 } from "../types/interfaces";
 
 export const convertEventToReuniaoModal = (event: any): ReuniaoModalData => {
+  console.log('[convertEventToReuniaoModal] Evento recebido:', event);
   return {
     id: event.id,
-    titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    dataHoraInicio: event.start || new Date(),
-    dataHoraTermino: event.end || new Date(),
-    local: event.local || "presencial",
-    participantes: event.participantes || [],
-    status: event.status || "agendada",
+    titulo: event.title || event.titulo || "",
+    setorResponsavel: event.sector?.name || event.setor || "",
+    descricao: event.description || event.desc || "",
+    autor: event.creator?.name || event.autor || "",
+    dataHoraInicio: event.start ? new Date(event.start) : (event.startDate ? new Date(event.startDate) : new Date()),
+    dataHoraTermino: event.end ? new Date(event.end) : (event.endDate ? new Date(event.endDate) : new Date()),
+    local: event.location || event.local || "presencial",
+    sala: event.sala || "",
+    participantes: event.assignees || event.participantes || [],
+    status: event.status || "PENDING",
     responsavelAta: event.responsavelAta || "",
-    linkReuniao: event.linkReuniao || "",
+    linkReuniao: event.meetingLink || event.linkReuniao || "",
     notificacao: event.notificacao || 30,
   };
 };
@@ -33,6 +35,7 @@ export const convertReuniaoModalToEvent = (reuniao: ReuniaoModalData): any => {
     setor: reuniao.setorResponsavel,
     tipo: "reuniao",
     local: reuniao.local,
+    sala: reuniao.sala,
     participantes: reuniao.participantes,
     status: reuniao.status,
     responsavelAta: reuniao.responsavelAta,
@@ -46,17 +49,17 @@ export const convertEventToAtividadeModal = (
 ): AtividadeModalData => {
   return {
     id: event.id,
-    titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    dataInicioPrevista: event.start || new Date(),
-    prazoFinal: event.end || new Date(),
+    titulo: event.title || event.titulo || "",
+    setorResponsavel: event.sector?.name || event.setor || "",
+    descricao: event.description || event.desc || "",
+    autor: event.creator?.name || event.autor || "",
+    dataInicioPrevista: event.startDate ? new Date(event.startDate) : (event.start ? new Date(event.start) : new Date()),
+    prazoFinal: event.endDate ? new Date(event.endDate) : (event.end ? new Date(event.end) : new Date()),
     responsavel: event.responsavel || "",
     status: event.status || "pendente",
-    prioridade: event.prioridade || "media",
+    prioridade: event.priority || event.prioridade || "media",
     subtarefas: event.subtarefas || [],
-    comentarios: event.comentarios || "",
+    comentarios: event.comentarios || event.comments || "",
     dataConclusaoReal: event.dataConclusaoReal || null,
   };
 };
@@ -87,15 +90,15 @@ export const convertEventToDocumentoModal = (
 ): DocumentoModalData => {
   return {
     id: event.id,
-    titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    tipoDocumento: event.tipoDocumento || "",
-    status: event.status || "pendente",
+    titulo: event.title || event.titulo || "",
+    setorResponsavel: event.sector?.name || event.setor || "",
+    descricao: event.description || event.desc || "",
+    autor: event.creator?.name || event.autor || "",
+    tipoDocumento: event.documentType || event.tipoDocumento || "",
+    status: event.documentStatus || event.status || "pendente",
     responsavel: event.responsavel || "",
-    dataCriacao: event.dataCriacao || new Date(),
-    prazoAnalise: event.prazoAnalise || new Date(),
+    dataCriacao: event.startDate ? new Date(event.startDate) : (event.dataCriacao ? new Date(event.dataCriacao) : new Date()),
+    prazoAnalise: event.endDate ? new Date(event.endDate) : (event.prazoAnalise ? new Date(event.prazoAnalise) : new Date()),
     dataEnvioRecebimento: event.dataEnvioRecebimento || null,
     observacoes: event.observacoes || "",
   };
@@ -131,17 +134,15 @@ export const convertEventToAtividadeExternaModal = (
   return {
     id: event.id,
     titulo: event.title || "",
-    setorResponsavel: event.setor || "",
-    descricao: event.desc || "",
-    autor: event.autor || "",
-    dataHoraSaida: event.start || new Date(),
-    dataHoraRetorno: event.end || new Date(),
-    destino: event.destino || "",
-    responsavel: event.responsavel || "",
-    equipeEnvolvida: event.equipeEnvolvida || [],
-    status: event.status || "planejada",
-    motivoAtividade: event.motivoAtividade || "",
-    meioTransporte: event.meioTransporte || "",
+    setorResponsavel: event.sector?.name || "",
+    descricao: event.description || "",
+    autor: event.creator?.name || "",
+    dataHoraSaida: event.departureTime ? new Date(event.departureTime) : new Date(),
+    dataHoraRetorno: event.returnTime ? new Date(event.returnTime) : new Date(),
+    destino: event.destination || "",
+  equipeEnvolvida: event.equipeEnvolvida || event.teamInvolved || [],
+  status: event.externalStatus || "planejada",
+    meioTransporte: event.transportMode || "",
   };
 };
 
@@ -158,10 +159,8 @@ export const convertAtividadeExternaModalToEvent = (
     setor: atividade.setorResponsavel,
     tipo: "atividades-externas",
     destino: atividade.destino,
-    responsavel: atividade.responsavel,
     equipeEnvolvida: atividade.equipeEnvolvida,
     status: atividade.status,
-    motivoAtividade: atividade.motivoAtividade,
     meioTransporte: atividade.meioTransporte,
   };
 };

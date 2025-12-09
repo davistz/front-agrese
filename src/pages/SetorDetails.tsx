@@ -34,6 +34,23 @@ import { Sidebar } from "../components/elements/Sidebar";
 import { SetorForm } from "../components/elements/forms/SetorForm";
 import { MembroForm } from "../components/elements/forms/MembroForm";
 import { SetorInfoModal } from "../components/modals/SetorInfoModal";
+import { sectorServices } from "../services/sectorsServices";
+
+type ApiUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  isActive: boolean;
+};
+type ApiSubSector = {
+  id: number;
+  name: string;
+  manager?: { id: number; name: string };
+  description?: string;
+  createdAt: string;
+  users?: ApiUser[];
+};
 
 export const SetorDetail = () => {
   const { theme } = useTheme();
@@ -59,41 +76,7 @@ export const SetorDetail = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-  const setoresHierarquia: { [key: string]: SetorHierarquia } = {
-    presidente: {
-      nome: "Presidência",
-      subsetores: [
-        "Procuradoria",
-        "Conselho Superior",
-        "Gabinete",
-        "Ouvidoria",
-        "ASCOM",
-      ],
-    },
-    daf: {
-      nome: "DAF",
-      subsetores: [
-        "Contabilidade",
-        "Recursos Humanos",
-        "Compras",
-        "Licitação",
-        "T.I",
-        "Almoxarifado",
-      ],
-    },
-    diretortecnico: {
-      nome: "Diretoria Técnica",
-      subsetores: [
-        "CT Loterias",
-        "CT Gás",
-        "CT Energia",
-        "CT Tarifária",
-        "CT Saneamento",
-      ],
-    },
-  };
-
-  const setor = setorKey ? setoresHierarquia[setorKey] : null;
+const [setor, setSetor] = useState<any | null>(null);
 
   const getSetorPrincipalIcon = (setorKey: string) => {
     switch (setorKey) {
@@ -217,631 +200,284 @@ export const SetorDetail = () => {
     };
   };
 
-  useEffect(() => {
-    const mockSubsetores: SubsetorData[] = [
-      // Subsetores da Presidência
-      {
-        id: "procuradoria-pres",
-        nome: "Procuradoria",
-        setorPai: "presidente",
-        responsavel: "Danielle Fantim",
-        emailSetor: "procuradoria@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8800",
-        localizacao: "Presidência - Procuradoria",
-        observacoes: "Procuradoria Jurídica da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 1,
-            nome: "Danielle Fantim",
-            email: "danielle.fantim@agrese.se.gov.br",
-            cargo: "Procuradora Chefe",
-            telefone: "(79) 99999-0001",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 2,
-            nome: "Bruna Mariana",
-            email: "bruna.mariana@agrese.se.gov.br",
-            cargo: "Procuradora",
-            telefone: "(79) 99999-0002",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-          {
-            id: 3,
-            nome: "Luanna Ramos",
-            email: "luanna.ramos@agrese.se.gov.br",
-            cargo: "Procuradora",
-            telefone: "(79) 99999-0003",
-            dataIngresso: new Date("2023-03-01"),
-            status: "ativo",
-          },
-          {
-            id: 4,
-            nome: "James Charles",
-            email: "james.charles@agrese.se.gov.br",
-            cargo: "Procurador",
-            telefone: "(79) 99999-0004",
-            dataIngresso: new Date("2023-04-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 4,
-        membrosAtivos: 4,
-      },
-      {
-        id: "gabinete-pres",
-        nome: "Gabinete",
-        setorPai: "presidente",
-        responsavel: "Aline Souza",
-        emailSetor: "gabinete@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8801",
-        localizacao: "Presidência - Gabinete",
-        observacoes: "Chefia de Gabinete",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 5,
-            nome: "Aline Souza",
-            email: "aline.souza@agrese.se.gov.br",
-            cargo: "Chefe de Gabinete",
-            telefone: "(79) 99999-0005",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 6,
-            nome: "Isabela Grossi",
-            email: "isabela.grossi@agrese.se.gov.br",
-            cargo: "Assessora de Gabinete",
-            telefone: "(79) 99999-0006",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "ouvidoria-pres",
-        nome: "Ouvidoria",
-        setorPai: "presidente",
-        responsavel: "Juliana Costa",
-        emailSetor: "ouvidoria@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8802",
-        localizacao: "Presidência - Ouvidoria",
-        observacoes: "Ouvidoria Geral da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 7,
-            nome: "Juliana Costa",
-            email: "juliana.costa@agrese.se.gov.br",
-            cargo: "Ouvidora",
-            telefone: "(79) 99999-0007",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 8,
-            nome: "Amanda Guimarães Santana",
-            email: "amandaguimaraes.santana@agrese.se.gov.br",
-            cargo: "Atendente Call Center",
-            telefone: "(79) 99999-0008",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-          {
-            id: 9,
-            nome: "Evelyn Bispo",
-            email: "evelyn.bispo@agrese.se.gov.br",
-            cargo: "Atendente Call Center",
-            telefone: "(79) 99999-0009",
-            dataIngresso: new Date("2023-03-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 3,
-        membrosAtivos: 3,
-      },
-      {
-        id: "ascom-pres",
-        nome: "ASCOM",
-        setorPai: "presidente",
-        responsavel: "Ingrid Ferreira",
-        emailSetor: "ascom@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8803",
-        localizacao: "Presidência - ASCOM",
-        observacoes: "Assessoria de Comunicação",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 10,
-            nome: "Ingrid Ferreira",
-            email: "ingrid.ferreira@agrese.se.gov.br",
-            cargo: "Assessora de Comunicação",
-            telefone: "(79) 99999-0010",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 1,
-        membrosAtivos: 1,
-      },
-      // Subsetores do DAF
-      {
-        id: "ti-daf",
-        nome: "T.I",
-        setorPai: "daf",
-        responsavel: "Pablo Cortes",
-        emailSetor: "ti@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8810",
-        localizacao: "DAF - Tecnologia da Informação",
-        observacoes: "Coordenação de TI da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 11,
-            nome: "Pablo Cortes",
-            email: "pablo.cortes@agrese.se.gov.br",
-            cargo: "Coordenador de T.I",
-            telefone: "(79) 99999-0011",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 12,
-            nome: "Marcelino Souza",
-            email: "marcelino.souza@agrese.se.gov.br",
-            cargo: "Técnico em T.I",
-            telefone: "(79) 99999-0012",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "rh-daf",
-        nome: "Recursos Humanos",
-        setorPai: "daf",
-        responsavel: "Lady Diana",
-        emailSetor: "rh@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8811",
-        localizacao: "DAF - Recursos Humanos",
-        observacoes: "Gestão de Pessoas da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 13,
-            nome: "Lady Diana",
-            email: "lady.diana@agrese.se.gov.br",
-            cargo: "Gestora de RH",
-            telefone: "(79) 99999-0013",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 1,
-        membrosAtivos: 1,
-      },
-      {
-        id: "contabilidade-daf",
-        nome: "Contabilidade",
-        setorPai: "daf",
-        responsavel: "Maria Lúcia dos Santos",
-        emailSetor: "contabilidade@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8812",
-        localizacao: "DAF - Contabilidade",
-        observacoes: "Setor Contábil da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 14,
-            nome: "Maria Lúcia dos Santos",
-            email: "marialucia.dossantos@agrese.se.gov.br",
-            cargo: "Contadora",
-            telefone: "(79) 99999-0014",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 15,
-            nome: "André Santos Oliveira",
-            email: "andre.santosoliveira@agrese.se.gov.br",
-            cargo: "Auxiliar Contábil",
-            telefone: "(79) 99999-0015",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "compras-daf",
-        nome: "Compras",
-        setorPai: "daf",
-        responsavel: "Marcelo Ribeiro",
-        emailSetor: "compras@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8813",
-        localizacao: "DAF - Compras",
-        observacoes: "Setor de Compras da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 16,
-            nome: "Marcelo Ribeiro",
-            email: "marcelo.ribeiro@agrese.se.gov.br",
-            cargo: "Responsável por Compras",
-            telefone: "(79) 99999-0016",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 17,
-            nome: "Aderaldo Barroso",
-            email: "aderaldo.barroso@agrese.se.gov.br",
-            cargo: "Auxiliar de Compras",
-            telefone: "(79) 99999-0017",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "licitacao-daf",
-        nome: "Licitação",
-        setorPai: "daf",
-        responsavel: "Ayanne Iris Santana",
-        emailSetor: "licitacao@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8814",
-        localizacao: "DAF - Licitação",
-        observacoes: "Setor de Licitações da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 18,
-            nome: "Ayanne Iris Santana",
-            email: "ayanneiris.santana@agrese.se.gov.br",
-            cargo: "Responsável por Licitação",
-            telefone: "(79) 99999-0018",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 19,
-            nome: "Muriel Augusta",
-            email: "muriel.augusta@agrese.se.gov.br",
-            cargo: "Auxiliar de Licitação",
-            telefone: "(79) 99999-0019",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "almoxarifado-daf",
-        nome: "Almoxarifado",
-        setorPai: "daf",
-        responsavel: "Júlio César Melo",
-        emailSetor: "almoxarifado@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8815",
-        localizacao: "DAF - Almoxarifado",
-        observacoes: "Controle de Estoque da AGRESE",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 20,
-            nome: "Júlio César Melo",
-            email: "juliocesar.melo@agrese.se.gov.br",
-            cargo: "Responsável pelo Almoxarifado",
-            telefone: "(79) 99999-0020",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 21,
-            nome: "Márcio Silveira",
-            email: "marcio.silveira@agrese.se.gov.br",
-            cargo: "Auxiliar de Almoxarifado",
-            telefone: "(79) 99999-0021",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-          {
-            id: 22,
-            nome: "Flávia Danielle",
-            email: "flavia.danielle@agrese.se.gov.br",
-            cargo: "Auxiliar de Almoxarifado",
-            telefone: "(79) 99999-0022",
-            dataIngresso: new Date("2023-03-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 3,
-        membrosAtivos: 3,
-      },
-      // Subsetores da Diretoria Técnica
-      {
-        id: "ctgas-dt",
-        nome: "CT Gás",
-        setorPai: "diretortecnico",
-        responsavel: "Douglas Santos",
-        emailSetor: "ctgas@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8820",
-        localizacao: "Diretoria Técnica - CT Gás",
-        observacoes: "Câmara Técnica de Gás",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 23,
-            nome: "Douglas Santos",
-            email: "douglas.santos@agrese.se.gov.br",
-            cargo: "Diretor CT Gás",
-            telefone: "(79) 99999-0023",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 24,
-            nome: "Fernanda Figueiredo",
-            email: "fernanda.figueiredo@agrese.se.gov.br",
-            cargo: "Técnica CT Gás",
-            telefone: "(79) 99999-0024",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "ctsaneamento-dt",
-        nome: "CT Saneamento",
-        setorPai: "diretortecnico",
-        responsavel: "José Wellington Leite",
-        emailSetor: "ctsaneamento@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8821",
-        localizacao: "Diretoria Técnica - CT Saneamento",
-        observacoes: "Câmara Técnica de Saneamento",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 25,
-            nome: "José Wellington Leite",
-            email: "josewellington.leite@agrese.se.gov.br",
-            cargo: "Diretor CT Saneamento",
-            telefone: "(79) 99999-0025",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 26,
-            nome: "Carla Pinheiro",
-            email: "carla.pinheiro@agrese.se.gov.br",
-            cargo: "Técnica CT Saneamento",
-            telefone: "(79) 99999-0026",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-          {
-            id: 27,
-            nome: "Eryson Vieira",
-            email: "eryson.viera@agrese.se.gov.br",
-            cargo: "Técnico CT Saneamento",
-            telefone: "(79) 99999-0027",
-            dataIngresso: new Date("2023-03-01"),
-            status: "ativo",
-          },
-          {
-            id: 28,
-            nome: "Matheus Silva",
-            email: "matheus.silva@agrese.se.gov.br",
-            cargo: "Técnico CT Saneamento",
-            telefone: "(79) 99999-0028",
-            dataIngresso: new Date("2023-04-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 4,
-        membrosAtivos: 4,
-      },
-      {
-        id: "ctenergia-dt",
-        nome: "CT Energia",
-        setorPai: "diretortecnico",
-        responsavel: "Tércio Brito",
-        emailSetor: "ctenergia@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8822",
-        localizacao: "Diretoria Técnica - CT Energia",
-        observacoes: "Câmara Técnica de Energia",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 29,
-            nome: "Tércio Brito",
-            email: "tercio.brito@agrese.se.gov.br",
-            cargo: "Técnico CT Energia",
-            telefone: "(79) 99999-0029",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-          {
-            id: 30,
-            nome: "Elisson Santos",
-            email: "elisson.santos@agrese.se.gov.br",
-            cargo: "Técnico CT Energia",
-            telefone: "(79) 99999-0030",
-            dataIngresso: new Date("2023-02-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 2,
-        membrosAtivos: 2,
-      },
-      {
-        id: "ctloterias-dt",
-        nome: "CT Loterias",
-        setorPai: "diretortecnico",
-        responsavel: "Kelly Menendez",
-        emailSetor: "ctloterias@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8823",
-        localizacao: "Diretoria Técnica - CT Loterias",
-        observacoes: "Câmara Técnica de Loterias",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 31,
-            nome: "Kelly Menendez",
-            email: "kelly.menendez@agrese.se.gov.br",
-            cargo: "Técnica CT Loterias",
-            telefone: "(79) 99999-0031",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 1,
-        membrosAtivos: 1,
-      },
-      {
-        id: "cttarifaria-dt",
-        nome: "CT Tarifária",
-        setorPai: "diretortecnico",
-        responsavel: "Francisco Pedro Filho",
-        emailSetor: "cttarifaria@agrese.se.gov.br",
-        telefoneSetor: "(79) 3198-8824",
-        localizacao: "Diretoria Técnica - CT Tarifária",
-        observacoes: "Câmara Técnica Tarifária",
-        dataCriacao: new Date("2023-01-01"),
-        membros: [
-          {
-            id: 32,
-            nome: "Francisco Pedro Filho",
-            email: "franciscopedro.filho@agrese.se.gov.br",
-            cargo: "Diretor CT Tarifária",
-            telefone: "(79) 99999-0032",
-            dataIngresso: new Date("2023-01-01"),
-            status: "ativo",
-          },
-        ],
-        totalMembros: 1,
-        membrosAtivos: 1,
-      },
-    ];
+useEffect(() => {
+  const fetchSetor = async () => {
+    try {
+      if (setorKey) {
+        const setorId = Number(setorKey);
+        const setorData = await sectorServices.getSectorsbyId(setorId);
+        if (setorData) {
+          setSetor({
+            ...setorData,
+            nome: setorData.name, // <- Adiciona o campo 'nome' para uso na UI
+          });
 
-    const subsetoresDoSetor = mockSubsetores.filter(
-      (sub) => sub.setorPai === setorKey
-    );
-    setSubsetores(subsetoresDoSetor);
-  }, [setorKey]);
+          const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
+            id: sub.id.toString(),
+            nome: sub.name,
+            setorPai: setorId.toString(),
+            responsavel: sub.manager?.name || "",
+            descricao: sub.description || "",
+            dataCriacao: sub.createdAt,
+            membros: (sub.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: sub.users ? sub.users.length : 0,
+            membrosAtivos: sub.users ? sub.users.filter((u: ApiUser) => u.isActive).length : 0,
+          }));
 
-  const handleCreateMembro = (data: any) => {
-    if (selectedSubsetorForMembro) {
-      const updatedSubsetores = subsetores.map((subsetor) => {
-        if (subsetor.id === selectedSubsetorForMembro) {
-          const newMembro: MembroSetor = {
-            id: Date.now(),
-            ...data,
-            dataIngresso: new Date(),
-            status: "ativo",
+          const setorPrincipal: SubsetorData = {
+            id: setorData.id.toString(),
+            nome: setorData.name,
+            setorPai: setorData.manager?.id?.toString() || "",
+            responsavel: setorData.manager?.name || "",
+            descricao: setorData.description || "",
+            dataCriacao: setorData.createdAt,
+            membros: (setorData.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: setorData.users ? setorData.users.length : 0,
+            membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
           };
-          return {
-            ...subsetor,
-            membros: [...subsetor.membros, newMembro],
-            totalMembros: subsetor.totalMembros + 1,
-            membrosAtivos: subsetor.membrosAtivos + 1,
-          };
+
+          setSubsetores([setorPrincipal, ...mappedSubsetores]);
+        } else {
+          setSetor(null);
         }
-        return subsetor;
-      });
-      setSubsetores(updatedSubsetores);
-      setShowMembroForm(false);
-      setSelectedSubsetorForMembro(null);
+      }
+    } catch (error) {
+      console.error(error);
+      setSetor(null);
     }
   };
 
-  const handleCreateSetor = (data: any) => {
-    const newSubsetor: SubsetorData = {
-      id: `novo-${Date.now()}`,
-      nome: data.nome,
-      setorPai: setorKey || "daf",
-      responsavel: data.responsavel,
-      emailSetor: data.emailSetor,
-      telefoneSetor: data.telefoneSetor,
-      localizacao: data.localizacao,
-      observacoes: data.observacoes,
-      descricao: data.descricao,
-      dataCriacao: new Date(),
-      membros: [],
-      totalMembros: 0,
-      membrosAtivos: 0,
-    };
+  fetchSetor();
+}, [setorKey]);
 
-    setSubsetores([...subsetores, newSubsetor]);
-    setShowSetorForm(false);
-    setEditingSubsetor(null);
+  const handleCreateMembro = async (data: any) => {
+    if (selectedSubsetorForMembro) {
+      try {
+        await sectorServices.addMemberToSector(Number(selectedSubsetorForMembro), data);
+        // Atualiza os dados do setor após adicionar membro
+        if (setorKey) {
+          const setorId = Number(setorKey);
+          const setorData = await sectorServices.getSectorsbyId(setorId);
+          // Repete o mapeamento dos subsetores
+          const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
+            id: sub.id.toString(),
+            nome: sub.name,
+            setorPai: setorId.toString(),
+            responsavel: sub.manager?.name || "",
+            descricao: sub.description || "",
+            dataCriacao: sub.createdAt,
+            membros: (sub.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: sub.users ? sub.users.length : 0,
+            membrosAtivos: sub.users ? sub.users.filter((u: ApiUser) => u.isActive).length : 0,
+          }));
+          const setorPrincipal: SubsetorData = {
+            id: setorData.id.toString(),
+            nome: setorData.name,
+            setorPai: setorData.manager?.id?.toString() || "",
+            responsavel: setorData.manager?.name || "",
+            descricao: setorData.description || "",
+            dataCriacao: setorData.createdAt,
+            membros: (setorData.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: setorData.users ? setorData.users.length : 0,
+            membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
+          };
+          setSubsetores([setorPrincipal, ...mappedSubsetores]);
+        }
+        setShowMembroForm(false);
+        setSelectedSubsetorForMembro(null);
+      } catch (error) {
+        console.error("Erro ao adicionar membro:", error);
+      }
+    }
   };
 
-  const handleEditSetor = (data: any) => {
-    if (editingSubsetor) {
-      const updatedSubsetores = subsetores.map((subsetor) => {
-        if (subsetor.id === editingSubsetor.id) {
-          return {
-            ...subsetor,
-            nome: data.nome,
-            responsavel: data.responsavel,
-            emailSetor: data.emailSetor,
-            telefoneSetor: data.telefoneSetor,
-            localizacao: data.localizacao,
-            observacoes: data.observacoes,
-            descricao: data.descricao,
-          };
-        }
-        return subsetor;
-      });
-
-      setSubsetores(updatedSubsetores);
+  const handleCreateSetor = async (data: any) => {
+    try {
+      if (setorKey) {
+        const setorId = Number(setorKey);
+        await sectorServices.postSubSector(setorId, data);
+        // Atualiza os dados do setor após criar subsetor
+        const setorData = await sectorServices.getSectorsbyId(setorId);
+        const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
+          id: sub.id.toString(),
+          nome: sub.name,
+          setorPai: setorId.toString(),
+          responsavel: sub.manager?.name || "",
+          descricao: sub.description || "",
+          dataCriacao: sub.createdAt,
+          membros: (sub.users ?? []).map((user: ApiUser) => ({
+            id: user.id.toString(),
+            nome: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.isActive ? "ativo" : "inativo",
+            dataIngresso: new Date(),
+          })),
+          totalMembros: sub.users ? sub.users.length : 0,
+          membrosAtivos: sub.users ? sub.users.filter((u: ApiUser) => u.isActive).length : 0,
+        }));
+        const setorPrincipal: SubsetorData = {
+          id: setorData.id.toString(),
+          nome: setorData.name,
+          setorPai: setorData.manager?.id?.toString() || "",
+          responsavel: setorData.manager?.name || "",
+          descricao: setorData.description || "",
+          dataCriacao: setorData.createdAt,
+          membros: (setorData.users ?? []).map((user: ApiUser) => ({
+            id: user.id.toString(),
+            nome: user.name,
+            email: user.email,
+            role: user.role,
+            status: user.isActive ? "ativo" : "inativo",
+            dataIngresso: new Date(),
+          })),
+          totalMembros: setorData.users ? setorData.users.length : 0,
+          membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
+        };
+        setSubsetores([setorPrincipal, ...mappedSubsetores]);
+      }
       setShowSetorForm(false);
       setEditingSubsetor(null);
+    } catch (error) {
+      console.error("Erro ao criar subsetor:", error);
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    // Encontrar o usuário no subsetor atual
-    if (selectedSubsetor) {
-      const updatedSubsetores = subsetores.map((subsetor) => {
-        if (subsetor.id === selectedSubsetor.id) {
-          const filteredMembros = subsetor.membros.filter(
-            (user) => user.id.toString() !== userId
-          );
-          return {
-            ...subsetor,
-            membros: filteredMembros,
-            totalMembros: filteredMembros.length,
-            membrosAtivos: filteredMembros.filter(
-              (user) => user.status === "ativo"
-            ).length,
+  const handleEditSetor = async (data: any) => {
+    if (editingSubsetor) {
+      try {
+        await sectorServices.putSector(editingSubsetor.id, data);
+        if (setorKey) {
+          const setorId = Number(setorKey);
+          const setorData = await sectorServices.getSectorsbyId(setorId);
+          const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
+            id: sub.id.toString(),
+            nome: sub.name,
+            setorPai: setorId.toString(),
+            responsavel: sub.manager?.name || "",
+            descricao: sub.description || "",
+            dataCriacao: sub.createdAt,
+            membros: (sub.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: sub.users ? sub.users.length : 0,
+            membrosAtivos: sub.users ? sub.users.filter((u: ApiUser) => u.isActive).length : 0,
+          }));
+          const setorPrincipal: SubsetorData = {
+            id: setorData.id.toString(),
+            nome: setorData.name,
+            setorPai: setorData.manager?.id?.toString() || "",
+            responsavel: setorData.manager?.name || "",
+            descricao: setorData.description || "",
+            dataCriacao: setorData.createdAt,
+            membros: (setorData.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: setorData.users ? setorData.users.length : 0,
+            membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
           };
+          setSubsetores([setorPrincipal, ...mappedSubsetores]);
         }
-        return subsetor;
-      });
+        setShowSetorForm(false);
+        setEditingSubsetor(null);
+      } catch (error) {
+        console.error("Erro ao editar subsetor:", error);
+      }
+    }
+  };
 
-      setSubsetores(updatedSubsetores);
-
-      // Atualizar o selectedSubsetor também
-      const updatedSubsetor = updatedSubsetores.find(
-        (s) => s.id === selectedSubsetor.id
-      );
-      if (updatedSubsetor) {
-        setSelectedSubsetor(updatedSubsetor);
+  const handleDeleteUser = async (userId: string) => {
+    if (selectedSubsetor) {
+      try {
+        await sectorServices.removeMemberFromSector(Number(selectedSubsetor.id), Number(userId));
+        if (setorKey) {
+          const setorId = Number(setorKey);
+          const setorData = await sectorServices.getSectorsbyId(setorId);
+          const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
+            id: sub.id,
+            nome: sub.name,
+            setorPai: setorId.toString(),
+            responsavel: sub.manager?.name || "",
+            descricao: sub.description || "",
+            dataCriacao: sub.createdAt,
+            membros: (sub.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: sub.users ? sub.users.length : 0,
+            membrosAtivos: sub.users ? sub.users.filter((u: ApiUser) => u.isActive).length : 0,
+          }));
+          const setorPrincipal: SubsetorData = {
+            id: setorData.id.toString(),
+            nome: setorData.name,
+            setorPai: setorData.manager?.id?.toString() || "",
+            responsavel: setorData.manager?.name || "",
+            descricao: setorData.description || "",
+            dataCriacao: setorData.createdAt,
+            membros: (setorData.users ?? []).map((user: ApiUser) => ({
+              id: user.id.toString(),
+              nome: user.name,
+              email: user.email,
+              role: user.role,
+              status: user.isActive ? "ativo" : "inativo",
+              dataIngresso: new Date(),
+            })),
+            totalMembros: setorData.users ? setorData.users.length : 0,
+            membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
+          };
+          setSubsetores([setorPrincipal, ...mappedSubsetores]);
+          // Atualizar o selectedSubsetor também
+          const updatedSubsetor = [setorPrincipal, ...mappedSubsetores].find(
+            (s) => s.id === selectedSubsetor.id
+          );
+          if (updatedSubsetor) {
+            setSelectedSubsetor(updatedSubsetor);
+          }
+        }
+      } catch (error) {
+        console.error("Erro ao remover membro:", error);
       }
     }
   };
@@ -965,8 +601,7 @@ export const SetorDetail = () => {
                       theme === "dark" ? "text-gray-400" : "text-gray-600"
                     }`}
                   >
-                    {subsetores.length} subsetor
-                    {subsetores.length !== 1 ? "es" : ""} • {totalMembros}{" "}
+                     {totalMembros}{" "}
                     membro{totalMembros !== 1 ? "s" : ""} • {membrosAtivos}{" "}
                     ativo{membrosAtivos !== 1 ? "s" : ""}
                   </p>
@@ -974,15 +609,7 @@ export const SetorDetail = () => {
               </div>
             </div>
 
-            <div className="mb-6 flex justify-end">
-              <button
-                onClick={() => setShowSetorForm(true)}
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#34448C] via-[#34448C] to-[#049454] text-white px-6 py-3 rounded-xl  transition-all transform hover:scale-105 shadow-lg"
-              >
-                <FaPlus className="w-4 h-4" />
-                Novo Subsetor
-              </button>
-            </div>
+            
 
             <div
               className={`rounded-xl shadow-md border overflow-hidden ${
@@ -1184,21 +811,7 @@ export const SetorDetail = () => {
                               >
                                 <FaEdit className="w-4 h-4" />
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setSelectedSubsetorForMembro(subsetor.id);
-                                  setShowMembroForm(true);
-                                }}
-                                className={`p-2 text-purple-600 hover:text-purple-800 rounded-lg transition-colors ${
-                                  theme === "dark"
-                                    ? "hover:bg-purple-900/20"
-                                    : "hover:bg-purple-50"
-                                }`}
-                                title="Adicionar membro"
-                              >
-                                <FaUserPlus className="w-4 h-4" />
-                              </button>
+                             
                             </div>
                           </div>
                         </div>
@@ -1206,46 +819,7 @@ export const SetorDetail = () => {
                     );
                   })}
 
-                  <li
-                    className={`p-6 transition-colors cursor-pointer group border-2 border-dashed hover:border-blue-400 ${
-                      theme === "dark"
-                        ? "hover:bg-gray-700 border-gray-600"
-                        : "hover:bg-gray-50 border-gray-200"
-                    }`}
-                    onClick={() => setShowSetorForm(true)}
-                  >
-                    <div
-                      className={`flex items-center justify-center gap-4 group-hover:text-blue-600 ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-500"
-                      }`}
-                    >
-                      <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                          theme === "dark"
-                            ? "bg-gradient-to-br from-gray-700 to-gray-800 group-hover:from-blue-900/20 group-hover:to-purple-900/20"
-                            : "bg-gradient-to-br from-gray-50 to-gray-100 group-hover:from-blue-50 group-hover:to-purple-50"
-                        }`}
-                      >
-                        <FaPlus
-                          className={`w-6 h-6 group-hover:text-blue-600 ${
-                            theme === "dark" ? "text-gray-500" : "text-gray-400"
-                          }`}
-                        />
-                      </div>
-                      <div className="text-center">
-                        <h3 className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
-                          Adicionar Novo Subsetor
-                        </h3>
-                        <p
-                          className={`text-sm ${
-                            theme === "dark" ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
-                          Clique para criar um novo subsetor
-                        </p>
-                      </div>
-                    </div>
-                  </li>
+                 
                 </ul>
               )}
             </div>

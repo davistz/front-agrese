@@ -5,6 +5,20 @@ import { FaArrowAltCircleLeft, FaArrowAltCircleRight } from "react-icons/fa";
 import { BsCalendar3, BsCalendarWeek, BsCalendarDay } from "react-icons/bs";
 import { useTheme } from "../../contexts/ThemeContext";
 
+interface Evento {
+  id: number;
+  title: string;
+  start: Date;
+  end: Date;
+  desc: string;
+  autor: string;
+  setor: string;
+  tipo: string;
+  status?: string;
+  prioridade?: string;
+  [key: string]: any;
+}
+
 interface CustomToolbarProps {
   label: string;
   onView: (view: View) => void;
@@ -15,8 +29,6 @@ interface CustomToolbarProps {
   onFiltroChange?: (eventos: Evento[]) => void;
   date: Date;
 }
-
-type Evento = (typeof eventosPadrao)[number];
 
 export const CustomToolbar: React.FC<CustomToolbarProps> = ({
   label,

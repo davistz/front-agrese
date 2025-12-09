@@ -10,14 +10,14 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import "react-big-calendar/lib/addons/dragAndDrop/styles.css";
 import "./Components-Calendario-css.css";
 import { useCallback, useState } from "react";
-import { eventosPadrao } from "./eventosPadrao";
-import { EventModal } from "../modals/EventModal";
 import "moment/locale/pt-br";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useEvents } from "../../contexts/EventsContext";
 import { CustomToolbar } from "./CustomToolbarProps";
 import { FiltroAtividades } from "./FiltroAtividades";
 import { AddEventButton } from "./AddEventButton";
 import { EventType } from "./EventTypeModal";
+import { eventTypeBackendToFrontend } from "../../utils/eventTypeBackendToFrontend";
 import { ReuniaoModalInfo } from "../modals/ReuniaoInfoModal";
 import {
   convertEventToReuniaoModal,
@@ -44,7 +44,14 @@ interface CalendarioProps {
 
 export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
   const { theme } = useTheme();
-  const [events, setEvents] = useState(eventosPadrao);
+  const {
+    events: allEvents,
+    filteredEvents,
+    setFilteredEvents,
+    addEvent,
+    updateEvent,
+    deleteEvent,
+  } = useEvents();
   const [currentView, setCurrentView] = useState<View>("month");
   const [currentDate, setCurrentDate] = useState(new Date());
 
@@ -123,7 +130,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     December: "Dezembro",
   };
 
-  type Evento = (typeof eventosPadrao)[number];
+  type Evento = any;
   const [eventoSelecionado, setEventoSelecionado] = useState<Evento | null>(
     null
   );
@@ -139,7 +146,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const onEventDrop = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event) => {
+    const updatedEvents = filteredEvents.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -150,12 +157,12 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
       return event;
     });
 
-    setEvents(updatedEvents);
+    setFilteredEvents(updatedEvents);
   };
 
   const onEventResize = (data: any) => {
     const { start, end } = data;
-    const updatedEvents = events.map((event) => {
+    const updatedEvents = filteredEvents.map((event: any) => {
       if (event.id === data.event.id) {
         return {
           ...event,
@@ -165,27 +172,31 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
       }
       return event;
     });
-    setEvents(updatedEvents);
+    setFilteredEvents(updatedEvents);
   };
 
   const eventStyleProp = (event: any) => {
     let backgroundColor = "#3174ad";
+    const eventType = event.type || event.tipo;
 
-    switch (event.tipo) {
-      case "reuniao":
+    switch (eventType) {
+      case EventType.MEETING:
+      case "MEETING":
         backgroundColor = "#d0923a";
         break;
-      case "atividade":
+      case EventType.ACTIVITY:
+      case "ACTIVITY":
         backgroundColor = "#3ca13c";
         break;
-      case "documento":
+      case EventType.DOCUMENT:
+      case "DOCUMENT":
         backgroundColor = "#990a0a";
         break;
-      case "atividades-externas":
+      case EventType.EXTERNAL_ACTIVITY:
+      case "EXTERNAL_ACTIVITY":
         backgroundColor = "#8B4513";
         break;
     }
-
     return {
       style: {
         backgroundColor,
@@ -197,6 +208,76 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     };
   };
 
+  // Componente customizado para exibir eventos no calendário
+  const EventComponent = ({ event }: { event: any }) => {
+    const formatTime = (date: Date) => {
+      return new Date(date).toLocaleTimeString('pt-BR', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      });
+    };
+
+    const getEventTypeLabel = (type: string) => {
+      switch (type) {
+        case EventType.MEETING:
+        case "MEETING":
+          return "Reunião";
+        case EventType.ACTIVITY:
+        case "ACTIVITY":
+          return "Atividade";
+        case EventType.DOCUMENT:
+        case "DOCUMENT":
+          return "Documento";
+        case EventType.EXTERNAL_ACTIVITY:
+        case "EXTERNAL_ACTIVITY":
+          return "Ativ. Externa";
+        default:
+          return "Evento";
+      }
+    };
+
+    const eventType = event.type || event.tipo;
+    const isMeeting = eventType === EventType.MEETING || eventType === "MEETING";
+
+    return (
+      <div className="p-1 text-xs leading-tight">
+        <div className="font-semibold truncate">{event.title}</div>
+        {isMeeting && (
+          <div className="text-white/90">
+            <div className="truncate">
+              {formatTime(event.start)} - {formatTime(event.end)}
+            </div>
+            {event.setor && (
+              <div className="truncate text-white/80">
+                📍 {event.setor}
+              </div>
+            )}
+            {event.local && (
+              <div className="truncate text-white/80">
+                📍 {event.local}
+              </div>
+            )}
+            {event.numeroParticipantes && (
+              <div className="text-white/80">
+                👥 {event.numeroParticipantes} participantes
+              </div>
+            )}
+          </div>
+        )}
+        {!isMeeting && (
+          <div className="text-white/90">
+            <div className="text-white/80 text-xs">
+              {getEventTypeLabel(eventType)}
+            </div>
+            <div className="truncate">
+              {formatTime(event.start)} - {formatTime(event.end)}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const handleCalendarNavigate = useCallback(
     (newDate: Date, view: View, action: NavigateAction) => {
       setCurrentDate(newDate);
@@ -206,160 +287,82 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const handleAddEvent = useCallback(
     (type: EventType, eventData: any) => {
-      let novoEvento;
-
-      switch (type) {
-        case "reuniao":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Reunião",
-            start: eventData.dataHoraInicio || new Date(),
-            end:
-              eventData.dataHoraTermino ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "atividade":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Atividade",
-            start: eventData.dataInicio || new Date(),
-            end:
-              eventData.dataFim ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "atividades-externas":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Nova Atividade Externa",
-            start: eventData.dataHoraSaida || new Date(),
-            end:
-              eventData.dataHoraRetorno ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        case "documento":
-          novoEvento = {
-            id: events.length + 1,
-            title: eventData.titulo || "Novo Documento",
-            start: eventData.prazoAnalise || new Date(),
-            end:
-              eventData.prazoAnalise ||
-              new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: eventData.descricao || "",
-            autor: eventData.autor || "Usuário",
-            setor: eventData.setorResponsavel || "",
-            tipo: type,
-            ...eventData,
-          };
-          break;
-        default:
-          novoEvento = {
-            id: events.length + 1,
-            title: "Novo Evento",
-            start: new Date(),
-            end: new Date(new Date().setHours(new Date().getHours() + 1)),
-            desc: "",
-            autor: "Usuário",
-            setor: "",
-            tipo: type,
-          };
-      }
-
-      setEvents([...events, novoEvento]);
+      addEvent(type, eventData);
     },
-    [events]
+    [addEvent]
   );
 
   const renderEventModal = () => {
     if (!eventoSelecionado) return null;
-
-    switch (eventoSelecionado.tipo) {
-      case "reuniao":
+    const eventType = eventoSelecionado.type || eventoSelecionado.tipo;
+    const tipoFrontend = eventTypeBackendToFrontend[eventType] || eventType;
+    
+    const handleDelete = (id: number) => {
+      if (window.confirm("Tem certeza que deseja excluir este evento?")) {
+        deleteEvent(id);
+        handleSelectClose();
+      }
+    };
+    
+    switch (tipoFrontend) {
+      case EventType.MEETING:
+      case "MEETING":
         return (
           <ReuniaoModalInfo
             evento={convertEventToReuniaoModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertReuniaoModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
-
-      case "atividade":
+      case EventType.ACTIVITY:
+      case "ACTIVITY":
         return (
           <AtividadeModalInfo
             evento={convertEventToAtividadeModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertAtividadeModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
-
-      case "atividades-externas":
+      case EventType.EXTERNAL_ACTIVITY:
+      case "EXTERNAL_ACTIVITY":
         return (
           <AtividadeExternaModalInfo
             evento={convertEventToAtividadeExternaModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
-              const convertedEvent =
-                convertAtividadeExternaModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              const convertedEvent = convertAtividadeExternaModalToEvent(updatedEvent);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
-
-      case "documento":
+      case EventType.DOCUMENT:
+      case "DOCUMENT":
         return (
           <DocumentoModalInfo
             evento={convertEventToDocumentoModal(eventoSelecionado)}
             onClose={handleSelectClose}
             onSave={(updatedEvent) => {
               const convertedEvent = convertDocumentoModalToEvent(updatedEvent);
-              const updatedEvents = events.map((event) =>
-                event.id === convertedEvent.id ? convertedEvent : event
-              );
-              setEvents(updatedEvents);
+              updateEvent(convertedEvent.id, convertedEvent);
               handleSelectClose();
             }}
+            onDelete={handleDelete}
           />
         );
-
       default:
-        return (
-          <EventModal evento={eventoSelecionado} onClose={handleSelectClose} />
-        );
+        return <h1>calendario</h1>;
     }
   };
 
@@ -376,8 +379,8 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
             onNavigate={handleNavigate}
             view={currentView}
             onView={handleView}
-            eventos={events}
-            onFiltroChange={setEvents}
+            eventos={filteredEvents}
+            onFiltroChange={setFilteredEvents}
             label={currentDate.toLocaleDateString("pt-BR", {
               month: "long",
               year: "numeric",
@@ -394,8 +397,8 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           }`}
         >
           <FiltroAtividades
-            atividades={events}
-            onSelecionarAtividades={setEvents}
+            atividades={allEvents}
+            onSelecionarAtividades={setFilteredEvents}
           />
         </div>
       </div>
@@ -406,7 +409,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           onNavigate={handleCalendarNavigate}
           view={currentView}
           onView={handleView}
-          events={events}
+          events={filteredEvents}
           localizer={localizer}
           formats={{
             weekdayFormat: (date: Date) => {
@@ -418,6 +421,7 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
           resizable
           components={{
             toolbar: () => null,
+            event: EventComponent,
           }}
           onEventDrop={onEventDrop}
           onEventResize={onEventResize}

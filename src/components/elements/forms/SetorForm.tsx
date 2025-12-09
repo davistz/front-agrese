@@ -3,6 +3,7 @@ import { SectorFormData, SectorData } from "../../../types/interfaces";
 import { useTheme } from "../../../contexts/ThemeContext";
 import { IoMdClose } from "react-icons/io";
 import { MdGroups2 } from "react-icons/md";
+import { formatDate } from "../../../utils/formatDate";
 
 export interface SetorFormProps {
   initialData?: SectorData;
@@ -195,18 +196,12 @@ export const SetorForm: React.FC<SetorFormProps> = ({
                 <div>
                   <span className="font-medium">Data de Criação:</span>
                   <br />
-                  {new Intl.DateTimeFormat("pt-BR", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(new Date(initialData.createdAt))}
+                  {formatDate(initialData?.createdAt)}
                 </div>
                 <div>
                   <span className="font-medium">Última Atualização:</span>
                   <br />
-                  {new Intl.DateTimeFormat("pt-BR", {
-                    dateStyle: "medium",
-                    timeStyle: "short",
-                  }).format(new Date(initialData.updatedAt))}
+                  {formatDate(initialData?.updatedAt)}
                 </div>
                 <div>
                   <span className="font-medium">Total de Usuários:</span>

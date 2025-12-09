@@ -3,6 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
 import { HiDocumentText } from "react-icons/hi";
+import { FaTrash } from "react-icons/fa";
 import { useTheme } from "../../contexts/ThemeContext";
 import { DocumentoModalData } from "../../types/interfaces";
 
@@ -10,12 +11,14 @@ interface DocumentoModalInfoProps {
   onClose: () => void;
   evento: DocumentoModalData;
   onSave?: (data: DocumentoModalData) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
   onClose,
   evento,
   onSave,
+  onDelete,
 }) => {
   const { theme } = useTheme();
   const [formData, setFormData] = useState<DocumentoModalData>({
@@ -109,12 +112,12 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
                   </label>
                   <input
                     value={formData.setorResponsavel}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        setorResponsavel: e.target.value,
-                      }))
-                    }
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            setorResponsavel: e.target.value,
+                          }))
+                        }
                     placeholder="Setor de origem"
                     className={`mt-1 flex h-9 w-full rounded-md border px-3 py-2 text-sm ${
                       theme === "dark"
@@ -371,6 +374,15 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
               </div>
 
               <div className="flex gap-2">
+                {onDelete && (
+                  <button
+                    onClick={() => onDelete(formData.id)}
+                    className="h-[40px] mt-2 px-4 flex items-center justify-center gap-2 rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white bg-red-600 hover:bg-red-700"
+                    type="button"
+                  >
+                    <FaTrash /> Excluir
+                  </button>
+                )}
                 <button
                   onClick={onClose}
                   className={`flex-1 h-[40px] mt-2 flex items-center justify-center rounded-xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${

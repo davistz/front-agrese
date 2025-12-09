@@ -31,7 +31,7 @@ export type DocumentStatus =
   | "ARCHIVED";
 export type DocumentType =
   | "OFICIO"
-  | "RELATORIO"
+  // ...existing code...
   | "MEMORANDO"
   | "PORTARIA"
   | "DECRETO"
@@ -39,6 +39,49 @@ export type DocumentType =
   | "ATA"
   | "PARECER"
   | "OUTROS";
+
+// Notification types
+export type NotificationType = 
+  | "EVENT_REMINDER"
+  | "EVENT_CREATED"
+  | "EVENT_UPDATED"
+  | "EVENT_CANCELLED"
+  | "DEADLINE_APPROACHING"
+  | "TASK_ASSIGNED"
+  | "MEETING_INVITATION"
+  | "DOCUMENT_APPROVAL"
+  | "GENERAL";
+
+export type NotificationPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export interface NotificationData {
+  id: number;
+  title: string;
+  message: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  isRead: boolean;
+  userId: number;
+  eventId?: number;
+  sectorId?: number;
+  metadata?: Record<string, any>;
+  createdAt: Date;
+  readAt?: Date;
+  scheduledFor?: Date;
+}
+
+export interface NotificationFormData {
+  title: string;
+  message: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  userId?: number;
+  userIds?: number[];
+  sectorId?: number;
+  eventId?: number;
+  scheduledFor?: Date;
+  metadata?: Record<string, any>;
+}
 
 export interface EventFormData {
   title: string;
@@ -104,8 +147,9 @@ export interface ReuniaoFormData {
   dataHoraInicio: Date;
   dataHoraTermino: Date;
   local: "presencial" | "virtual";
+  sala?: string;
   participantes: string[];
-  status: "agendada" | "realizada" | "cancelada";
+  status: EventStatus;
   responsavelAta: string;
   linkReuniao: string;
   notificacao: number;
@@ -126,6 +170,7 @@ export interface AtividadeFormData {
   subtarefas: string[];
   comentarios: string;
   dataConclusaoReal: Date | null;
+  assigneeIds?: number[];
 }
 
 export interface AtividadeExternaFormData {
@@ -136,16 +181,15 @@ export interface AtividadeExternaFormData {
   dataHoraSaida: Date;
   dataHoraRetorno: Date;
   destino: string;
-  responsavel: string;
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
-  motivoAtividade: string;
   meioTransporte?: string;
+  assigneeIds?: number[];
 }
 
 export interface DocumentoFormData {
   titulo: string;
-  setorResponsavel: string;
+  setorResponsavel: number[];
   descricao: string;
   autor: string;
   tipoDocumento: string;
@@ -155,6 +199,7 @@ export interface DocumentoFormData {
   prazoAnalise: Date;
   dataEnvioRecebimento: Date | null;
   observacoes: string;
+  assigneeIds?: number[];
 }
 
 export interface EventModalData {
@@ -263,8 +308,9 @@ export interface ReuniaoModalData {
   dataHoraInicio: Date;
   dataHoraTermino: Date;
   local: "presencial" | "virtual";
+  sala?: string;
   participantes: string[];
-  status: "agendada" | "realizada" | "cancelada";
+  status: EventStatus;
   responsavelAta: string;
   linkReuniao: string;
   notificacao: number;
@@ -295,10 +341,10 @@ export interface AtividadeExternaModalData {
   dataHoraSaida: Date;
   dataHoraRetorno: Date;
   destino: string;
-  responsavel: string;
+  // responsavel removido
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
-  motivoAtividade: string;
+  // motivoAtividade removido
   meioTransporte: string;
 }
 
@@ -512,3 +558,5 @@ export interface SubsetorData {
   totalMembros: number;
   membrosAtivos: number;
 }
+
+// ...existing code...

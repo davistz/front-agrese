@@ -93,6 +93,8 @@ export const MainPage = () => {
           </ProtectedRoute>
         }
       />
+
+      {/* Removed RelatoriosPage route */}
     </Routes>
   );
 };

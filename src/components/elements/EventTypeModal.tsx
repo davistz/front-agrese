@@ -1,12 +1,16 @@
 import React from "react";
 import { IoMdClose } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
+import { usePermissions } from "../../hooks/usePermissions";
 
-export type EventType =
-  | "reuniao"
-  | "atividade"
-  | "atividades-externas"
-  | "documento";
+export enum EventType {
+  MEETING = "MEETING",
+  ACTIVITY = "ACTIVITY",
+  EXTERNAL_ACTIVITY = "EXTERNAL_ACTIVITY",
+  DOCUMENT = "DOCUMENT",
+  TASK = "TASK",
+  APPOINTMENT = "APPOINTMENT",
+}
 
 interface EventTypeModalProps {
   onSelectType: (type: EventType) => void;
@@ -18,35 +22,41 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
   onClose,
 }) => {
   const { theme } = useTheme();
+  const { canCreateDirexMeeting } = usePermissions();
+
   const eventTypes = [
     {
-      type: "reuniao" as EventType,
+      type: EventType.MEETING,
       title: "Reunião",
       icon: "🤝",
       description:
         "Reuniões internas ou intersetoriais, com participantes definidos.",
+      available: true,
     },
     {
-      type: "atividade" as EventType,
+      type: EventType.ACTIVITY,
       title: "Atividade",
       icon: "📝",
       description: "Tarefas internas atribuídas a um ou mais usuários.",
+      available: true,
     },
     {
-      type: "atividades-externas" as EventType,
+      type: EventType.EXTERNAL_ACTIVITY,
       title: "Atividade Externa",
       icon: "🌐",
       description:
         "Compromissos fora da sede, como visitas técnicas, eventos, inspeções.",
+      available: true,
     },
     {
-      type: "documento" as EventType,
+      type: EventType.DOCUMENT,
       title: "Documento",
       icon: "📂",
       description:
         "Envios, recebimentos, revisões ou prazos relacionados a documentos oficiais.",
+      available: true,
     },
-  ];
+  ].filter((eventType) => eventType.available);
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
@@ -76,7 +86,6 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
             }`}
           />
         </div>
-
         <div className="grid grid-cols-2 gap-4">
           {eventTypes.map((eventType) => (
             <button
@@ -111,4 +120,4 @@ export const EventTypeModal: React.FC<EventTypeModalProps> = ({
       </div>
     </div>
   );
-};
+}

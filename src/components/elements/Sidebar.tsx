@@ -3,6 +3,7 @@ import {
   FaUserCircle,
   FaChevronLeft,
   FaBell,
+  FaChartLine,
 } from "react-icons/fa";
 import { MdGroups2 } from "react-icons/md";
 import { TbHierarchy3, TbLogout } from "react-icons/tb";
@@ -17,7 +18,11 @@ import { Logo1 } from "../../assets";
 
 interface SidebarProps {
   isOpen: boolean;
-  activeView?: "calendario" | "setores" | "usuarios" | "notificacoes";
+  activeView?:
+    | "calendario"
+    | "setores"
+    | "usuarios"
+    | "notificacoes";
   onToggle: () => void;
   onViewChange?: (
     view: "calendario" | "setores" | "usuarios" | "notificacoes"
@@ -84,6 +89,7 @@ export const Sidebar = ({
     activeView === "usuarios" || isActiveRoute("/usuarios");
   const isNotificacoesActive =
     activeView === "notificacoes" || isActiveRoute("/notificacoes");
+  // ...existing code...
 
   return (
     <div
@@ -231,6 +237,8 @@ export const Sidebar = ({
                 </button>
               </li>
             )}
+
+            {/* Botão de relatórios removido */}
           </ul>
         </div>
       </div>
