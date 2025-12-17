@@ -1,6 +1,7 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useTheme } from "../../contexts/ThemeContext";
 import { useEvents } from "../../contexts/EventsContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { AddEventButton } from "./AddEventButton";
 import { EventType } from "./EventTypeModal";
 import { FiltroAtividades } from "./FiltroAtividades";
@@ -64,6 +65,7 @@ const kanbanColumns: KanbanColumn[] = [
 
 export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const {
     filteredEvents: events,
     setFilteredEvents: setEvents,
@@ -72,6 +74,34 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
   } = useEvents();
   const [eventoSelecionado, setEventoSelecionado] = useState<any>(null);
   const [draggedEvent, setDraggedEvent] = useState<any>(null);
+  const [localEventStatuses, setLocalEventStatuses] = useState<{ [key: number]: string }>({});
+
+  // Função para obter a chave do localStorage específica para o usuário
+  const getStorageKey = () => `kanban_progress_user_${user?.id || 'guest'}`;
+
+  // Carregar progresso do localStorage ao montar o componente
+  useEffect(() => {
+    const storageKey = getStorageKey();
+    const savedProgress = localStorage.getItem(storageKey);
+    if (savedProgress) {
+      try {
+        const parsed = JSON.parse(savedProgress);
+        setLocalEventStatuses(parsed);
+        console.log('[Kanban] Progresso carregado do localStorage:', parsed);
+      } catch (error) {
+        console.error('[Kanban] Erro ao carregar progresso:', error);
+      }
+    }
+  }, [user?.id]);
+
+  // Salvar progresso no localStorage sempre que mudar
+  useEffect(() => {
+    if (Object.keys(localEventStatuses).length > 0) {
+      const storageKey = getStorageKey();
+      localStorage.setItem(storageKey, JSON.stringify(localEventStatuses));
+      console.log('[Kanban] Progresso salvo no localStorage:', localEventStatuses);
+    }
+  }, [localEventStatuses, user?.id]);
 
 const normalizeStatus = (status: string) => {
   if (!status) return "pendente";
@@ -90,6 +120,17 @@ const normalizeStatus = (status: string) => {
 };
 
 const getEventColumn = (event: any): string => {
+  // Primeiro verificar se há status local salvo
+  if (localEventStatuses[event.id]) {
+    const localStatus = localEventStatuses[event.id];
+    for (const column of kanbanColumns) {
+      if (column.status.includes(localStatus)) {
+        return column.id;
+      }
+    }
+  }
+  
+  // Caso não haja status local, usar o status do evento
   const status = normalizeStatus(event.status);
   for (const column of kanbanColumns) {
     if (column.status.includes(status)) {
@@ -171,26 +212,39 @@ const getEventColumn = (event: any): string => {
     if (!draggedEvent) return;
 
     let newStatus = "pendente";
+    let backendStatus = "PENDING";
     switch (columnId) {
       case "pendente":
-        newStatus = "PENDING";
+        newStatus = "pendente";
+        backendStatus = "PENDING";
         break;
       case "em-andamento":
-        newStatus = "IN_PROGRESS";
+        newStatus = "em-andamento";
+        backendStatus = "IN_PROGRESS";
         break;
       case "concluido":
-        newStatus = "COMPLETED";
+        newStatus = "concluido";
+        backendStatus = "COMPLETED";
         break;
       case "cancelado":
-        newStatus = "CANCELLED";
+        newStatus = "cancelado";
+        backendStatus = "CANCELLED";
         break;
     }
 
-    updateEvent(draggedEvent.id, { ...draggedEvent, status: newStatus });
+    // Salvar status local no localStorage
+    setLocalEventStatuses(prev => ({
+      ...prev,
+      [draggedEvent.id]: newStatus
+    }));
 
+    // Atualizar no backend
+    updateEvent(draggedEvent.id, { ...draggedEvent, status: backendStatus });
+
+    // Atualizar estado local
     setEvents((prevEvents: any[]) =>
       prevEvents.map((ev) =>
-        ev.id === draggedEvent.id ? { ...ev, status: newStatus } : ev
+        ev.id === draggedEvent.id ? { ...ev, status: backendStatus } : ev
       )
     );
 
