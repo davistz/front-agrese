@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import "react-datepicker/dist/react-datepicker.css";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { IoMdClose } from "react-icons/io";
 import { BsListTask } from "react-icons/bs";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaLock } from "react-icons/fa";
 import { AtividadeModalData } from "../../types/interfaces";
 
 interface AtividadeModalInfoProps {
@@ -20,6 +21,24 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  
+  // Verificar se o usuário pode editar/excluir
+  // Apenas o criador ou ADMIN podem editar/excluir
+  const canEditOrDelete = useMemo(() => {
+    if (!user) return false;
+    if (user.role === "ADMIN") return true;
+    
+    // Verificar se é o criador
+    const isCreator = 
+      evento.autor === user.name || 
+      (evento as any).autorId === user.id || 
+      (evento as any).createdById === user.id ||
+      (evento as any).createdBy?.id === user.id;
+    
+    return isCreator;
+  }, [user, evento]);
+  
   const [formData, setFormData] = useState<AtividadeModalData>({
     id: evento.id,
     titulo: evento.titulo || "",
@@ -348,7 +367,7 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
                 </div>
 
                 <div className="flex gap-2">
-                  {onDelete && (
+                  {onDelete && canEditOrDelete && (
                     <button
                       onClick={() => onDelete(formData.id)}
                       className="h-[50px] mt-4 px-4 flex items-center justify-center gap-2 rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white bg-red-600 hover:bg-red-700"
@@ -366,20 +385,37 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
                     }`}
                     type="button"
                   >
-                    Cancelar
+                    {canEditOrDelete ? "Cancelar" : "Fechar"}
                   </button>
-                  <button
-                    onClick={handleSave}
-                    className={`flex-1 h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${
-                      theme === "dark"
-                        ? "bg-gray-700 hover:bg-gray-600"
-                        : "bg-black hover:bg-gray-800"
-                    }`}
-                    type="button"
-                  >
-                    Salvar Alterações
-                  </button>
+                  {canEditOrDelete ? (
+                    <button
+                      onClick={handleSave}
+                      className={`flex-1 h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${
+                        theme === "dark"
+                          ? "bg-gray-700 hover:bg-gray-600"
+                          : "bg-black hover:bg-gray-800"
+                      }`}
+                      type="button"
+                    >
+                      Salvar Alterações
+                    </button>
+                  ) : (
+                    <div
+                      className={`flex-1 h-[50px] mt-4 flex items-center justify-center gap-2 rounded-2xl text-gray-400 ${
+                        theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    >
+                      <FaLock className="text-sm" />
+                      <span className="text-sm">Somente leitura</span>
+                    </div>
+                  )}
                 </div>
+                
+                {!canEditOrDelete && (
+                  <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+                    Apenas o criador ou administradores podem editar este evento
+                  </p>
+                )}
               </div>
             </form>
           </div>

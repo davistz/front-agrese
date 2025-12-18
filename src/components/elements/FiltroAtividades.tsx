@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { IoIosArrowDroprightCircle } from "react-icons/io";
 import { useTheme } from "../../contexts/ThemeContext";
 import { usePermissions } from "../../hooks/usePermissions";
+import { useAuth } from "../../contexts/AuthContext";
 
 export interface Atividade {
   id: number;
@@ -96,6 +97,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   onSelecionarAtividades,
 }) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
   const { canFilterBySector } = usePermissions();
   const [activeTab, setActiveTab] = useState<"setor" | "categoria">(
     canFilterBySector() ? "setor" : "categoria"
@@ -107,6 +109,11 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>(
     []
   );
+  
+  // ADMIN pode escolher ver tudo ou apenas suas atividades
+  // Outros usuários SEMPRE veem apenas suas atividades (sem toggle)
+  const isAdmin = user?.role === "ADMIN";
+  const [apenasMinhasAtividades, setApenasMinhasAtividades] = useState<boolean>(true);
 
   // Limpar filtros quando trocar de aba
   const handleTabChange = useCallback((tab: "setor" | "categoria") => {
@@ -140,17 +147,79 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     );
   }, []);
 
+  // Função para verificar se o usuário está envolvido no evento
+  const isUserInvolved = useCallback((atividade: Atividade): boolean => {
+    if (!user) return false;
+    
+    // Verificar se é o autor/criador do evento
+    if (atividade.autor === user.name || atividade.autorId === user.id || atividade.createdById === user.id) {
+      return true;
+    }
+    
+    // Verificar se o evento é do setor do usuário
+    if (atividade.sectorId === user.sectorId || atividade.setorId === user.sectorId) {
+      return true;
+    }
+    
+    // Verificar se está nos assignees (responsáveis/envolvidos)
+    if (atividade.assignees && Array.isArray(atividade.assignees)) {
+      const isAssignee = atividade.assignees.some((assignee: any) => {
+        if (typeof assignee === 'number') return assignee === user.id;
+        if (typeof assignee === 'object') {
+          return assignee.userId === user.id || assignee.id === user.id || assignee.user?.id === user.id;
+        }
+        return false;
+      });
+      if (isAssignee) return true;
+    }
+    
+    // Verificar se está nos participantes (para reuniões)
+    if (atividade.participants && Array.isArray(atividade.participants)) {
+      const isParticipant = atividade.participants.some((participant: any) => {
+        if (typeof participant === 'number') return participant === user.id;
+        if (typeof participant === 'object') {
+          return participant.userId === user.id || participant.id === user.id || participant.user?.id === user.id;
+        }
+        return false;
+      });
+      if (isParticipant) return true;
+    }
+    
+    // Verificar se está nos responsáveis
+    if (atividade.responsaveis && Array.isArray(atividade.responsaveis)) {
+      const isResponsavel = atividade.responsaveis.some((resp: any) => {
+        if (typeof resp === 'number') return resp === user.id;
+        if (typeof resp === 'object') {
+          return resp.userId === user.id || resp.id === user.id;
+        }
+        return false;
+      });
+      if (isResponsavel) return true;
+    }
+    
+    return false;
+  }, [user]);
+
   const eventosFiltrados = useMemo(() => {
+    // Para não-ADMINs, SEMPRE filtra apenas eventos onde está envolvido
+    // Para ADMINs, respeita o toggle apenasMinhasAtividades
+    let baseAtividades = atividades;
+    const deveFiltraUsuario = !isAdmin || apenasMinhasAtividades;
+    
+    if (deveFiltraUsuario) {
+      baseAtividades = atividades.filter(isUserInvolved);
+    }
+    
     // Verificar se não há nenhum filtro ativo NA ABA ATUAL
     const nenhumFiltroAtivo = 
       (activeTab === "categoria" && categoriasSelecionadas.length === 0) ||
       (activeTab === "setor" && !setorSelecionado && subsetoresSelecionados.length === 0);
     
     if (nenhumFiltroAtivo) {
-      return atividades;
+      return baseAtividades;
     }
 
-    const resultados = atividades.filter((atividade) => {
+    const resultados = baseAtividades.filter((atividade) => {
       // Filtro por categoria (APENAS se a aba categoria estiver ativa)
       if (activeTab === "categoria") {
         if (categoriasSelecionadas.length === 0) {
@@ -188,7 +257,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     });
     
     return resultados;
-  }, [atividades, setorSelecionado, subsetoresSelecionados, categoriasSelecionadas, activeTab]);
+  }, [atividades, setorSelecionado, subsetoresSelecionados, categoriasSelecionadas, activeTab, apenasMinhasAtividades, isUserInvolved, isAdmin]);
 
   // Usar useRef para evitar loop infinito com onSelecionarAtividades
   const onSelecionarAtividadesRef = React.useRef(onSelecionarAtividades);
@@ -220,6 +289,66 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
       >
         <h2 className="text-lg font-semibold text-white">Filtros</h2>
       </div>
+
+      {/* Toggle Minhas Atividades - APENAS para ADMIN */}
+      {isAdmin ? (
+        <div
+          className={`px-3 py-2 border-b flex-shrink-0 ${
+            theme === "dark" ? "border-[#004b73]" : "border-[#007BB8]"
+          }`}
+        >
+          <label
+            className={`flex items-center justify-between cursor-pointer p-2 rounded-md transition-colors ${
+              theme === "dark"
+                ? "hover:bg-[#005A8A]/50"
+                : "hover:bg-[#007BB8]/50"
+            }`}
+          >
+            <span className="text-sm font-medium text-white flex items-center gap-2">
+              <span>👤</span>
+              <span>Minhas Atividades</span>
+            </span>
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={apenasMinhasAtividades}
+                onChange={(e) => setApenasMinhasAtividades(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`w-10 h-5 rounded-full transition-colors ${
+                  apenasMinhasAtividades
+                    ? "bg-green-500"
+                    : theme === "dark"
+                    ? "bg-[#004b73]"
+                    : "bg-[#006090]"
+                }`}
+              />
+              <div
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                  apenasMinhasAtividades ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </div>
+          </label>
+          <p className="text-xs text-gray-300 mt-1 px-2">
+            {apenasMinhasAtividades 
+              ? "Mostrando apenas eventos em que você está envolvido" 
+              : "Mostrando todos os eventos"}
+          </p>
+        </div>
+      ) : (
+        <div
+          className={`px-3 py-2 border-b flex-shrink-0 ${
+            theme === "dark" ? "border-[#004b73]" : "border-[#007BB8]"
+          }`}
+        >
+          <div className="flex items-center gap-2 p-2 text-sm text-gray-300">
+            <span>👤</span>
+            <span>Mostrando seus eventos</span>
+          </div>
+        </div>
+      )}
 
       <div className="px-3 pt-2 flex-shrink-0">
         <div className="flex">
