@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { IoMdClose } from "react-icons/io";
-import { FaUserCircle, FaTrash } from "react-icons/fa";
+import { FaUserCircle, FaTrash, FaLock } from "react-icons/fa";
 import { useTheme } from "../../contexts/ThemeContext";
+import { useAuth } from "../../contexts/AuthContext";
 import { ReuniaoModalData } from "../../types/interfaces";
 
 interface ReuniaoModalInfoProps {
@@ -20,6 +21,23 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
   onDelete,
 }) => {
   const { theme } = useTheme();
+  const { user } = useAuth();
+  
+  // Verificar se o usuário pode editar/excluir
+  // Apenas o criador ou ADMIN podem editar/excluir
+  const canEditOrDelete = useMemo(() => {
+    if (!user) return false;
+    if (user.role === "ADMIN") return true;
+    
+    // Verificar se é o criador
+    const isCreator = 
+      evento.autor === user.name || 
+      evento.autorId === user.id || 
+      evento.createdById === user.id ||
+      evento.createdBy?.id === user.id;
+    
+    return isCreator;
+  }, [user, evento]);
   
   // Garantir que as datas são objetos Date válidos
   const parseDate = (date: any): Date => {
@@ -504,7 +522,7 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                 </div>
 
                 <div className="flex gap-2">
-                  {onDelete && (
+                  {onDelete && canEditOrDelete && (
                     <button
                       onClick={() => onDelete(formData.id)}
                       className="h-[50px] mt-4 px-4 flex items-center justify-center gap-2 rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white bg-red-600 hover:bg-red-700"
@@ -522,20 +540,37 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                     }`}
                     type="button"
                   >
-                    Cancelar
+                    {canEditOrDelete ? "Cancelar" : "Fechar"}
                   </button>
-                  <button
-                    onClick={handleSave}
-                    className={`flex-1 h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${
-                      theme === "dark"
-                        ? "bg-gray-700 hover:bg-gray-600"
-                        : "bg-black hover:bg-gray-800"
-                    }`}
-                    type="button"
-                  >
-                    Salvar Alterações
-                  </button>
+                  {canEditOrDelete ? (
+                    <button
+                      onClick={handleSave}
+                      className={`flex-1 h-[50px] mt-4 flex items-center justify-center rounded-2xl cursor-pointer relative overflow-hidden transition-all duration-500 hover:scale-105 text-white ${
+                        theme === "dark"
+                          ? "bg-gray-700 hover:bg-gray-600"
+                          : "bg-black hover:bg-gray-800"
+                      }`}
+                      type="button"
+                    >
+                      Salvar Alterações
+                    </button>
+                  ) : (
+                    <div
+                      className={`flex-1 h-[50px] mt-4 flex items-center justify-center gap-2 rounded-2xl text-gray-400 ${
+                        theme === "dark" ? "bg-gray-700" : "bg-gray-200"
+                      }`}
+                    >
+                      <FaLock className="text-sm" />
+                      <span className="text-sm">Somente leitura</span>
+                    </div>
+                  )}
                 </div>
+                
+                {!canEditOrDelete && (
+                  <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
+                    Apenas o criador ou administradores podem editar este evento
+                  </p>
+                )}
               </div>
             </form>
           </div>

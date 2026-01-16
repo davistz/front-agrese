@@ -507,14 +507,14 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                   </div>
                 </div>
               </div>
-              {/* Seção de Usuários para Notificação */}
+              {/* Seção de Usuários Envolvidos */}
               <div className="mt-4">
                 <label
                   className={`block text-sm font-medium mb-2 ${
                     theme === "dark" ? "text-gray-300" : "text-gray-900"
                   }`}
                 >
-                  🔔 Usuários que Receberão Notificação
+                  👥 Usuários Envolvidos
                 </label>
                 
                 {loadingUsuarios ? (
@@ -533,7 +533,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                       <p className={`text-xs ${
                         theme === "dark" ? "text-blue-300" : "text-blue-700"
                       }`}>
-                        💡 <strong>Dica:</strong> Selecione os usuários que devem ser notificados automaticamente quando esta atividade externa for criada.
+                        💡 <strong>Dica:</strong> Adicione os usuários envolvidos nesta atividade externa. Eles receberão notificações automaticamente.
                       </p>
                     </div>
 
@@ -551,7 +551,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                           : "bg-white border-gray-300 text-gray-900"
                       }`}
                     >
-                      <option value="">➕ Adicionar usuário para notificar</option>
+                      <option value="">➕ Adicionar usuário envolvido</option>
                       {usuarios
                         .filter(u => !usuariosSelecionados.includes(u.id))
                         .map(usuario => (
@@ -602,7 +602,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                                     ? "bg-blue-900/30 text-blue-300"
                                     : "bg-blue-100 text-blue-700"
                                 }`}>
-                                  🔔 Será notificado
+                                  � Envolvido
                                 </span>
                               </div>
                               <button
