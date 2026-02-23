@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import { UserRole } from "../types/interfaces";
+import api from "../services/api";
 
 export interface AuthUser {
   id: number;
@@ -45,14 +46,51 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
-  // Carrega dados do usuário do localStorage ao inicializar
   useEffect(() => {
-    const savedUser = localStorage.getItem("authUser");
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      setIsAuthenticated(true);
-    }
+    const checkAuth = async () => {
+      const savedUser = localStorage.getItem("authUser");
+      const token = localStorage.getItem("authToken");
+
+      if (token && savedUser) {
+        try {
+          const response = await api.get("/auth/me");
+          if (response.status === 200) {
+            const userData = response.data;
+            const authUser: AuthUser = {
+              id: userData.id,
+              email: userData.email,
+              name: userData.name,
+              role: userData.role,
+              sectorId: userData.sector?.id || userData.sectorId,
+              sectorName: userData.sector?.name || "",
+              isActive: userData.isActive,
+              lastLogin: userData.lastLogin
+                ? new Date(userData.lastLogin)
+                : undefined,
+            };
+            setUser(authUser);
+            setIsAuthenticated(true);
+            localStorage.setItem("authUser", JSON.stringify(authUser));
+          }
+        } catch (error) {
+          console.error("Token verification failed:", error);
+          setUser(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("authUser");
+          if (window.location.pathname !== "/login") {
+            window.location.href = "/login";
+          }
+        }
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("authUser");
+      }
+    };
+
+    checkAuth();
   }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
@@ -72,10 +110,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const data = await response.json();
       const { token, user: userData } = data;
 
-      // Salva token no localStorage
       localStorage.setItem("authToken", token);
 
-      // Monta objeto AuthUser
       const authUser: AuthUser = {
         id: userData.id,
         email: userData.email,
@@ -117,14 +153,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     switch (user.role) {
       case "ADMIN":
-        return true; // Admin tem acesso a todos os setores
+        return true;
       case "MANAGER":
-        // Manager pode acessar seu setor e setores subordinados
+
         return canManagerAccessSector(user.sectorId, sectorId);
       case "COLLABORATOR":
-        return user.sectorId === sectorId; // Só pode acessar próprio setor
+        return user.sectorId === sectorId;
       case "IT_ADMIN":
-        return true; // IT_ADMIN tem acesso especial
+        return true;
       default:
         return false;
     }
@@ -142,9 +178,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// (Função mockada removida - agora usando API real)
-
-// Define as permissões por role
 const getRolePermissions = (role: UserRole): string[] => {
   const permissions: Record<UserRole, string[]> = {
     ADMIN: [
@@ -163,19 +196,19 @@ const getRolePermissions = (role: UserRole): string[] => {
       "manage_system",
     ],
     MANAGER: [
-      "create_user", // Apenas no próprio setor
-      "edit_user", // Apenas no próprio setor
-      "delete_user", // Apenas no próprio setor
-      "view_own_sector_users", // Ver usuários do próprio setor
-      "view_own_sector", // Visualizar próprio setor
-      "edit_own_sector", // Editar próprio setor
-      "manage_own_sector", // Gerenciar próprio setor
-      "create_event", // Criar eventos no próprio setor
-      "edit_own_events", // Editar eventos do próprio setor
-      "view_own_sector_events", // Ver eventos do próprio setor
+      "create_user",
+      "edit_user",
+      "delete_user",
+      "view_own_sector_users",
+      "view_own_sector",
+      "edit_own_sector",
+      "manage_own_sector",
+      "create_event",
+      "edit_own_events",
+      "view_own_sector_events",
     ],
     COLLABORATOR: [
-      "create_event", // Apenas no próprio setor
+      "create_event",
       "edit_own_events",
       "view_own_sector_events",
       "view_own_profile",
@@ -197,16 +230,15 @@ const getRolePermissions = (role: UserRole): string[] => {
   return permissions[role] || [];
 };
 
-// Função para verificar se um manager pode acessar um setor
 const canManagerAccessSector = (
   managerSectorId: number,
   targetSectorId: number
 ): boolean => {
-  // Hierarquia mocada dos setores
+
   const sectorHierarchy: Record<number, number[]> = {
-    1: [1, 2, 3, 4, 5], // Presidência - acesso a todos
-    2: [2, 4], // DAF - acesso ao próprio e setores subordinados
-    3: [3], // Diretoria Técnica - apenas próprio setor
+    1: [1, 2, 3, 4, 5],
+    2: [2, 4],
+    3: [3],
   };
 
   const accessibleSectors = sectorHierarchy[managerSectorId] || [
@@ -215,20 +247,19 @@ const canManagerAccessSector = (
   return accessibleSectors.includes(targetSectorId);
 };
 
-// Função para filtrar setores que o usuário pode ver
 export const getAccessibleSectors = (user: AuthUser): number[] => {
   if (!user) return [];
 
   switch (user.role) {
     case "ADMIN":
-      return [1, 2, 3, 4, 5]; // Todos os setores
+      return [1, 2, 3, 4, 5];
     case "MANAGER":
-      // Manager pode ver APENAS o próprio setor
+
       return [user.sectorId];
     case "COLLABORATOR":
-      return [user.sectorId]; // Apenas próprio setor
+      return [user.sectorId];
     case "IT_ADMIN":
-      return [1, 2, 3, 4, 5]; // Todos os setores para funções técnicas
+      return [1, 2, 3, 4, 5];
     default:
       return [];
   }

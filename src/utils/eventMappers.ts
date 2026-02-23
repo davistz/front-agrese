@@ -227,7 +227,7 @@ export const convertLegacyPriority = (oldPriority: string): Priority => {
 export const convertLegacyDocumentType = (oldType: string): DocumentType => {
   const typeMap: Record<string, DocumentType> = {
     oficio: "OFICIO",
-  // ...existing code...
+
     memorando: "MEMORANDO",
     portaria: "PORTARIA",
     decreto: "DECRETO",

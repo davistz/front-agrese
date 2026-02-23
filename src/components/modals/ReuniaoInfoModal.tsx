@@ -22,24 +22,20 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
 }) => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  
-  // Verificar se o usuário pode editar/excluir
-  // Apenas o criador ou ADMIN podem editar/excluir
+
   const canEditOrDelete = useMemo(() => {
     if (!user) return false;
     if (user.role === "ADMIN") return true;
-    
-    // Verificar se é o criador
-    const isCreator = 
-      evento.autor === user.name || 
-      evento.autorId === user.id || 
+
+    const isCreator =
+      evento.autor === user.name ||
+      evento.autorId === user.id ||
       evento.createdById === user.id ||
       evento.createdBy?.id === user.id;
-    
+
     return isCreator;
   }, [user, evento]);
-  
-  // Garantir que as datas são objetos Date válidos
+
   const parseDate = (date: any): Date => {
     if (date instanceof Date && !isNaN(date.getTime())) return date;
     if (typeof date === 'string' || typeof date === 'number') {
@@ -478,11 +474,11 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                   <div className="mt-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
                     {formData.participantes.length > 0 ? (
                       formData.participantes.map((participante: any, index: number) => {
-                        // Participante pode ser string (nome direto) ou objeto do backend
-                        const nomeParticipante = typeof participante === 'string' 
-                          ? participante 
+
+                        const nomeParticipante = typeof participante === 'string'
+                          ? participante
                           : (participante?.user?.name || participante?.name || participante?.email || `Participante ${index + 1}`);
-                        
+
                         return (
                           <div
                             key={index}
@@ -565,7 +561,7 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 {!canEditOrDelete && (
                   <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                     Apenas o criador ou administradores podem editar este evento

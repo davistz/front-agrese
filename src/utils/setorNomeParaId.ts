@@ -1,5 +1,5 @@
-// Mapeamento dos nomes dos setores para seus respectivos IDs
-// (exemplo, ajuste conforme o banco real)
+
+
 export const setorNomeParaId: Record<string, number> = {
   daf: 7,
   presidencia: 1,
@@ -13,5 +13,5 @@ export const setorNomeParaId: Record<string, number> = {
   compras: 13,
   licitacao: 14,
   rh: 15,
-  // ...adicione todos os setores conforme o banco
+
 };

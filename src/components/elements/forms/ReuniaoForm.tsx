@@ -54,7 +54,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   useEffect(() => {
     const fetchSectors = async () => {
   setLoadingSetores(true);
-      
+
       const mockSetores = [
         { id: 1, name: "Presidência" },
         { id: 2, name: "Diretoria Administrativa" },
@@ -65,20 +65,20 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
         { id: 7, name: "Jurídico" },
         { id: 8, name: "Comunicação" }
       ];
-      
+
       try {
     const response = await sectorServices.getSectors();
-        
+
         let sectorsData = response;
         if (response?.sectors) {
           sectorsData = response.sectors;
-          
+
         } else if (response?.data) {
           sectorsData = response.data;
-          
+
         } else if (Array.isArray(response)) {
           sectorsData = response;
-          
+
         }
 
         if (Array.isArray(sectorsData) && sectorsData.length > 0) {
@@ -96,16 +96,16 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
     setSetores(mockSetores);
       } finally {
         setLoadingSetores(false);
-        
+
       }
     };
 
     const fetchUsuarios = async () => {
   setLoadingUsuarios(true);
-      
+
       try {
         const response = await userServices.getUsers();
-        
+
         let usersData = response;
         if (response?.users) {
           usersData = response.users;
@@ -208,8 +208,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
         initialData?.id
       );
 
-      
-
       if (hasRoomConflict) {
         alert(
           "⚠️ CONFLITO DE SALA DETECTADO!\n\n" +
@@ -231,14 +229,13 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
       const mapped = setorNomeParaId[setorId.toLowerCase()] || "";
       setorId = mapped !== "" ? String(mapped) : "";
     }
-    
+
     const dataToSend = {
       ...formData,
       setorResponsavel: setorId,
   assigneeIds: usuariosSelecionados,
     };
 
-    
     onSubmit(dataToSend);
   };
 
@@ -351,10 +348,10 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       disabled={loadingSetores}
                     >
                       <option value="">
-                        {loadingSetores 
-                          ? "Carregando setores..." 
-                          : setores.length === 0 
-                            ? "Nenhum setor encontrado" 
+                        {loadingSetores
+                          ? "Carregando setores..."
+                          : setores.length === 0
+                            ? "Nenhum setor encontrado"
                             : "Selecione o setor responsável"
                         }
                       </option>
@@ -533,7 +530,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                   >
                     🔔 Usuários que Receberão Notificação
                   </label>
-                  
+
                   {loadingUsuarios ? (
                     <div className={`p-4 rounded-md text-center ${
                       theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
@@ -543,8 +540,8 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                   ) : (
                     <div className="space-y-3">
                       <div className={`p-3 rounded-md border ${
-                        theme === "dark" 
-                          ? "bg-blue-900/20 border-blue-700" 
+                        theme === "dark"
+                          ? "bg-blue-900/20 border-blue-700"
                           : "bg-blue-50 border-blue-200"
                       }`}>
                         <p className={`text-xs ${
@@ -582,8 +579,8 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                       <div className="max-h-40 overflow-y-auto space-y-2">
                         {usuariosSelecionados.length === 0 ? (
                           <div className={`p-3 rounded-md text-center text-sm ${
-                            theme === "dark" 
-                              ? "bg-gray-700/50 text-gray-400" 
+                            theme === "dark"
+                              ? "bg-gray-700/50 text-gray-400"
                               : "bg-gray-100 text-gray-500"
                           }`}>
                             Nenhum usuário selecionado. Selecione acima para notificar.
@@ -592,7 +589,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                           usuariosSelecionados.map(userId => {
                             const usuario = usuarios.find(u => u.id === userId);
                             if (!usuario) return null;
-                            
+
                             return (
                               <div
                                 key={userId}
@@ -625,7 +622,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => {
-                                    setUsuariosSelecionados(prev => 
+                                    setUsuariosSelecionados(prev =>
                                       prev.filter(id => id !== userId)
                                     );
                                   }}

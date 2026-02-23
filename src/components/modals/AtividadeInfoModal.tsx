@@ -22,23 +22,20 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
 }) => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  
-  // Verificar se o usuário pode editar/excluir
-  // Apenas o criador ou ADMIN podem editar/excluir
+
   const canEditOrDelete = useMemo(() => {
     if (!user) return false;
     if (user.role === "ADMIN") return true;
-    
-    // Verificar se é o criador
-    const isCreator = 
-      evento.autor === user.name || 
-      (evento as any).autorId === user.id || 
+
+    const isCreator =
+      evento.autor === user.name ||
+      (evento as any).autorId === user.id ||
       (evento as any).createdById === user.id ||
       (evento as any).createdBy?.id === user.id;
-    
+
     return isCreator;
   }, [user, evento]);
-  
+
   const [formData, setFormData] = useState<AtividadeModalData>({
     id: evento.id,
     titulo: evento.titulo || "",
@@ -69,7 +66,20 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
 
   const handleSave = () => {
     if (onSave) {
-      onSave(formData);
+      const backendPayload = {
+        id: formData.id,
+        title: formData.titulo,
+        description: formData.descricao,
+        startDate: formData.dataInicioPrevista,
+        endDate: formData.prazoFinal,
+        status: formData.status,
+        priority: formData.prioridade,
+        // Assuming other fields like subtarefas, comentarios are handled by the backend directly
+        // or not intended to be updated via this modal's save.
+        // If there are assignee changes, they would need to be passed separately or mapped
+        // if the form collected them.
+      };
+      onSave(backendPayload as unknown as AtividadeModalData); // Cast to correct type if necessary, or refine AtividadeModalData
     }
     onClose();
   };
@@ -410,7 +420,7 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
                     </div>
                   )}
                 </div>
-                
+
                 {!canEditOrDelete && (
                   <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                     Apenas o criador ou administradores podem editar este evento

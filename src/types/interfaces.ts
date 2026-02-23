@@ -31,7 +31,7 @@ export type DocumentStatus =
   | "ARCHIVED";
 export type DocumentType =
   | "OFICIO"
-  // ...existing code...
+
   | "MEMORANDO"
   | "PORTARIA"
   | "DECRETO"
@@ -40,8 +40,7 @@ export type DocumentType =
   | "PARECER"
   | "OUTROS";
 
-// Notification types
-export type NotificationType = 
+export type NotificationType =
   | "EVENT_REMINDER"
   | "EVENT_CREATED"
   | "EVENT_UPDATED"
@@ -341,10 +340,10 @@ export interface AtividadeExternaModalData {
   dataHoraSaida: Date;
   dataHoraRetorno: Date;
   destino: string;
-  // responsavel removido
+
   equipeEnvolvida: string[];
   status: "planejada" | "em-execucao" | "realizada" | "cancelada";
-  // motivoAtividade removido
+
   meioTransporte: string;
 }
 
@@ -559,4 +558,3 @@ export interface SubsetorData {
   membrosAtivos: number;
 }
 
-// ...existing code...

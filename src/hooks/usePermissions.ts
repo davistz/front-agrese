@@ -32,7 +32,7 @@ export const usePermissions = () => {
   };
 
   const canViewNotifications = () => {
-    // NOTIFICAÇÕES SÃO PÚBLICAS - TODOS OS USUÁRIOS PODEM VER
+
     return true;
   };
 

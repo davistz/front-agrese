@@ -24,20 +24,18 @@ export const useNotifications = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Buscar notificações do backend
   const fetchNotifications = useCallback(async () => {
     if (!user) {
       console.log('[useNotifications] Usuário não autenticado, não buscando notificações');
       return;
     }
-    
+
     console.log('[useNotifications] Buscando notificações do backend...');
     setLoading(true);
     try {
       const data = await notificationServices.getNotifications();
       console.log('[useNotifications] Resposta do backend:', data);
-      
-      // Verificar estrutura da resposta
+
       let notificationsArray = [];
       if (Array.isArray(data)) {
         notificationsArray = data;
@@ -49,16 +47,16 @@ export const useNotifications = () => {
         console.warn('[useNotifications] Estrutura de resposta desconhecida:', data);
         notificationsArray = [];
       }
-      
+
       console.log(`[useNotifications] ${notificationsArray.length} notificações encontradas`);
-      
+
       const parsed = notificationsArray.map((notification: any) => ({
         ...notification,
         createdAt: notification.createdAt ? new Date(notification.createdAt) : new Date(),
         readAt: notification.readAt ? new Date(notification.readAt) : undefined,
         scheduledFor: notification.scheduledFor ? new Date(notification.scheduledFor) : undefined,
       }));
-      
+
       console.log('[useNotifications] Notificações parseadas:', parsed);
       setNotifications(parsed);
       setError(null);
@@ -71,7 +69,6 @@ export const useNotifications = () => {
     }
   }, [user]);
 
-  // Criar nova notificação
   const createNotification = useCallback(async (notificationData: NotificationFormData) => {
     try {
       const created = await notificationServices.createNotification(notificationData);
@@ -90,13 +87,12 @@ export const useNotifications = () => {
     }
   }, []);
 
-  // Marcar como lida
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
       await notificationServices.markAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === parseInt(notificationId) 
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === parseInt(notificationId)
             ? { ...notification, isRead: true, readAt: new Date() }
             : notification
         )
@@ -107,15 +103,14 @@ export const useNotifications = () => {
     }
   }, []);
 
-  // Marcar todas como lidas
   const markAllAsRead = useCallback(async () => {
     try {
       await notificationServices.markAllAsRead(user?.id.toString());
-      setNotifications(prev => 
-        prev.map(notification => ({ 
-          ...notification, 
-          isRead: true, 
-          readAt: new Date() 
+      setNotifications(prev =>
+        prev.map(notification => ({
+          ...notification,
+          isRead: true,
+          readAt: new Date()
         }))
       );
     } catch (err) {
@@ -124,11 +119,10 @@ export const useNotifications = () => {
     }
   }, [user?.id]);
 
-  // Excluir notificação
   const deleteNotification = useCallback(async (notificationId: string) => {
     try {
       await notificationServices.deleteNotification(notificationId);
-      setNotifications(prev => 
+      setNotifications(prev =>
         prev.filter(notification => notification.id !== parseInt(notificationId))
       );
     } catch (err) {
@@ -137,7 +131,6 @@ export const useNotifications = () => {
     }
   }, []);
 
-  // Buscar contagem de não lidas
   const getUnreadCount = useCallback(async (): Promise<number> => {
     try {
       const data = await notificationServices.getUnreadCount(user?.id.toString());
@@ -148,34 +141,30 @@ export const useNotifications = () => {
     }
   }, [user?.id]);
 
-  // Carregar notificações ao montar componente
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  // Polling para atualizações em tempo real (opcional)
   useEffect(() => {
     if (!user) return;
 
     const interval = setInterval(() => {
       fetchNotifications();
-    }, 30000); // Busca a cada 30 segundos
+    }, 30000);
 
     return () => clearInterval(interval);
   }, [user, fetchNotifications]);
 
-  // Computar valores derivados
   const unreadNotifications = notifications.filter(n => !n.isRead);
   const unreadCount = unreadNotifications.length;
 
-  // Manter compatibilidade com interface legacy
   const notificacoes: NotificacaoSetor[] = notifications.map(notification => {
     console.log('[useNotifications] Convertendo notificação:', notification);
     return {
       id: notification.id.toString(),
       titulo: notification.title || "Notificação",
       descricao: notification.message || "",
-      tipo: notification.type === "EVENT_CREATED" ? "evento_criado" : 
+      tipo: notification.type === "EVENT_CREATED" ? "evento_criado" :
             notification.type === "EVENT_UPDATED" ? "evento_editado" : "evento_excluido",
       lida: notification.isRead || false,
       dataHora: notification.createdAt || new Date(),
@@ -187,7 +176,7 @@ export const useNotifications = () => {
       eventoTitulo: notification.metadata?.eventTitle || "",
     };
   });
-  
+
   console.log(`[useNotifications] ${notificacoes.length} notificações no formato legacy`);
 
   const marcarComoLida = (notificationId: string) => {
@@ -207,7 +196,7 @@ export const useNotifications = () => {
   };
 
   return {
-    // Nova interface
+
     notifications,
     unreadNotifications,
     unreadCount,
@@ -220,10 +209,9 @@ export const useNotifications = () => {
     deleteNotification,
     getUnreadCount,
 
-    // Interface legacy para compatibilidade
     notificacoes,
     notificacoesNaoLidas: unreadCount,
-    contadorAtualizado: 0, // Mantido para compatibilidade
+    contadorAtualizado: 0,
     setNotificacoes: setNotifications,
     marcarComoLida,
     marcarComoLidaApenas,

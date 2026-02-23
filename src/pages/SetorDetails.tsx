@@ -209,7 +209,7 @@ useEffect(() => {
         if (setorData) {
           setSetor({
             ...setorData,
-            nome: setorData.name, // <- Adiciona o campo 'nome' para uso na UI
+            nome: setorData.name,
           });
 
           const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
@@ -268,11 +268,11 @@ useEffect(() => {
     if (selectedSubsetorForMembro) {
       try {
         await sectorServices.addMemberToSector(Number(selectedSubsetorForMembro), data);
-        // Atualiza os dados do setor após adicionar membro
+
         if (setorKey) {
           const setorId = Number(setorKey);
           const setorData = await sectorServices.getSectorsbyId(setorId);
-          // Repete o mapeamento dos subsetores
+
           const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
             id: sub.id.toString(),
             nome: sub.name,
@@ -324,7 +324,7 @@ useEffect(() => {
       if (setorKey) {
         const setorId = Number(setorKey);
         await sectorServices.postSubSector(setorId, data);
-        // Atualiza os dados do setor após criar subsetor
+
         const setorData = await sectorServices.getSectorsbyId(setorId);
         const mappedSubsetores: SubsetorData[] = (setorData.subSectors ?? []).map((sub: ApiSubSector) => ({
           id: sub.id.toString(),
@@ -468,7 +468,7 @@ useEffect(() => {
             membrosAtivos: setorData.users ? setorData.users.filter((u: ApiUser) => u.isActive).length : 0,
           };
           setSubsetores([setorPrincipal, ...mappedSubsetores]);
-          // Atualizar o selectedSubsetor também
+
           const updatedSubsetor = [setorPrincipal, ...mappedSubsetores].find(
             (s) => s.id === selectedSubsetor.id
           );
@@ -608,8 +608,6 @@ useEffect(() => {
                 </div>
               </div>
             </div>
-
-            
 
             <div
               className={`rounded-xl shadow-md border overflow-hidden ${
@@ -811,7 +809,7 @@ useEffect(() => {
                               >
                                 <FaEdit className="w-4 h-4" />
                               </button>
-                             
+
                             </div>
                           </div>
                         </div>
@@ -819,7 +817,6 @@ useEffect(() => {
                     );
                   })}
 
-                 
                 </ul>
               )}
             </div>

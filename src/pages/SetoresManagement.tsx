@@ -52,7 +52,6 @@ export const SetoresManagement = () => {
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
-
   useEffect(() => {
     const fetchSectors = async () => {
       const data = await sectorServices.getSectors();
@@ -60,7 +59,6 @@ export const SetoresManagement = () => {
     };
     fetchSectors();
   }, []);
-
 
   const getSetorPrincipalIcon = (setorKey: string) => {
     switch (setorKey) {
@@ -100,7 +98,6 @@ export const SetoresManagement = () => {
     const dataSetores = await sectorServices.getSectors();
     setSetores(Array.isArray(dataSetores) ? dataSetores : []);
   };
-
 
   const handleCreateSetor = async (data: SectorFormData) => {
     await sectorServices.putSector("new", data);
@@ -233,7 +230,7 @@ export const SetoresManagement = () => {
                                 {setor.name}
                               </h2>
                               <div className="space-y-3 mb-6 w-full">
-                                
+
                                 <div
                                   className={`flex items-center justify-center gap-3 rounded-xl p-3 transition-colors duration-300 ${
                                     theme === "dark"
@@ -368,7 +365,7 @@ export const SetoresManagement = () => {
             <SetorForm
               initialData={editingSubsetor ? (() => {
                 const converted = convertSubsetorToSectorModal(editingSubsetor);
-                // Remove 'manager' se existir
+
                 const { manager, ...rest } = converted;
                 return { ...rest, id: Number(editingSubsetor.id) };
               })() : undefined}

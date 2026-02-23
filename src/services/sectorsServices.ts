@@ -8,7 +8,7 @@ export const sectorServices = {
             return response.data;
         } catch (error) {
             console.error("Error fetching sectors:", error);
-            // Tentar endpoint alternativo
+
             try {
                 console.log('[sectorsServices] Tentando endpoint alternativo /setores');
                 const response = await api.get("/setores");
@@ -16,7 +16,7 @@ export const sectorServices = {
                 return response.data;
             } catch (alternativeError) {
                 console.error("Error fetching from alternative endpoint:", alternativeError);
-                throw error; // Relançar o erro original
+                throw error;
             }
         }
     },

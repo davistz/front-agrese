@@ -109,16 +109,13 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   const [categoriasSelecionadas, setCategoriasSelecionadas] = useState<string[]>(
     []
   );
-  
-  // ADMIN pode escolher ver tudo ou apenas suas atividades
-  // Outros usuários SEMPRE veem apenas suas atividades (sem toggle)
+
   const isAdmin = user?.role === "ADMIN";
   const [apenasMinhasAtividades, setApenasMinhasAtividades] = useState<boolean>(true);
 
-  // Limpar filtros quando trocar de aba
   const handleTabChange = useCallback((tab: "setor" | "categoria") => {
     setActiveTab(tab);
-    // Limpar os filtros da aba anterior
+
     if (tab === "setor") {
       setCategoriasSelecionadas([]);
     } else {
@@ -147,21 +144,17 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
     );
   }, []);
 
-  // Função para verificar se o usuário está envolvido no evento
   const isUserInvolved = useCallback((atividade: Atividade): boolean => {
     if (!user) return false;
-    
-    // Verificar se é o autor/criador do evento
+
     if (atividade.autor === user.name || atividade.autorId === user.id || atividade.createdById === user.id) {
       return true;
     }
-    
-    // Verificar se o evento é do setor do usuário
+
     if (atividade.sectorId === user.sectorId || atividade.setorId === user.sectorId) {
       return true;
     }
-    
-    // Verificar se está nos assignees (responsáveis/envolvidos)
+
     if (atividade.assignees && Array.isArray(atividade.assignees)) {
       const isAssignee = atividade.assignees.some((assignee: any) => {
         if (typeof assignee === 'number') return assignee === user.id;
@@ -172,8 +165,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
       });
       if (isAssignee) return true;
     }
-    
-    // Verificar se está nos participantes (para reuniões)
+
     if (atividade.participants && Array.isArray(atividade.participants)) {
       const isParticipant = atividade.participants.some((participant: any) => {
         if (typeof participant === 'number') return participant === user.id;
@@ -184,8 +176,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
       });
       if (isParticipant) return true;
     }
-    
-    // Verificar se está nos responsáveis
+
     if (atividade.responsaveis && Array.isArray(atividade.responsaveis)) {
       const isResponsavel = atividade.responsaveis.some((resp: any) => {
         if (typeof resp === 'number') return resp === user.id;
@@ -196,53 +187,50 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
       });
       if (isResponsavel) return true;
     }
-    
+
     return false;
   }, [user]);
 
   const eventosFiltrados = useMemo(() => {
-    // Para não-ADMINs, SEMPRE filtra apenas eventos onde está envolvido
-    // Para ADMINs, respeita o toggle apenasMinhasAtividades
+
     let baseAtividades = atividades;
     const deveFiltraUsuario = !isAdmin || apenasMinhasAtividades;
-    
+
     if (deveFiltraUsuario) {
       baseAtividades = atividades.filter(isUserInvolved);
     }
-    
-    // Verificar se não há nenhum filtro ativo NA ABA ATUAL
-    const nenhumFiltroAtivo = 
+
+    const nenhumFiltroAtivo =
       (activeTab === "categoria" && categoriasSelecionadas.length === 0) ||
       (activeTab === "setor" && !setorSelecionado && subsetoresSelecionados.length === 0);
-    
+
     if (nenhumFiltroAtivo) {
       return baseAtividades;
     }
 
     const resultados = baseAtividades.filter((atividade) => {
-      // Filtro por categoria (APENAS se a aba categoria estiver ativa)
+
       if (activeTab === "categoria") {
         if (categoriasSelecionadas.length === 0) {
           return true;
         }
-        
+
         const atividadeTipo = String(atividade.tipo || '');
         const atividadeTipoUpper = atividadeTipo.toUpperCase();
-        
+
         const match = categoriasSelecionadas.some(categoriaId => {
           const categoria = categorias.find(c => c.id === categoriaId);
           if (!categoria) return false;
-          
+
           return categoria.aliases.some(alias => {
             const aliasUpper = alias.toUpperCase();
             return atividadeTipoUpper === aliasUpper || atividadeTipoUpper.includes(aliasUpper);
           });
         });
-        
+
         return match;
       }
 
-      // Filtro por setor (APENAS se a aba setor estiver ativa)
       if (activeTab === "setor") {
         if (subsetoresSelecionados.length > 0) {
           return subsetoresSelecionados.includes(atividade.setor);
@@ -255,17 +243,16 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
 
       return true;
     });
-    
+
     return resultados;
   }, [atividades, setorSelecionado, subsetoresSelecionados, categoriasSelecionadas, activeTab, apenasMinhasAtividades, isUserInvolved, isAdmin]);
 
-  // Usar useRef para evitar loop infinito com onSelecionarAtividades
   const onSelecionarAtividadesRef = React.useRef(onSelecionarAtividades);
-  
+
   useEffect(() => {
     onSelecionarAtividadesRef.current = onSelecionarAtividades;
   }, [onSelecionarAtividades]);
-  
+
   useEffect(() => {
     onSelecionarAtividadesRef.current(eventosFiltrados);
   }, [eventosFiltrados]);
@@ -290,7 +277,7 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
         <h2 className="text-lg font-semibold text-white">Filtros</h2>
       </div>
 
-      {/* Toggle Minhas Atividades - APENAS para ADMIN */}
+      {}
       {isAdmin ? (
         <div
           className={`px-3 py-2 border-b flex-shrink-0 ${
@@ -332,8 +319,8 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
             </div>
           </label>
           <p className="text-xs text-gray-300 mt-1 px-2">
-            {apenasMinhasAtividades 
-              ? "Mostrando apenas eventos em que você está envolvido" 
+            {apenasMinhasAtividades
+              ? "Mostrando apenas eventos em que você está envolvido"
               : "Mostrando todos os eventos"}
           </p>
         </div>

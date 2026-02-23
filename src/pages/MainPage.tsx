@@ -94,7 +94,7 @@ export const MainPage = () => {
         }
       />
 
-      {/* Removed RelatoriosPage route */}
+      {}
     </Routes>
   );
 };

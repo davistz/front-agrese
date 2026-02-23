@@ -23,23 +23,20 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
 }) => {
   const { theme } = useTheme();
   const { user } = useAuth();
-  
-  // Verificar se o usuário pode editar/excluir
-  // Apenas o criador ou ADMIN podem editar/excluir
+
   const canEditOrDelete = useMemo(() => {
     if (!user) return false;
     if (user.role === "ADMIN") return true;
-    
-    // Verificar se é o criador
-    const isCreator = 
-      evento.autor === user.name || 
-      (evento as any).autorId === user.id || 
+
+    const isCreator =
+      evento.autor === user.name ||
+      (evento as any).autorId === user.id ||
       (evento as any).createdById === user.id ||
       (evento as any).createdBy?.id === user.id;
-    
+
     return isCreator;
   }, [user, evento]);
-  
+
   const [formData, setFormData] = useState<DocumentoModalData>({
     id: evento.id,
     titulo: evento.titulo || "",
@@ -436,7 +433,7 @@ export const DocumentoModalInfo: React.FC<DocumentoModalInfoProps> = ({
                   </div>
                 )}
               </div>
-              
+
               {!canEditOrDelete && (
                 <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                   Apenas o criador ou administradores podem editar este evento

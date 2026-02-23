@@ -9,7 +9,6 @@ const api = axios.create({
     withCredentials: true,
 });
 
-// Interceptor para adicionar token de autenticação
 api.interceptors.request.use(
     (config) => {
         const token = getToken();
@@ -28,25 +27,23 @@ api.interceptors.request.use(
     }
 );
 
-// Interceptor para tratar respostas de erro
 api.interceptors.response.use(
     (response) => {
         return response;
     },
     (error) => {
         console.error('[API] Erro na resposta:', error.response?.status, error.response?.data);
-        
-        // Se 401, pode ser token expirado
+
         if (error.response?.status === 401) {
             console.warn('[API] Token inválido ou expirado (401). Redirecionando para login...');
-            // Limpar token inválido
+
             localStorage.removeItem('token');
-            // Redirecionar para login se necessário
+
             if (window.location.pathname !== '/login') {
                 window.location.href = '/login';
             }
         }
-        
+
         return Promise.reject(error);
     }
 );

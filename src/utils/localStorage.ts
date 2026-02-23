@@ -1,5 +1,5 @@
 export const localStorageUtils = {
-  // Auth
+
   getAuthUser: () => {
     try {
       const user = localStorage.getItem("authUser");
@@ -25,7 +25,6 @@ export const localStorageUtils = {
     }
   },
 
-  // Preferências do usuário
   getUserPreferences: () => {
     try {
       const prefs = localStorage.getItem("userPreferences");
@@ -55,7 +54,6 @@ export const localStorageUtils = {
     }
   },
 
-  // Cache de dados para melhor performance
   getCachedData: (key: string) => {
     try {
       const cached = localStorage.getItem(`cache_${key}`);
@@ -87,7 +85,6 @@ export const localStorageUtils = {
     }
   },
 
-  // Limpeza geral
   clearUserData: () => {
     try {
       const keysToRemove = [];
@@ -108,7 +105,6 @@ export const localStorageUtils = {
     }
   },
 
-  // Informações do dispositivo/sessão
   getSessionInfo: () => {
     try {
       const info = localStorage.getItem("sessionInfo");
