@@ -90,7 +90,6 @@ export const UserPage = () => {
     fetchData();
   }, [user]);
 
-
   const getRoleIcon = (role: UserRole) => {
     switch (role) {
       case "ADMIN":

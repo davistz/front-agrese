@@ -208,12 +208,11 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     };
   };
 
-  // Componente customizado para exibir eventos no calendário
   const EventComponent = ({ event }: { event: any }) => {
     const formatTime = (date: Date) => {
-      return new Date(date).toLocaleTimeString('pt-BR', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      return new Date(date).toLocaleTimeString('pt-BR', {
+        hour: '2-digit',
+        minute: '2-digit'
       });
     };
 
@@ -296,14 +295,14 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
     if (!eventoSelecionado) return null;
     const eventType = eventoSelecionado.type || eventoSelecionado.tipo;
     const tipoFrontend = eventTypeBackendToFrontend[eventType] || eventType;
-    
+
     const handleDelete = (id: number) => {
       if (window.confirm("Tem certeza que deseja excluir este evento?")) {
         deleteEvent(id);
         handleSelectClose();
       }
     };
-    
+
     switch (tipoFrontend) {
       case EventType.MEETING:
       case "MEETING":

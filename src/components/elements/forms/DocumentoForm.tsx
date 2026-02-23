@@ -42,7 +42,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
   useEffect(() => {
     const fetchSectors = async () => {
       setLoadingSetores(true);
-      
+
       const mockSetores = [
         { id: 1, name: "Presidência" },
         { id: 2, name: "Diretoria Administrativa" },
@@ -53,10 +53,10 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
         { id: 7, name: "Jurídico" },
         { id: 8, name: "Comunicação" }
       ];
-      
+
       try {
         const response = await sectorServices.getSectors();
-        
+
         let sectorsData = response;
         if (response?.sectors) {
           sectorsData = response.sectors;
@@ -113,7 +113,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
         setLoadingUsuarios(false);
       }
     };
-    
+
     fetchSectors();
     fetchUsuarios();
   }, []);
@@ -487,7 +487,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 </div>
               </div>
 
-              {/* Seção de Usuários Envolvidos */}
+              {}
               <div className="col-span-3 mt-4">
                 <label
                   className={`block text-sm font-medium mb-2 ${
@@ -496,7 +496,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 >
                   👥 Usuários Envolvidos
                 </label>
-                
+
                 {loadingUsuarios ? (
                   <div className={`p-4 rounded-md text-center ${
                     theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
@@ -506,8 +506,8 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                 ) : (
                   <div className="space-y-3">
                     <div className={`p-3 rounded-md border ${
-                      theme === "dark" 
-                        ? "bg-blue-900/20 border-blue-700" 
+                      theme === "dark"
+                        ? "bg-blue-900/20 border-blue-700"
                         : "bg-blue-50 border-blue-200"
                     }`}>
                       <p className={`text-xs ${
@@ -545,8 +545,8 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                     <div className="max-h-40 overflow-y-auto space-y-2">
                       {usuariosSelecionados.length === 0 ? (
                         <div className={`p-3 rounded-md text-center text-sm ${
-                          theme === "dark" 
-                            ? "bg-gray-700/50 text-gray-400" 
+                          theme === "dark"
+                            ? "bg-gray-700/50 text-gray-400"
                             : "bg-gray-100 text-gray-500"
                         }`}>
                           Nenhum usuário selecionado. Selecione acima para notificar.
@@ -555,7 +555,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                         usuariosSelecionados.map(userId => {
                           const usuario = usuarios.find(u => u.id === userId);
                           if (!usuario) return null;
-                          
+
                           return (
                             <div
                               key={userId}
@@ -588,7 +588,7 @@ export const DocumentoForm: React.FC<DocumentoFormProps> = ({
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setUsuariosSelecionados(prev => 
+                                  setUsuariosSelecionados(prev =>
                                     prev.filter(id => id !== userId)
                                   );
                                 }}

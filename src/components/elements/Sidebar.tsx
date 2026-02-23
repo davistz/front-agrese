@@ -89,7 +89,6 @@ export const Sidebar = ({
     activeView === "usuarios" || isActiveRoute("/usuarios");
   const isNotificacoesActive =
     activeView === "notificacoes" || isActiveRoute("/notificacoes");
-  // ...existing code...
 
   return (
     <div
@@ -238,7 +237,7 @@ export const Sidebar = ({
               </li>
             )}
 
-            {/* Botão de relatórios removido */}
+            {}
           </ul>
         </div>
       </div>

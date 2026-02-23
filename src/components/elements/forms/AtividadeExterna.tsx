@@ -45,8 +45,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
     const fetchSectors = async () => {
       console.log('[AtividadeExternaForm] Iniciando busca de setores...');
       setLoadingSetores(true);
-      
-      // Setores mock como fallback
+
       const mockSetores = [
         { id: 1, name: "Presidência" },
         { id: 2, name: "Diretoria Administrativa" },
@@ -57,12 +56,11 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
         { id: 7, name: "Jurídico" },
         { id: 8, name: "Comunicação" }
       ];
-      
+
       try {
         const response = await sectorServices.getSectors();
         console.log('[AtividadeExternaForm] Resposta completa da API:', response);
-        
-        // Tratar diferentes formatos de resposta da API
+
         let sectorsData = response;
         if (response?.sectors) {
           sectorsData = response.sectors;
@@ -124,7 +122,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
         setLoadingUsuarios(false);
       }
     };
-    
+
     fetchSectors();
     fetchUsuarios();
   }, []);
@@ -177,7 +175,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
             <div className="space-y-3">
               {" "}
               <div className="grid grid-cols-3 gap-x-4 gap-y-3">
-                
+
                 {" "}
                 <div>
                   <label
@@ -238,10 +236,10 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                       disabled={loadingSetores}
                     >
                       <option value="">
-                        {loadingSetores 
-                          ? "Carregando setores..." 
-                          : setores.length === 0 
-                            ? "Nenhum setor encontrado" 
+                        {loadingSetores
+                          ? "Carregando setores..."
+                          : setores.length === 0
+                            ? "Nenhum setor encontrado"
                             : "Selecione o setor responsável"
                         }
                       </option>
@@ -318,7 +316,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                     <option value="cancelada">Cancelada</option>
                   </select>
                 </div>
-                
+
                 <div>
                   <label
                     className={`text-base font-medium ${
@@ -408,7 +406,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
               <div className="grid grid-cols-1 gap-3 mt-3">
                 {" "}
                 <div>
-                  {/* Campo 'motivo da atividade' removido */}
+                  {}
                 </div>
                 <div className="col-span-3">
                   <label
@@ -507,7 +505,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                   </div>
                 </div>
               </div>
-              {/* Seção de Usuários Envolvidos */}
+              {}
               <div className="mt-4">
                 <label
                   className={`block text-sm font-medium mb-2 ${
@@ -516,7 +514,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                 >
                   👥 Usuários Envolvidos
                 </label>
-                
+
                 {loadingUsuarios ? (
                   <div className={`p-4 rounded-md text-center ${
                     theme === "dark" ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-600"
@@ -526,8 +524,8 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                 ) : (
                   <div className="space-y-3">
                     <div className={`p-3 rounded-md border ${
-                      theme === "dark" 
-                        ? "bg-blue-900/20 border-blue-700" 
+                      theme === "dark"
+                        ? "bg-blue-900/20 border-blue-700"
                         : "bg-blue-50 border-blue-200"
                     }`}>
                       <p className={`text-xs ${
@@ -565,8 +563,8 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                     <div className="max-h-40 overflow-y-auto space-y-2">
                       {usuariosSelecionados.length === 0 ? (
                         <div className={`p-3 rounded-md text-center text-sm ${
-                          theme === "dark" 
-                            ? "bg-gray-700/50 text-gray-400" 
+                          theme === "dark"
+                            ? "bg-gray-700/50 text-gray-400"
                             : "bg-gray-100 text-gray-500"
                         }`}>
                           Nenhum usuário selecionado. Selecione acima para notificar.
@@ -575,7 +573,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                         usuariosSelecionados.map(userId => {
                           const usuario = usuarios.find(u => u.id === userId);
                           if (!usuario) return null;
-                          
+
                           return (
                             <div
                               key={userId}
@@ -608,7 +606,7 @@ export const AtividadeExternaForm: React.FC<AtividadeExternaFormProps> = ({
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setUsuariosSelecionados(prev => 
+                                  setUsuariosSelecionados(prev =>
                                     prev.filter(id => id !== userId)
                                   );
                                 }}

@@ -497,7 +497,7 @@ export const SetorInfoModal: React.FC<SetorInfoModalProps> = ({
                             </div>
                           </div>
                         </div>
-                        
+
                       </div>
                     </div>
                   ))}

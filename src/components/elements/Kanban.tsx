@@ -76,10 +76,8 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
   const [draggedEvent, setDraggedEvent] = useState<any>(null);
   const [localEventStatuses, setLocalEventStatuses] = useState<{ [key: number]: string }>({});
 
-  // Função para obter a chave do localStorage específica para o usuário
   const getStorageKey = () => `kanban_progress_user_${user?.id || 'guest'}`;
 
-  // Carregar progresso do localStorage ao montar o componente
   useEffect(() => {
     const storageKey = getStorageKey();
     const savedProgress = localStorage.getItem(storageKey);
@@ -94,7 +92,6 @@ export const Kanban = ({ sidebarOpen = true }: KanbanProps) => {
     }
   }, [user?.id]);
 
-  // Salvar progresso no localStorage sempre que mudar
   useEffect(() => {
     if (Object.keys(localEventStatuses).length > 0) {
       const storageKey = getStorageKey();
@@ -120,7 +117,7 @@ const normalizeStatus = (status: string) => {
 };
 
 const getEventColumn = (event: any): string => {
-  // Primeiro verificar se há status local salvo
+
   if (localEventStatuses[event.id]) {
     const localStatus = localEventStatuses[event.id];
     for (const column of kanbanColumns) {
@@ -129,8 +126,7 @@ const getEventColumn = (event: any): string => {
       }
     }
   }
-  
-  // Caso não haja status local, usar o status do evento
+
   const status = normalizeStatus(event.status);
   for (const column of kanbanColumns) {
     if (column.status.includes(status)) {
@@ -232,16 +228,13 @@ const getEventColumn = (event: any): string => {
         break;
     }
 
-    // Salvar status local no localStorage
     setLocalEventStatuses(prev => ({
       ...prev,
       [draggedEvent.id]: newStatus
     }));
 
-    // Atualizar no backend
     updateEvent(draggedEvent.id, { ...draggedEvent, status: backendStatus });
 
-    // Atualizar estado local
     setEvents((prevEvents: any[]) =>
       prevEvents.map((ev) =>
         ev.id === draggedEvent.id ? { ...ev, status: backendStatus } : ev

@@ -21,21 +21,18 @@ export const AtividadeExternaModalInfo: React.FC<
   const { theme } = useTheme();
   const { user } = useAuth();
   const eventoData: any = evento;
-  
-  // Verificar se o usuário pode editar/excluir
-  // Apenas o criador ou ADMIN podem editar/excluir
+
   const canEditOrDelete = useMemo(() => {
     if (!user) return false;
     if (user.role === "ADMIN") return true;
-    
-    // Verificar se é o criador
-    const isCreator = 
-      eventoData.autor === user.name || 
-      eventoData.autorId === user.id || 
+
+    const isCreator =
+      eventoData.autor === user.name ||
+      eventoData.autorId === user.id ||
       eventoData.createdById === user.id ||
       eventoData.createdBy?.id === user.id ||
       eventoData.creator?.id === user.id;
-    
+
     return isCreator;
   }, [user, eventoData]);
   const [formData, setFormData] = useState({
@@ -158,7 +155,7 @@ export const AtividadeExternaModalInfo: React.FC<
                 </div>
 
                 <div>
-                  {/* Campo 'motivo da atividade' removido */}
+                  {}
                 </div>
 
                 <div>
@@ -226,7 +223,7 @@ export const AtividadeExternaModalInfo: React.FC<
                   </div>
                 )}
               </div>
-              
+
               {!canEditOrDelete && (
                 <p className={`text-xs text-center mt-2 ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>
                   Apenas o criador ou administradores podem editar este evento

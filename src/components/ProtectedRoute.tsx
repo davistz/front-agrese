@@ -25,8 +25,6 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Removido: bloqueio de usuário inativo
-
   if (requiredRole && user.role !== requiredRole) {
     return (
       <div className="flex items-center justify-center min-h-screen">

@@ -71,12 +71,10 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
   const [events, setEvents] = useState<Event[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>([]);
 
-  // Função para criar notificação automática
   const createEventNotification = useCallback(async (event: any, tipo: string) => {
     try {
       console.log('[NOTIFICATION] Criando notificação para evento:', event.title);
-      
-      // Mapear tipo de evento para português
+
       const tipoEventoMap: { [key: string]: string } = {
         'MEETING': 'Reunião',
         'ACTIVITY': 'Atividade',
@@ -85,97 +83,90 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       };
 
       const tipoEvento = tipoEventoMap[event.type] || 'Evento';
-      
-      // Criar mensagem da notificação
+
       let title = "";
       let message = "";
-      
+
       if (tipo === 'criado') {
         title = `📅 Nova ${tipoEvento} Criada`;
         message = `${tipoEvento} "${event.title}" foi criada para ${new Date(event.startDate).toLocaleDateString('pt-BR')} às ${new Date(event.startDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-        
-        // Adicionar informações específicas para reunião
+
         if (event.type === 'MEETING') {
           const sectorName = event.sector?.name || 'Setor não informado';
           message += `\n\n📍 Setor: ${sectorName}`;
-          
+
           if (event.location) {
             message += `\n🏢 Local: ${event.location}`;
           }
-          
+
           if (event.description) {
             message += `\n📝 Descrição: ${event.description}`;
           }
-          
+
           if (event.participants && event.participants.length > 0) {
             message += `\n👥 Participantes: ${event.participants.length} pessoas`;
           }
         }
       }
 
-      // Buscar usuários que foram selecionados no formulário (assigneeIds)
       let usersToNotify = [];
       try {
-        // Se o evento tem assignees (usuários atribuídos), notificar apenas eles
+
         if (event.assignees && Array.isArray(event.assignees) && event.assignees.length > 0) {
           console.log(`[NOTIFICATION] Notificando usuários atribuídos ao evento (assignees)`);
-          
-          // Buscar dados completos dos usuários atribuídos
+
           const allUsersResponse = await userServices.getUsers();
-          
+
           if (allUsersResponse && allUsersResponse.users && Array.isArray(allUsersResponse.users)) {
-            // Extrair IDs dos assignees
+
             const assigneeIds = event.assignees.map((a: any) => a.userId || a.id || a);
-            
-            // Filtrar apenas os usuários atribuídos
+
             const assignedUsers = allUsersResponse.users.filter((u: any) => {
               return assigneeIds.includes(u.id) && u.isActive !== false;
             });
-            
+
             usersToNotify = assignedUsers.map((u: any) => ({
               id: u.id,
               name: u.name,
               email: u.email
             }));
-            
-            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários atribuídos serão notificados:`, 
+
+            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários atribuídos serão notificados:`,
               usersToNotify.map((u: any) => u.name).join(', '));
           }
         } else {
-          // Se não há assignees, notificar todos do setor como fallback
+
           console.log(`[NOTIFICATION] Nenhum assignee específico, notificando usuários do setor ${event.sectorId}`);
           const allUsersResponse = await userServices.getUsers();
-          
+
           if (allUsersResponse && allUsersResponse.users && Array.isArray(allUsersResponse.users)) {
             const sectorUsers = allUsersResponse.users.filter((u: any) => {
               return u.sectorId === event.sectorId && u.isActive !== false;
             });
-            
+
             usersToNotify = sectorUsers.map((u: any) => ({
               id: u.id,
               name: u.name,
               email: u.email
             }));
-            
-            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários do setor serão notificados:`, 
+
+            console.log(`[NOTIFICATION] ${usersToNotify.length} usuários do setor serão notificados:`,
               usersToNotify.map((u: any) => u.name).join(', '));
           }
         }
-        
-        // Se não encontrou usuários, notificar apenas o criador
+
         if (usersToNotify.length === 0 && user?.id) {
           usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
           console.log(`[NOTIFICATION] Fallback: notificando apenas o criador ${user.name}`);
         }
       } catch (error) {
         console.error('[NOTIFICATION] Erro ao buscar usuários:', error);
-        // Fallback: notificar apenas o usuário logado
+
         if (user?.id) {
           usersToNotify = [{ id: user.id, name: user.name, email: user.email }];
         }
       }
 
-      // Criar notificação para cada usuário do setor
       let notificationsCreated = 0;
       for (const targetUser of usersToNotify) {
         try {
@@ -186,8 +177,8 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
             priority: 'MEDIUM',
             eventId: event.id,
             sectorId: event.sectorId,
-            userId: targetUser.id, // Destinatário específico
-            recipientId: targetUser.id, // Campo alternativo
+            userId: targetUser.id,
+            recipientId: targetUser.id,
             metadata: {
               eventTitle: event.title,
               eventType: event.type,
@@ -209,13 +200,12 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       }
 
       console.log(`[NOTIFICATION] 🎉 ${notificationsCreated}/${usersToNotify.length} notificações criadas com sucesso para o setor`);
-      
+
     } catch (error) {
       console.error('[NOTIFICATION] Erro ao criar notificação:', error);
     }
   }, [user]);
 
-  // Buscar eventos do backend ao carregar
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -237,11 +227,10 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
     fetchEvents();
   }, []);
 
-  // Adicionar evento no backend
   const addEvent = useCallback(async (type: EventType, eventData: any) => {
     try {
       let sectorId = eventData.setorId || eventData.sectorId || eventData.setorResponsavel;
-      // Se setorResponsavel é um array (caso DocumentoForm), pegar o primeiro elemento
+
       if (Array.isArray(sectorId) && sectorId.length > 0) {
         sectorId = sectorId[0];
       }
@@ -256,7 +245,7 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
       const backendType = eventTypeFrontendToBackend[type] || type;
       let payload;
       if (backendType === "EXTERNAL_ACTIVITY") {
-        // Mapeamento correto dos campos do formulário
+
         const statusMap: { [key: string]: string } = {
           'planejada': 'PLANNED',
           'em-execucao': 'IN_EXECUTION',
@@ -297,10 +286,9 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
   console.log('[addEvent] Payload enviado:', payload);
   const response = await eventservices.postEvents(payload);
   console.log('[addEvent] Resposta completa:', response);
-  
-  // O backend pode retornar { event: {...} } ou diretamente o evento
+
   const created = response?.event || response;
-  
+
       if (created && created.id) {
         const parsed = {
           ...created,
@@ -311,19 +299,17 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
         console.log('[addEvent] Evento parseado:', parsed);
         setEvents((prev) => [...prev, parsed]);
         setFilteredEvents((prev) => [...prev, parsed]);
-        
-        // Criar notificação automática
+
         await createEventNotification(created, 'criado');
       } else {
         console.error('[addEvent] Resposta sem evento válido:', response);
       }
     } catch (error: any) {
       console.error("[ADD EVENT] Erro ao adicionar evento:", error);
-      
-      // Verificar se é erro de autenticação
+
       if (error?.response?.status === 401) {
         alert("❌ Erro de Autenticação!\n\nSua sessão expirou ou você não está logado.\nPor favor, faça login novamente.");
-        // Redirecionar para login se necessário
+
         window.location.href = '/login';
       } else if (error?.response?.status === 403) {
         alert("❌ Acesso Negado!\n\nVocê não tem permissão para criar eventos.");
@@ -333,7 +319,6 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
     }
   }, []);
 
-  // Editar evento no backend
   const updateEvent = useCallback(
     async (id: number, updatedEvent: Partial<Event>) => {
       try {
@@ -353,7 +338,6 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
     []
   );
 
-  // Excluir evento no backend
   const deleteEvent = useCallback(async (id: number) => {
     try {
       await eventservices.deleteEvents(String(id));
