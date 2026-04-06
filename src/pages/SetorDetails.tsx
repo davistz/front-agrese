@@ -374,7 +374,7 @@ useEffect(() => {
   const handleEditSetor = async (data: any) => {
     if (editingSubsetor) {
       try {
-        await sectorServices.putSector(editingSubsetor.id, data);
+        await sectorServices.putSector(Number(editingSubsetor.id), data);
         if (setorKey) {
           const setorId = Number(setorKey);
           const setorData = await sectorServices.getSectorsbyId(setorId);

@@ -330,7 +330,7 @@ export const RelatoriosPage = () => {
     ];
 
     setoresAnuais.forEach((setor) => {
-      const fatorSetor = setor.membrosAtivos / 8;
+      const fatorSetor = (setor.membrosAtivos ?? 8) / 8;
       const totalAnual = Math.floor(
         evolucaoMensal.reduce((acc, mes) => acc + mes.totalAtividades, 0) *
           fatorSetor
@@ -611,6 +611,7 @@ export const RelatoriosPage = () => {
           (totalAtividades - atividadesConcluidas) * 0.1
         ),
         percentualConclusao: (atividadesConcluidas / totalAtividades) * 100,
+        atividades: [],
         membros: membrosSetor,
         distribuicaoTipoAtividade: [
           {
@@ -673,7 +674,7 @@ export const RelatoriosPage = () => {
       atividadesConcluidas: Math.floor(Math.random() * 30) + 25,
       percentualConclusao: Math.floor(Math.random() * 20) + 75,
       totalMembrosAtivos:
-        relatorioMensal.setor.membros.length +
+        (relatorioMensal.setor.membros?.length ?? 0) +
         Math.floor(Math.random() * 3) -
         1,
     }));
@@ -697,7 +698,7 @@ export const RelatoriosPage = () => {
         percentualConclusao: (concluidasAnual / totalAnual) * 100,
       },
       evolucaoMensal,
-      rankingMembros: relatorioMensal.setor.membros.sort(
+      rankingMembros: (relatorioMensal.setor.membros ?? []).sort(
         (a, b) => b.percentualConclusao - a.percentualConclusao
       ),
       metasSetor: {

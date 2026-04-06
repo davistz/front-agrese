@@ -22,7 +22,8 @@ interface SidebarProps {
     | "calendario"
     | "setores"
     | "usuarios"
-    | "notificacoes";
+    | "notificacoes"
+    | "relatorios";
   onToggle: () => void;
   onViewChange?: (
     view: "calendario" | "setores" | "usuarios" | "notificacoes"

@@ -100,7 +100,7 @@ export const SetoresManagement = () => {
   };
 
   const handleCreateSetor = async (data: SectorFormData) => {
-    await sectorServices.putSector("new", data);
+    await sectorServices.putSector(0, data);
     setShowSetorForm(false);
     setEditingSubsetor(null);
 
@@ -110,7 +110,7 @@ export const SetoresManagement = () => {
 
   const handleEditSetor = async (data: SectorFormData) => {
     if (editingSubsetor) {
-      await sectorServices.putSector(editingSubsetor.id, data);
+      await sectorServices.putSector(Number(editingSubsetor.id), data);
       setShowSetorForm(false);
       setEditingSubsetor(null);
 
@@ -367,7 +367,7 @@ export const SetoresManagement = () => {
                 const converted = convertSubsetorToSectorModal(editingSubsetor);
 
                 const { manager, ...rest } = converted;
-                return { ...rest, id: Number(editingSubsetor.id) };
+                return { ...rest, id: Number(editingSubsetor.id) } as unknown as import("../types/interfaces").SectorData;
               })() : undefined}
               parentSectors={setores}
               onSubmit={editingSubsetor ? handleEditSetor : handleCreateSetor}

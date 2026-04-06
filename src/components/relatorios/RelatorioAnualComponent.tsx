@@ -448,7 +448,7 @@ export const RelatorioAnualComponent = ({
             </h4>
             <div className="text-2xl font-bold text-purple-600">
               {relatorio.setores.reduce(
-                (acc, setor) => acc + setor.membrosAtivos,
+                (acc, setor) => acc + (setor.membrosAtivos ?? 0),
                 0
               )}
             </div>

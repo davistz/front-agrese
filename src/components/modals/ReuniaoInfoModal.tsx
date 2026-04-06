@@ -302,7 +302,7 @@ export const ReuniaoModalInfo: React.FC<ReuniaoModalInfoProps> = ({
                       onChange={(e) =>
                         setFormData((prev) => ({
                                                   ...prev,
-                                                  status: e.target.value
+                                                  status: e.target.value as import("../../types/interfaces").EventStatus
                                                 }))
                       }
                       className={`mt-2 flex h-10 w-full rounded-md border px-3 py-2 text-sm ${

@@ -235,8 +235,8 @@ const getEventColumn = (event: any): string => {
 
     updateEvent(draggedEvent.id, { ...draggedEvent, status: backendStatus });
 
-    setEvents((prevEvents: any[]) =>
-      prevEvents.map((ev) =>
+    setEvents(
+      (events as any[]).map((ev) =>
         ev.id === draggedEvent.id ? { ...ev, status: backendStatus } : ev
       )
     );

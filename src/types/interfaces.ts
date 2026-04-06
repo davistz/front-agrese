@@ -362,6 +362,155 @@ export interface DocumentoModalData {
   observacoes: string;
 }
 
+// ─── Relatórios ────────────────────────────────────────────────────────────
+
+export interface FiltrosRelatorio {
+  ano: number;
+  mes?: number;
+  tipoRelatorio: string;
+  setorId?: string;
+  usuarioId?: string;
+}
+
+export interface RelatorioSetor {
+  id: string;
+  nome: string;
+  responsavel: string;
+  totalAtividades: number;
+  atividadesConcluidas: number;
+  atividadesPendentes: number;
+  atividadesEmAndamento: number;
+  atividadesAtrasadas: number;
+  atividades: any[];
+  membrosAtivos?: number;
+  percentualConclusao: number;
+  descricao?: string;
+  membros?: RelatorioPessoa[];
+  distribuicaoTipoAtividade?: { tipo: string; quantidade: number; percentual: number }[];
+  distribuicaoPrioridade?: { prioridade: string; quantidade: number; percentual: number }[];
+}
+
+export interface RelatorioPessoa {
+  id: string;
+  nome: string;
+  email: string;
+  cargo: string;
+  setor: string;
+  totalAtividades: number;
+  atividadesConcluidas: number;
+  atividadesPendentes: number;
+  atividadesEmAndamento: number;
+  atividadesAtrasadas: number;
+  percentualConclusao: number;
+  atividades: any[];
+  horasTrabalhadas?: number;
+  avaliacaoDesempenho?: string;
+}
+
+export interface RelatorioMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  setores: RelatorioSetor[];
+  totalGeralAtividades: number;
+  totalAtividadesConcluidas: number;
+  percentualGeralConclusao: number;
+}
+
+export interface RelatorioAnual {
+  ano: number;
+  dataGeracao: Date;
+  setores: RelatorioSetor[];
+  relatoriosMensais: RelatorioMensal[];
+  totalGeralAtividades: number;
+  totalAtividadesConcluidas: number;
+  percentualGeralConclusao: number;
+  evolucaoMensal: {
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+  }[];
+}
+
+export interface RelatorioIndividualMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  pessoa: RelatorioPessoa;
+  comparativoSetor: {
+    mediaSetorAtividades: number;
+    mediaSetorConclusao: number;
+    posicaoRanking: number;
+    totalPessoasSetor: number;
+  };
+  evolucaoSemanal: {
+    semana: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+  }[];
+}
+
+export interface RelatorioIndividualAnual {
+  ano: number;
+  dataGeracao: Date;
+  pessoa: RelatorioPessoa;
+  evolucaoMensal: {
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+    horasTrabalhadas?: number;
+  }[];
+  comparativoAnual: {
+    mediaSetorAtividades: number;
+    mediaSetorConclusao: number;
+    posicaoRankingAnual: number;
+    melhorMes: number;
+    piorMes: number;
+  };
+  metas: {
+    metaAtividadesMensais: number;
+    metaConclusaoPercentual: number;
+    metaAlcancada: boolean;
+  };
+}
+
+export interface RelatorioSetorMensal {
+  mes: number;
+  ano: number;
+  dataGeracao: Date;
+  setor: RelatorioSetor;
+  comparativoGeral?: {
+    posicaoRanking: number;
+    totalSetores: number;
+    mediaGeralConclusao: number;
+  };
+}
+
+export interface RelatorioSetorAnual {
+  ano: number;
+  dataGeracao: Date;
+  setor: RelatorioSetor;
+  evolucaoMensal: {
+    mes: number;
+    totalAtividades: number;
+    atividadesConcluidas: number;
+    percentualConclusao: number;
+    totalMembrosAtivos?: number;
+  }[];
+  rankingMembros?: RelatorioPessoa[];
+  metasSetor?: {
+    metaAtividadesMensais: number;
+    metaConclusaoPercentual: number;
+    metaAlcancada: boolean;
+    mesesComMetaAlcancada: number;
+  };
+}
+
+// ─── Usuários e Setores ─────────────────────────────────────────────────────
+
 export type UserRole = "ADMIN" | "MANAGER" | "COLLABORATOR" | "IT_ADMIN";
 
 export interface SectorData {
@@ -374,6 +523,12 @@ export interface SectorData {
   users: UserData[];
   createdAt: Date;
   updatedAt: Date;
+  _count?: {
+    users?: number;
+    subSectors?: number;
+    events?: number;
+    usersAtivos?: number;
+  };
 }
 
 export interface SectorFormData {
