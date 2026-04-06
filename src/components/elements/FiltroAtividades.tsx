@@ -111,7 +111,14 @@ export const FiltroAtividades: React.FC<FiltroAtividadesProps> = ({
   );
 
   const isAdmin = user?.role === "ADMIN";
-  const [apenasMinhasAtividades, setApenasMinhasAtividades] = useState<boolean>(true);
+  const [apenasMinhasAtividades, setApenasMinhasAtividades] = useState<boolean>(() => {
+    const saved = localStorage.getItem("apenasMinhasAtividades");
+    return saved !== null ? saved === "true" : true;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("apenasMinhasAtividades", String(apenasMinhasAtividades));
+  }, [apenasMinhasAtividades]);
 
   const handleTabChange = useCallback((tab: "setor" | "categoria") => {
     setActiveTab(tab);

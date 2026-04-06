@@ -210,7 +210,10 @@ export const Calendario = ({ sidebarOpen = true }: CalendarioProps) => {
 
   const EventComponent = ({ event }: { event: any }) => {
     const formatTime = (date: Date) => {
-      return new Date(date).toLocaleTimeString('pt-BR', {
+      if (!date) return "";
+      const d = new Date(date);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleTimeString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit'
       });

@@ -1,8 +1,9 @@
 import api from "./api";
 export const userServices = {
-    getUsers: async () => {
+    getUsers: async (params?: Record<string, string>) => {
         try {
-            const response = await api.get("/users")
+            const queryString = params ? "?" + new URLSearchParams(params).toString() : "";
+            const response = await api.get(`/users${queryString}`)
             return response.data
         } catch (error) {
             console.error("Error fetching users:", error);

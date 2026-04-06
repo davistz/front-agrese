@@ -212,12 +212,21 @@ export const EventsProvider = ({ children }: EventsProviderProps) => {
         let data = await eventservices.getEvents();
         console.log('[EventsContext] Eventos recebidos do backend:', data);
         const eventosArray = Array.isArray(data.events) ? data.events : [];
-        const parsed = eventosArray.map((ev: any) => ({
-          ...ev,
-          start: ev.start ? new Date(ev.start) : (ev.startDate ? new Date(ev.startDate) : undefined),
-          end: ev.end ? new Date(ev.end) : (ev.endDate ? new Date(ev.endDate) : undefined),
-          tipo: eventTypeBackendToFrontend[ev.type] || ev.type,
-        }));
+        const parsed = eventosArray
+          .map((ev: any) => {
+            const start = ev.startDate ? new Date(ev.startDate) : (ev.start ? new Date(ev.start) : null);
+            const end = ev.endDate ? new Date(ev.endDate) : (ev.end ? new Date(ev.end) : null);
+            return {
+              ...ev,
+              start,
+              end,
+              tipo: eventTypeBackendToFrontend[ev.type] || ev.type,
+            };
+          })
+          .filter((ev: any) =>
+            ev.start instanceof Date && !isNaN(ev.start.getTime()) &&
+            ev.end instanceof Date && !isNaN(ev.end.getTime())
+          );
         setEvents(parsed);
         setFilteredEvents(parsed);
       } catch (error) {

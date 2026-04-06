@@ -47,6 +47,31 @@ export const convertReuniaoModalToEvent = (reuniao: ReuniaoModalData): any => {
 export const convertEventToAtividadeModal = (
   event: any
 ): AtividadeModalData => {
+  const statusMap: Record<string, string> = {
+    PENDING: "pendente",
+    IN_PROGRESS: "em-andamento",
+    COMPLETED: "concluida",
+    OVERDUE: "atrasada",
+    CANCELLED: "pendente",
+  };
+
+  const priorityMap: Record<string, string> = {
+    LOW: "baixa",
+    MEDIUM: "media",
+    HIGH: "alta",
+    URGENT: "alta",
+  };
+
+  const responsavel =
+    event.assignees?.[0]?.user?.name ||
+    event.responsavel ||
+    "";
+
+  const subtarefas =
+    event.subtasks?.map((t: any) => t.title || String(t)) ||
+    event.subtarefas ||
+    [];
+
   return {
     id: event.id,
     titulo: event.title || event.titulo || "",
@@ -55,12 +80,12 @@ export const convertEventToAtividadeModal = (
     autor: event.creator?.name || event.autor || "",
     dataInicioPrevista: event.startDate ? new Date(event.startDate) : (event.start ? new Date(event.start) : new Date()),
     prazoFinal: event.endDate ? new Date(event.endDate) : (event.end ? new Date(event.end) : new Date()),
-    responsavel: event.responsavel || "",
-    status: event.status || "pendente",
-    prioridade: event.priority || event.prioridade || "media",
-    subtarefas: event.subtarefas || [],
-    comentarios: event.comentarios || event.comments || "",
-    dataConclusaoReal: event.dataConclusaoReal || null,
+    responsavel,
+    status: statusMap[event.status] || event.status || "pendente",
+    prioridade: priorityMap[event.priority] || event.prioridade || "media",
+    subtarefas,
+    comentarios: event.comments || event.comentarios || "",
+    dataConclusaoReal: event.completedDate || event.dataConclusaoReal || null,
   };
 };
 

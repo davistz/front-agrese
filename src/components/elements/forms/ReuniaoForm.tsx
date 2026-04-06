@@ -104,7 +104,7 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
   setLoadingUsuarios(true);
 
       try {
-        const response = await userServices.getUsers();
+        const response = await userServices.getUsers({ forInvite: "true" });
 
         let usersData = response;
         if (response?.users) {
@@ -259,13 +259,6 @@ export const ReuniaoForm: React.FC<ReuniaoFormProps> = ({
                 >
                   {isDirex ? "Nova Reunião Direx" : "Nova Reunião"}
                 </h2>
-                {isDirex && (
-                  <div className="mt-2 px-3 py-2 bg-red-100 border border-red-300 rounded-md">
-                    <p className="text-sm text-red-800 font-medium">
-                      🏛️ Reunião da Diretoria Executiva - Acesso Restrito
-                    </p>
-                  </div>
-                )}
                 <p
                   className={`mt-2 text-sm ${
                     theme === "dark" ? "text-gray-300" : "text-gray-600"

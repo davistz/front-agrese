@@ -66,20 +66,28 @@ export const AtividadeModalInfo: React.FC<AtividadeModalInfoProps> = ({
 
   const handleSave = () => {
     if (onSave) {
+      const statusMap: Record<string, string> = {
+        pendente: "PENDING",
+        "em-andamento": "IN_PROGRESS",
+        concluida: "COMPLETED",
+        atrasada: "OVERDUE",
+      };
+      const priorityMap: Record<string, string> = {
+        baixa: "LOW",
+        media: "MEDIUM",
+        alta: "HIGH",
+      };
       const backendPayload = {
         id: formData.id,
         title: formData.titulo,
         description: formData.descricao,
         startDate: formData.dataInicioPrevista,
         endDate: formData.prazoFinal,
-        status: formData.status,
-        priority: formData.prioridade,
-        // Assuming other fields like subtarefas, comentarios are handled by the backend directly
-        // or not intended to be updated via this modal's save.
-        // If there are assignee changes, they would need to be passed separately or mapped
-        // if the form collected them.
+        status: statusMap[formData.status] || formData.status,
+        priority: priorityMap[formData.prioridade] || formData.prioridade,
+        comments: formData.comentarios,
       };
-      onSave(backendPayload as unknown as AtividadeModalData); // Cast to correct type if necessary, or refine AtividadeModalData
+      onSave(backendPayload as unknown as AtividadeModalData);
     }
     onClose();
   };

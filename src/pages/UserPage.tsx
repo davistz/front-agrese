@@ -52,7 +52,7 @@ export const UserPage = () => {
   const [filterSector, setFilterSector] = useState<number | "ALL">("ALL");
   const [filterStatus, setFilterStatus] = useState<
     "ACTIVE" | "INACTIVE" | "ALL"
-  >("ALL");
+  >("ACTIVE");
   const [showFilters, setShowFilters] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
